@@ -5,31 +5,40 @@ import Orientierung from '../components/Orientierung.astro';
 import Problem from '../components/Problem.astro';
 import NeueRealitaet from '../components/NeueRealitaet.astro';
 import System from '../components/System.astro';
+import SchemaAnfrageweg from '../components/SchemaAnfrageweg.astro';
 import ConceptCase from '../components/ConceptCase.astro';
+import LeistungsIndex from '../components/LeistungsIndex.astro';
 import Spezialisierung from '../components/Spezialisierung.astro';
+import SchemaGebiet from '../components/SchemaGebiet.astro';
+import Bildband from '../components/Bildband.astro';
 import Prozess from '../components/Prozess.astro';
 import AntiVersprechen from '../components/AntiVersprechen.astro';
 import Gruender from '../components/Gruender.astro';
 import Passung from '../components/Passung.astro';
 import Anfrage from '../components/Anfrage.astro';
+import AbschlussCTA from '../components/AbschlussCTA.astro';
 ---
 
 <BaseLayout
   title="Digitale Kundengewinnung für Dachdeckerbetriebe"
   description="Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe: Website, Google Ads, Meta Ads und Messung als ein System. Ein Betrieb je Einzugsgebiet."
   path="/"
-  transparenterHeader={true}
 >
   <Hero />
   <Orientierung />
   <Problem />
   <NeueRealitaet />
-  <System nr="03" />
-  <ConceptCase nr="04" />
-  <Spezialisierung nr="05" />
-  <Prozess nr="06" />
-  <AntiVersprechen nr="07" />
-  <Gruender nr="08" />
-  <Passung nr="09" />
-  <Anfrage nr="10" />
+  <System />
+  <SchemaAnfrageweg />
+  <ConceptCase />
+  <LeistungsIndex />
+  <Spezialisierung />
+  <SchemaGebiet />
+  <Bildband />
+  <Prozess />
+  <AntiVersprechen />
+  <Gruender />
+  <Passung />
+  <Anfrage />
+  <AbschlussCTA />
 </BaseLayout>

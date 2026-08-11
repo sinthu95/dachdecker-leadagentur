@@ -3,54 +3,53 @@ import Marke from './Marke.astro';
 import { wettbewerb } from '../data/inhalte';
 ---
 
-<section class="abschnitt border-t border-linie bg-blei" aria-labelledby="realitaet-titel">
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr="02" label="Die neue Realität" />
-      </div>
-
-      <div class="lg:col-span-9 xl:col-span-8">
-        <h2 id="realitaet-titel" class="steig text-display">
-          Empfehlungen bringen Aufträge.<br />
-          Aber nicht <span class="text-schnur-hell">auf Bestellung</span>.
+<section class="kapitel schnitt bg-papier" aria-labelledby="realitaet-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <Marke label="Die neue Realität" />
+        <h2 id="realitaet-titel" class="zeilen mt-8 max-w-[20ch] text-gross lg:mt-10">
+          <span class="zeile"><span style="--i:0">Empfehlungen bringen Aufträge.</span></span>
+          <span class="zeile"
+            ><span style="--i:1" class="text-graphit">Aber nicht auf Bestellung.</span></span
+          >
         </h2>
-
-        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
-          Empfehlung bleibt der beste Kanal, den ein Handwerksbetrieb haben kann — und wir
-          würden nie versuchen, ihn zu ersetzen. Er hat nur einen Konstruktionsfehler: Sie
-          können ihn nicht aufdrehen, wenn der Kalender im Februar Lücken zeigt. Ein
-          zweiter, steuerbarer Kanal daneben ist keine Modernisierung um ihrer selbst
-          willen. Er ist Risikoverteilung.
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+        <p class="steig vorspann" style="--i:1">
+          Empfehlung bleibt der beste Kanal, den ein Handwerksbetrieb haben kann. Sie hat
+          nur einen Konstruktionsfehler: Sie lässt sich nicht aufdrehen, wenn der Kalender
+          im Februar Lücken zeigt.
         </p>
+      </div>
+    </div>
 
-        <div class="mt-16 lg:mt-20">
-          <p class="steig font-mono text-micro font-medium text-zink uppercase" style="--i:2">
-            Womit Sie uns vergleichen
-          </p>
-
-          <div class="mt-6 border-t border-linie">
-            {
-              wettbewerb.map((zeile, i) => (
-                <div
-                  class="steig grid gap-3 border-b border-linie py-6 md:grid-cols-12 md:gap-8 md:py-7"
-                  style={`--i:${i}`}
-                >
-                  <div class="md:col-span-3">
-                    <p class="font-semibold tracking-[-0.01em] text-kalk">{zeile.was}</p>
-                    {zeile.zusatz && (
-                      <p class="mt-1 font-mono text-[0.62rem] tracking-[0.12em] text-zink uppercase">
-                        {zeile.zusatz}
-                      </p>
-                    )}
-                  </div>
-                  <p class="text-klein text-zink italic md:col-span-4">„{zeile.denkt}"</p>
-                  <p class="text-klein text-kalk md:col-span-5">{zeile.antwort}</p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
+    <!-- Was der Betrieb kennt, dem gegenübergestellt, was wir dagegensetzen.
+         Zeilen mit harten Linien, keine Kacheln. -->
+    <div class="mt-12 lg:mt-16">
+      <p class="steig marke">Womit Sie uns vergleichen</p>
+      <div class="mt-6 border-t border-schiefer">
+        {
+          wettbewerb.map((zeile, i) => (
+            <div
+              class="steig grid gap-x-8 gap-y-3 border-b border-linie-stark py-7 lg:grid-cols-12 lg:py-9"
+              style={`--i:${i}`}
+            >
+              <div class="lg:col-span-3">
+                <p class="text-[1.15rem] font-medium tracking-[-0.02em]">{zeile.was}</p>
+                {zeile.zusatz && <p class="marke mt-1.5">{zeile.zusatz}</p>}
+              </div>
+              <p
+                class="max-w-[40ch] font-serife text-[1.02rem] leading-relaxed text-graphit italic lg:col-span-4"
+              >
+                „{zeile.denkt}"
+              </p>
+              <p class="fliess max-w-[44ch] text-schiefer lg:col-span-4 lg:col-start-9">
+                {zeile.antwort}
+              </p>
+            </div>
+          ))
+        }
       </div>
     </div>
   </div>

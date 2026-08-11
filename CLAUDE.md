@@ -31,24 +31,46 @@ Ein Wortlaut bleibt über die ganze Seite identisch, insbesondere der Haupt-CTA
 
 ## Gestaltung
 
-- **Farben** nur über die Tokens in `global.css`: `schiefer`, `blei`, `linie`, `zink`,
-  `kalk`, `schnur`, `rotstift`, `gruen`. Keine Literalwerte in Komponenten.
-- **Der Akzent** (`schnur`, Kreidepigmentblau) bekommt höchstens drei Prozent der
-  Fläche: Haarlinien, Kapitelnummern, ein hervorgehobenes Wort je Bildschirm.
-  **Nie als Buttonfläche**, nie als Verlauf.
+Die Richtung heißt **Architectural Performance**: Architekturbüro und Schweizer
+Redaktion, nicht Software-Startup.
+
+- **Papier dominiert.** Grundfläche ist `papier`, abgesetzt durch `kalkstein` (`.stein`)
+  und `beton` (Bildfelder). Dunkle Abschnitte (`.dunkel`, `anthrazit`) sind gesetzte
+  Kontraste — derzeit Concept Case, Prozess und Abschluss-CTA — keine Grundstimmung.
+- **Farben** nur über die Tokens in `global.css`: `papier`, `kalkstein`, `beton`,
+  `kies`, `graphit`, `schiefer`, `anthrazit`, `tinte`, `linie`, `linie-stark`,
+  `linie-dunkel`, `signal`, `zinnober`, `moos`. Keine Literalwerte in Komponenten.
+- **`signal`** ist ein gedecktes Tiefblau und rein funktional: Hinweisfelder, Fokus.
+  **Nie als Buttonfläche, nie als Verlauf, nie zum Hervorheben von Schlagwörtern.**
+  Betonung entsteht durch Größe, Zeilenumbruch und Weißraum — nicht durch Farbe.
 - **Ein Winkel:** 38°, die Regeldachneigung eines Ziegeldachs. Alle Diagonalen und
-  Konstruktionslinien folgen ihm.
-- **Keine Karten, kein Eckenradius.** Gruppierung entsteht durch Linien und Abstand.
-- **Zwei Schriften mit getrennten Rollen:** Instrument Sans für Text und Überschriften,
-  IBM Plex Mono für alles, was mit Messen und Beschriften zu tun hat (Kapitelnummern,
-  Formularlabels, Bemaßung).
-- **Helle Abschnitte** (`.hell`) sind Zäsuren und bleiben die Ausnahme: derzeit
-  „Was wir nicht versprechen" und der Gründerabschnitt.
+  Konstruktionslinien folgen ihm (`Linie.astro`: `dach`, `achse`, `raster`, `rahmen`,
+  `zusammenfuehrung`).
+- **Keine Karten, kein Eckenradius.** Gruppierung entsteht durch harte Linien,
+  Spaltenraster und Abstand.
+- **Drei Schriften mit getrennten Rollen:** `SSL Grotesk` für Überschriften und Text,
+  `SSL Serife` für Vorspann und Zitate (`.vorspann`, `.zitat`), `SSL Mono` für alles
+  Vermessende — Nummern, Formularlabels, Bemaßung, technische Beschriftung (`.marke`,
+  `.vermessung`, `.zahlen`). Schriften liegen selbst gehostet in `public/fonts`,
+  erzeugt mit `tools/schriften.mjs`.
+- **Fotografie wird nicht erfunden.** Fehlende Aufnahmen stehen als `<Bildfeld>` mit
+  Motiv, Ausschnitt und Format. Die vollständige Liste steht im README unter
+  „Benötigte Fotografie". Keine Stockmotive, keine bildgenerierten Aufnahmen.
+- **Schemata erklären, sie behaupten nicht.** `SchemaAnfrageweg` und `SchemaGebiet`
+  zeigen den Ablauf als Konstruktionszeichnung — keine nachgebauten Bildschirmfotos
+  eines Werbekontos, keine Volumina, keine Rankings. Wo Beispielwerte nötig sind
+  (Radien, Suchbegriffe), tragen sie die Marke `Schema` und den Zusatz, dass es
+  Beispiele sind. Anzeigentext, den es nicht gibt, steht als Haarlinie.
 
 ## Bewegung
 
-Ein Prinzip: **ziehen, freilegen, setzen** (`.zieh`, `.zeilen`, `.steig`). Eine einzige
-Kurve, `--ease-schnur`. Nur `transform` und `opacity`. Keine Animationsbibliothek.
+Ein Prinzip: **konstruieren, freilegen, setzen**. Zeilen fahren hinter einer harten
+Kante hervor (`.zeilen`), Flächen werden aufgezogen (`.bildmaske`), Linien bauen sich
+auf (`.zieh`, `.zieh-y`, `.zeichne`), Text setzt sich (`.steig`), Bildflächen laufen
+minimal gegen den Scroll (`.versatz`, Stärke über `data-versatz`). Eine einzige Kurve,
+`--ease-linie`. Nur `transform`, `opacity` und `clip-path`. Keine Animationsbibliothek.
+
+Kein Glühen, keine fliegenden Karten, keine bewegten Hintergründe, keine Cursor-Effekte.
 
 Der gepinnte Scroll-Moment läuft **genau einmal je Seite** — im Concept Case, und nur
 dort, wo die Stationen nicht ohnehin ausführlich folgen (`zeigeRundgang`).
@@ -59,8 +81,9 @@ Inhalte sofort sichtbar, kein Informationsverlust.
 ## Mobil
 
 Kein zusammengestauchter Desktop. Hero, Navigation, Concept Case, Formular und CTA
-haben eigene Kompositionen. Tippziele mindestens 24 px hoch (`.tipp`); Links im
-Fließtext sind davon ausgenommen.
+haben eigene Kompositionen; Bildfelder bekommen über `formatMobil` einen eigenen
+Ausschnitt. Der Haupt-CTA steht auf dem Telefon im ersten Bildschirm. Tippziele
+mindestens 24 px hoch (`.tipp`); Links im Fließtext sind davon ausgenommen.
 
 ## Technik
 

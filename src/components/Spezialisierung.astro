@@ -1,69 +1,62 @@
 ---
 import Marke from './Marke.astro';
-
-interface Props {
-  nr?: string;
-}
-const { nr = '05' } = Astro.props;
+import Bildfeld from './Bildfeld.astro';
 
 const gruende = [
   {
     titel: 'Wir kennen die Auftragsarten',
-    text: 'Eine Flachdachabdichtung, eine Neueindeckung und eine energetische Sanierung sind drei völlig verschiedene Verkaufsgespräche — mit verschiedenen Suchbegriffen, Einwänden und Auftragswerten. Wer das nicht trennt, wirbt an allen dreien vorbei.',
+    text: 'Eine Flachdachabdichtung, eine Neueindeckung und eine energetische Sanierung sind drei verschiedene Verkaufsgespräche — mit verschiedenen Suchbegriffen, Einwänden und Auftragswerten.',
   },
   {
     titel: 'Wir kennen die schlechten Anfragen',
-    text: 'Bestimmte Suchbegriffe bringen zuverlässig Anfragen, die nie zu einem Auftrag werden: Bagatellreparaturen, Mieter ohne Entscheidungsbefugnis, Preisvergleicher. Diese Begriffe kosten Geld. Wir schließen sie von Anfang an aus.',
+    text: 'Bestimmte Suchbegriffe bringen zuverlässig Anfragen, die nie zu einem Auftrag werden: Bagatellreparaturen, Mieter ohne Entscheidungsbefugnis, Preisvergleicher. Sie kosten Geld und werden ausgeschlossen.',
   },
   {
     titel: 'Wir kennen die Saison',
-    text: 'Nachfrage nach Dacharbeiten ist nicht gleichmäßig über das Jahr verteilt, und nach einem Sturm sieht ein Werbekonto anders aus als im Januar. Budget muss sich danach richten, nicht nach einem starren Monatsplan.',
+    text: 'Nachfrage nach Dacharbeiten ist nicht gleichmäßig über das Jahr verteilt, und nach einem Sturm sieht ein Werbekonto anders aus als im Januar.',
   },
   {
     titel: 'Wir lernen an jedem Betrieb weiter',
-    text: 'Jedes Projekt in derselben Branche macht das nächste besser: Anzeigentexte, Formularfragen, Einwandbehandlung. Eine Agentur, die diesen Monat einen Zahnarzt und nächsten Monat einen Onlineshop betreut, fängt jedes Mal bei null an.',
+    text: 'Jedes Projekt in derselben Branche macht das nächste besser. Wer diesen Monat einen Zahnarzt und nächsten Monat einen Onlineshop betreut, fängt jedes Mal bei null an.',
   },
 ];
 ---
 
-<section
-  class="abschnitt border-t border-linie bg-schiefer"
-  aria-labelledby="spezialisierung-titel"
->
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Spezialisierung" />
+<section class="kapitel schnitt bg-papier" aria-labelledby="spezialisierung-titel">
+  <div class="schiene">
+    <!-- Materialität zuerst: die Bildfläche trägt den Abschnitt -->
+    <div class="grid gap-x-8 gap-y-12 lg:grid-cols-12">
+      <div class="bildmaske lg:col-span-5">
+        <Bildfeld
+          nummer="B-05"
+          motiv="Schiefer, Zink und Ziegel nebeneinander — Materialprobe im Streiflicht, Oberflächen und Kanten deutlich."
+          ausschnitt="Hochformat, Nahaufnahme, Materialstudie"
+          format="4/5"
+          class="h-full w-full"
+        />
       </div>
 
-      <div class="lg:col-span-9 xl:col-span-8">
-        <h2 id="spezialisierung-titel" class="steig text-display">
-          Wir müssen nicht jede Branche verstehen.<br />
-          Wir wollen <span class="text-schnur-hell">eine</span> sehr genau verstehen.
+      <div class="lg:col-span-6 lg:col-start-7">
+        <Marke label="Spezialisierung" />
+        <h2 id="spezialisierung-titel" class="mt-8 max-w-[17ch] text-gross lg:mt-10">
+          Eine Branche. Sehr genau.
         </h2>
-
-        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
-          Es gibt in Deutschland genug Agenturen, die alles machen. Was es kaum gibt: eine,
-          die weiß, warum eine Anfrage für eine Dachsanierung mehr wert ist als zehn für
-          eine Dachrinnenreinigung. Diese Verengung ist unsere einzige echte
-          Wettbewerbsposition — und für Sie der Grund, warum die Einarbeitung entfällt.
+        <p class="steig vorspann mt-8" style="--i:1">
+          Es gibt genug Agenturen, die alles machen. Was es kaum gibt: eine, die weiß,
+          warum eine Anfrage für eine Dachsanierung mehr wert ist als zehn für eine
+          Dachrinnenreinigung.
         </p>
 
-        <div class="mt-14 grid gap-px bg-linie sm:grid-cols-2">
+        <dl class="mt-12 border-t border-schiefer">
           {
             gruende.map((grund, i) => (
-              <div class="steig bg-schiefer p-6 lg:p-8" style={`--i:${i}`}>
-                <span class="font-mono text-[0.62rem] tracking-[0.14em] text-schnur-hell">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 class="mt-3 text-[1.08rem] font-semibold tracking-[-0.015em]">
-                  {grund.titel}
-                </h3>
-                <p class="mt-3 text-klein text-zink">{grund.text}</p>
+              <div class="steig border-b border-linie-stark py-6" style={`--i:${i}`}>
+                <dt class="text-[1.1rem] font-medium tracking-[-0.015em]">{grund.titel}</dt>
+                <dd class="fliess mt-2 max-w-[52ch] text-klein">{grund.text}</dd>
               </div>
             ))
           }
-        </div>
+        </dl>
       </div>
     </div>
   </div>

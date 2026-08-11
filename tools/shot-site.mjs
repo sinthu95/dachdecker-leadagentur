@@ -29,20 +29,32 @@ await page.goto(new URL(pfad, basis).href, { waitUntil: 'networkidle0', timeout:
 
 // Alle Enthüllungen auslösen, damit die Aufnahme den Endzustand zeigt
 await page.addStyleTag({ content: 'html{scroll-behavior:auto!important}' });
+// Der gepinnte Rundgang ist 5,6 Bildschirmhöhen hoch und würde die Ganzseiten-
+// aufnahme mit leerer Fläche fluten. Für die Aufnahme wird er auf seine
+// natürliche Höhe gesetzt — am ausgelieferten Stand ändert das nichts.
+await page.addStyleTag({
+  content: '[data-case]{height:auto!important}[data-case] .sticky{position:static!important;height:auto!important}',
+});
 await page.evaluate(async () => {
   await new Promise((fertig) => {
     let y = 0;
     const schritt = () => {
       y += window.innerHeight * 0.7;
       window.scrollTo(0, y);
-      if (y < document.body.scrollHeight) setTimeout(schritt, 70);
+      if (y < document.body.scrollHeight) setTimeout(schritt, 130);
       else setTimeout(fertig, 500);
     };
     schritt();
   });
   document
-    .querySelectorAll('.steig, .zeilen, .zieh, .zeichne')
+    .querySelectorAll('.steig, .zeilen, .zieh, .zieh-y, .zeichne, .bildmaske')
     .forEach((el) => el.classList.add('sichtbar'));
+  // Auf faul geladene Bilder warten, sonst zeigt die Aufnahme leere Rahmen.
+  await Promise.all(
+    Array.from(document.images)
+      .filter((b) => b.currentSrc && !b.complete)
+      .map((b) => new Promise((f) => b.addEventListener('load', f, { once: true }))),
+  );
   window.scrollTo(0, 0);
 });
 await new Promise((r) => setTimeout(r, 700));
@@ -67,10 +79,13 @@ for (let i = 0; i < streifen; i++) {
     .resize({ width: sB })
     .png()
     .toBuffer();
-  teile.push({ input: stueck, left: i * (sB + 6), top: 0 });
+  const { height: hoehe } = await sharp(stueck).metadata();
+  teile.push({ input: stueck, left: i * (sB + 6), top: 0, hoehe });
 }
+// Die Rundung beim Skalieren kann einzelne Streifen um ein Pixel wachsen lassen.
+const leinwandH = Math.max(sH, ...teile.map((t) => t.hoehe));
 await sharp({
-  create: { width: teile.length * (sB + 6), height: sH, channels: 3, background: '#444' },
+  create: { width: teile.length * (sB + 6), height: leinwandH, channels: 3, background: '#444' },
 })
   .composite(teile)
   .png()

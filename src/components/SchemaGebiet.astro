@@ -1,0 +1,209 @@
+---
+import Marke from './Marke.astro';
+import { gebiet } from '../data/inhalte';
+
+/**
+ * Regionale Aussteuerung als Lageplan.
+ *
+ * Drei Ringe um den Betrieb, außen die Fläche ohne Ausspielung. Die Radien
+ * sind ausdrücklich beispielhaft: Was ein Betrieb sinnvoll bedient, ergibt
+ * sich aus Anfahrt, Kolonnenstärke und Auftragsart — nicht aus einer Zahl,
+ * die auf einer Website steht.
+ *
+ * Die Zeichnung ist ein Lageplan, kein Kartenausschnitt: Eine echte Karte
+ * würde einen Ort behaupten, den es hier nicht gibt.
+ */
+const RADIEN = [52, 88, 124];
+
+/**
+ * Die Bemaßung läuft auf einem Strahl im Regelwinkel von 38° nach rechts oben —
+ * derselbe Winkel wie überall sonst auf der Seite. Die Ringmarken sitzen dort,
+ * wo der Strahl den jeweiligen Ring schneidet, statt auf einer Achse zu liegen
+ * und den Strich zu kreuzen.
+ */
+const BOGEN = (38 * Math.PI) / 180;
+const ringe = RADIEN.map((r, i) => ({
+  r,
+  ...gebiet.ringe[i],
+  x: 150 + r * Math.cos(BOGEN),
+  y: 150 - r * Math.sin(BOGEN),
+}));
+const strahl = {
+  x: 150 + (RADIEN[2] + 22) * Math.cos(BOGEN),
+  y: 150 - (RADIEN[2] + 22) * Math.sin(BOGEN),
+};
+---
+
+<section class="kapitel schnitt stein" aria-labelledby="gebiet-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <Marke label="Schema · Einzugsgebiet" />
+        <h2 id="gebiet-titel" class="mt-8 max-w-[16ch] text-gross lg:mt-10">
+          Ein Gebiet. Genau ein Betrieb.
+        </h2>
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+        <p class="steig vorspann" style="--i:1">
+          Anzeigen laufen nicht „deutschlandweit". Sie laufen dort, wo Ihre Kolonne
+          morgens hinkommt und abends wieder weg.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-14 grid items-center gap-x-8 gap-y-12 lg:mt-16 lg:grid-cols-12">
+      <!-- ============================================================
+           Der Lageplan
+           ============================================================ -->
+      <div class="steig lg:col-span-6">
+        <svg
+          class="w-full max-w-[33rem]"
+          viewBox="0 0 300 300"
+          fill="none"
+          role="img"
+          aria-label="Lageplan: drei Ringe um den Betrieb, außerhalb des äußeren Rings wird nicht ausgespielt."
+        >
+          <!-- Fläche ohne Ausspielung: feine Schraffur im Dachwinkel -->
+          <defs>
+            <pattern
+              id="schraffur"
+              width="10"
+              height="10"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(38)"
+            >
+              <line x1="0" y1="0" x2="0" y2="10" stroke="var(--color-kies)" stroke-width="0.5"
+              ></line>
+            </pattern>
+            <mask id="ausserhalb">
+              <rect x="0" y="0" width="300" height="300" fill="#fff"></rect>
+              <circle cx="150" cy="150" r="124" fill="#000"></circle>
+            </mask>
+          </defs>
+          <rect
+            x="0"
+            y="0"
+            width="300"
+            height="300"
+            fill="url(#schraffur)"
+            mask="url(#ausserhalb)"
+            opacity="0.7"></rect>
+
+          <!-- Die drei Ringe -->
+          {
+            ringe.map((ring, i) => (
+              <circle
+                class="zeichne"
+                style={`--i:${i}`}
+                cx="150"
+                cy="150"
+                r={ring.r}
+                stroke="var(--color-schiefer)"
+                stroke-width="1"
+                stroke-opacity={0.85 - i * 0.2}
+                vector-effect="non-scaling-stroke"
+              />
+            ))
+          }
+
+          <!-- Bemaßungsstrahl im Regelwinkel, mit Marke auf jedem Ring -->
+          <line
+            class="zeichne"
+            style="--i:3"
+            x1="150"
+            y1="150"
+            x2={strahl.x}
+            y2={strahl.y}
+            stroke="var(--color-schiefer)"
+            stroke-width="1"
+            stroke-dasharray="2 4"
+            vector-effect="non-scaling-stroke"></line>
+          {
+            ringe.map((ring) => (
+              <circle cx={ring.x} cy={ring.y} r="2" fill="var(--color-schiefer)" />
+            ))
+          }
+
+          <!-- Vermessungskreuz auf dem Betrieb -->
+          <line
+            x1="132"
+            y1="150"
+            x2="168"
+            y2="150"
+            stroke="var(--color-schiefer)"
+            stroke-width="1"
+            vector-effect="non-scaling-stroke"></line>
+          <line
+            x1="150"
+            y1="132"
+            x2="150"
+            y2="168"
+            stroke="var(--color-schiefer)"
+            stroke-width="1"
+            vector-effect="non-scaling-stroke"></line>
+          <rect x="146" y="146" width="8" height="8" fill="var(--color-schiefer)"></rect>
+
+          <!-- Beschriftung -->
+          <text
+            x="150"
+            y="180"
+            text-anchor="middle"
+            fill="var(--color-schiefer)"
+            style="font-family:var(--font-mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase"
+            >Betrieb</text
+          >
+          {
+            ringe.map((ring) => (
+              <text
+                x={ring.x + 5}
+                y={ring.y + 12}
+                fill="var(--color-graphit)"
+                style="font-family:var(--font-mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase"
+              >
+                {ring.marke}
+              </text>
+            ))
+          }
+          <text
+            x="14"
+            y="22"
+            fill="var(--color-kies)"
+            style="font-family:var(--font-mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase"
+            >ohne Ausspielung</text
+          >
+        </svg>
+
+        <p class="marke mt-5">Schema · beispielhafte Aussteuerung, keine Zusage</p>
+      </div>
+
+      <!-- ============================================================
+           Die Legende
+           ============================================================ -->
+      <div class="lg:col-span-5 lg:col-start-8">
+        <dl class="border-t border-schiefer">
+          {
+            gebiet.ringe.map((ring, i) => (
+              <div
+                class="steig grid gap-x-6 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-4"
+                style={`--i:${i}`}
+              >
+                <dt class="marke zahlen sm:pt-[0.2em]">{ring.marke}</dt>
+                <dd class="fliess text-klein sm:col-span-3">{ring.text}</dd>
+              </div>
+            ))
+          }
+          <div class="steig grid gap-x-6 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-4" style="--i:3">
+            <dt class="marke sm:pt-[0.2em]">darüber</dt>
+            <dd class="fliess text-klein text-graphit sm:col-span-3">{gebiet.ausserhalb}</dd>
+          </div>
+        </dl>
+
+        <p class="steig fliess mt-7 max-w-[46ch] text-klein" style="--i:4">
+          In diesem Gebiet arbeiten wir mit einem einzigen Dachdeckerbetrieb. Nicht als
+          Verknappung, sondern weil zwei Betriebe in derselben Auktion sich gegenseitig
+          den Preis hochbieten würden — bezahlt von beiden.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

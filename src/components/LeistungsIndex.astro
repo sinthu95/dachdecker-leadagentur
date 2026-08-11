@@ -1,0 +1,65 @@
+---
+import Marke from './Marke.astro';
+import Linie from './Linie.astro';
+import { leistungen } from '../data/inhalte';
+
+/**
+ * Redaktioneller Index statt Kachelraster: große Nummer, großer Name, eine
+ * Erläuterung. Getrennt wird durch harte Linien, nicht durch Behälter.
+ */
+---
+
+<section class="kapitel schnitt bg-papier" aria-labelledby="leistungen-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <Marke label="Leistungen" />
+        <h2 id="leistungen-titel" class="mt-8 max-w-[16ch] text-gross lg:mt-10">
+          Sechs Positionen. Ein System.
+        </h2>
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+        <p class="steig vorspann" style="--i:1">
+          Wir verkaufen keine einzelnen Posten. Was hier steht, sind die Bauteile — sie
+          ergeben nur zusammen ein Ergebnis.
+        </p>
+      </div>
+    </div>
+
+    <!-- Das tragende Raster als Signaturelement über dem Index -->
+    <div class="relative mt-12 hidden h-20 lg:mt-14 lg:block" aria-hidden="true">
+      <Linie art="raster" class="h-full w-full text-kies" />
+    </div>
+
+    <ol class="mt-12 border-t border-schiefer lg:mt-4">
+      {
+        leistungen.map((l, i) => (
+          <li class="steig group border-b border-linie-stark" style={`--i:${Math.min(i, 4)}`}>
+            <div class="grid items-baseline gap-x-8 gap-y-2 py-7 lg:grid-cols-12 lg:py-9">
+              <span
+                class="zahlen block font-mono text-[clamp(1.1rem,1.7vw,1.75rem)] leading-none text-kies transition-colors duration-700 group-hover:text-schiefer lg:col-span-1"
+                >{l.nr}</span
+              >
+              <h3 class="text-[clamp(1.7rem,3.2vw,3rem)] leading-[1.05] font-medium tracking-[-0.035em] lg:col-span-5">
+                {l.name}
+              </h3>
+              <p class="fliess max-w-[46ch] lg:col-span-5 lg:col-start-8">{l.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="steig mt-10 flex flex-wrap items-baseline gap-x-10 gap-y-3">
+      <a href="/leistungen" class="verweis text-schiefer">
+        Was in welcher Stufe steckt
+        <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+          <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6"></path>
+        </svg>
+      </a>
+      <p class="fliess text-klein">
+        Einzeln buchbar ist davon nichts — die Positionen tragen sich gegenseitig.
+      </p>
+    </div>
+  </div>
+</section>

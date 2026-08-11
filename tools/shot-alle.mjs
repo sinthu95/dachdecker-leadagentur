@@ -53,7 +53,7 @@ for (const [name, pfad] of SEITEN) {
       schritt();
     });
     document
-      .querySelectorAll('.steig, .zeilen, .zieh, .zeichne')
+      .querySelectorAll('.steig, .zeilen, .zieh, .zieh-y, .zeichne, .bildmaske')
       .forEach((el) => el.classList.add('sichtbar'));
     window.scrollTo(0, 0);
 

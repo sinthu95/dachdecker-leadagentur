@@ -1,12 +1,6 @@
 ---
 import Marke from './Marke.astro';
 
-interface Props {
-  nr?: string;
-}
-const { nr = '07' } = Astro.props;
-
-/** Was wir nicht tun. Die Streichung ist hier das Gestaltungsmittel. */
 const nicht = [
   'Garantierte Anfragezahlen',
   'Kundenlogos, die wir nicht haben',
@@ -17,64 +11,54 @@ const nicht = [
 ];
 ---
 
-<!--
-  Der einzige helle Abschnitt neben dem Gründerteil. Der Wechsel setzt den
-  Rhythmus und lenkt die Aufmerksamkeit genau dorthin, wo Vertrauen entsteht.
--->
-<section class="hell abschnitt" aria-labelledby="ehrlich-titel">
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Ehrlichkeit" />
-      </div>
-
-      <div class="lg:col-span-9 xl:col-span-7">
-        <h2 id="ehrlich-titel" class="steig text-display">
-          Was wir Ihnen <span class="text-schnur-dunkel">nicht</span> versprechen.
+<section class="kapitel schnitt stein" aria-labelledby="ehrlich-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-12 lg:grid-cols-12">
+      <div class="lg:col-span-6">
+        <Marke label="Ehrlichkeit" />
+        <h2 id="ehrlich-titel" class="mt-8 max-w-[15ch] text-gross lg:mt-10">
+          Was wir Ihnen nicht versprechen.
         </h2>
 
-        <p class="steig measure-wide mt-8 text-lead" style="--i:1">
-          Keine Zahl. Wer Ihnen ohne Kenntnis Ihres Einzugsgebiets, Ihrer Preise und Ihrer
-          Kapazität „30 Anfragen im Monat" garantiert, verkauft Ihnen eine Zahl — keine
-          Kunden.
-        </p>
-
-        <p class="steig measure-wide mt-5 text-lead" style="--i:2">
-          Und wir sind neu. S&amp;S Leadcraft ist 2026 entstanden, mit einem klaren Fokus
-          statt einer langen Kundenliste. Wir könnten diese Seite mit Logos und
-          Sternebewertungen füllen; es würde niemandem auffallen. Wir tun es nicht — denn
-          wenn wir hier erfinden würden, was hätten Sie dann von unseren Berichten zu
-          erwarten?
-        </p>
-
-        <div class="mt-12 border-t border-schiefer/15">
-          <p class="steig font-mono text-micro font-medium uppercase opacity-55" style="--i:3">
-            Was Sie auf dieser Seite deshalb nicht finden
+        <div class="mt-10 space-y-6">
+          <p class="steig vorspann max-w-[42ch]" style="--i:1">
+            Keine Zahl. Wer Ihnen ohne Kenntnis Ihres Einzugsgebiets, Ihrer Preise und
+            Ihrer Kapazität „30 Anfragen im Monat" garantiert, verkauft Ihnen eine Zahl —
+            keine Kunden.
           </p>
-          <ul class="mt-6 grid gap-x-10 gap-y-3 sm:grid-cols-2">
-            {
-              nicht.map((eintrag, i) => (
-                <li class="steig flex items-baseline gap-3" style={`--i:${i}`}>
-                  <span
-                    class="mt-[0.5em] h-px w-5 shrink-0 bg-rotstift"
-                    aria-hidden="true"
-                  />
-                  <span class="text-[0.95rem] line-through decoration-rotstift/60 decoration-1 opacity-70">
-                    {eintrag}
-                  </span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-
-        <div class="steig mt-12 border-l-2 border-schnur-dunkel pl-6 lg:pl-8">
-          <p class="measure-wide text-statement">
-            Was Sie stattdessen prüfen können: unsere Arbeit, unser Vorgehen und ob wir
-            Ihre Branche verstehen. Genau dafür ist die Potenzialanalyse da — und dafür
-            haben wir den Concept Case gebaut.
+          <p class="steig fliess max-w-[46ch]" style="--i:2">
+            Und wir sind neu. S&amp;S Leadcraft ist 2026 entstanden, mit einem klaren Fokus
+            statt einer langen Kundenliste. Wir könnten diese Seite mit Logos und
+            Sternebewertungen füllen; es würde niemandem auffallen. Wir tun es nicht — denn
+            wenn wir hier erfinden würden, was hätten Sie dann von unseren Berichten zu
+            erwarten?
           </p>
         </div>
+      </div>
+
+      <div class="lg:col-span-5 lg:col-start-8">
+        <p class="steig marke">Was Sie auf dieser Seite deshalb nicht finden</p>
+        <ul class="mt-7 border-t border-linie-stark">
+          {
+            nicht.map((eintrag, i) => (
+              <li
+                class="steig flex items-baseline gap-4 border-b border-linie py-3.5"
+                style={`--i:${i}`}
+              >
+                <span class="h-px w-5 shrink-0 translate-y-[-0.35em] bg-zinnober" aria-hidden="true" />
+                <span class="text-[0.98rem] text-graphit line-through decoration-zinnober/55 decoration-1">
+                  {eintrag}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="steig fliess mt-8 max-w-[42ch] text-klein">
+          Was Sie stattdessen prüfen können: unsere Arbeit, unser Vorgehen und ob wir Ihre
+          Branche verstehen. Genau dafür ist die Potenzialanalyse da — und dafür haben wir
+          den Concept Case gebaut.
+        </p>
       </div>
     </div>
   </div>

@@ -6,61 +6,59 @@ import { site, cta } from '../config/site';
 interface Props {
   /** Werbe-Landingpages laufen ohne Menü: ein Ziel, keine Abzweigungen. */
   fokus?: boolean;
-  transparent?: boolean;
 }
-const { fokus = false, transparent = false } = Astro.props;
+const { fokus = false } = Astro.props;
 const aktuell = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <header
   data-header
-  data-transparent={transparent ? 'true' : 'false'}
-  class:list={[
-    'fixed inset-x-0 top-0 z-[100] transition-[background-color,border-color,backdrop-filter] duration-500',
-    transparent
-      ? 'border-b border-transparent bg-transparent'
-      : 'border-b border-linie bg-schiefer/92 backdrop-blur-md',
-  ]}
+  class="fixed inset-x-0 top-0 z-[100] border-b border-transparent bg-papier transition-colors duration-700 [transition-timing-function:var(--ease-linie)]"
 >
-  <div class="shell flex h-[4.4rem] items-center justify-between gap-6 lg:h-[5.2rem]">
+  <div class="schiene flex h-[4.2rem] items-center justify-between gap-6 lg:h-[4.8rem]">
     <a
       href="/"
-      class="text-kalk transition-colors duration-300 hover:text-schnur-hell"
+      class="text-schiefer transition-opacity duration-500 hover:opacity-60"
       aria-label={`${site.name} — Startseite`}
     >
-      <Wortmarke />
+      <Wortmarke class="text-[1.08rem]" />
     </a>
 
     {
       !fokus && (
-        <nav aria-label="Hauptnavigation" class="hidden items-center gap-9 lg:flex">
+        <nav aria-label="Hauptnavigation" class="hidden items-center gap-10 lg:flex">
           {navigation.map((eintrag) => (
             <a
               href={eintrag.href}
               aria-current={aktuell === eintrag.href ? 'page' : undefined}
               class:list={[
-                'font-mono text-[0.72rem] font-medium tracking-[0.14em] uppercase transition-colors duration-300',
-                aktuell === eintrag.href
-                  ? 'text-schnur-hell'
-                  : 'text-zink hover:text-kalk',
+                'relative font-mono text-[0.68rem] font-medium tracking-[0.15em] uppercase transition-colors duration-500',
+                aktuell === eintrag.href ? 'text-schiefer' : 'text-graphit hover:text-schiefer',
               ]}
             >
               {eintrag.label}
+              {aktuell === eintrag.href && (
+                <span class="absolute -bottom-1.5 left-0 h-px w-full bg-schiefer" />
+              )}
             </a>
           ))}
         </nav>
       )
     }
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-4">
       <a
         href={`tel:${site.telefon}`}
         data-ereignis="call_click"
-        class="hidden font-mono text-[0.72rem] font-medium tracking-[0.1em] text-zink transition-colors duration-300 hover:text-kalk md:inline lg:text-[0.75rem]"
+        class="hidden font-mono text-[0.68rem] font-medium tracking-[0.1em] text-graphit transition-colors duration-500 hover:text-schiefer md:inline"
         >{site.telefonAnzeige}</a
       >
-      <a href="/kontakt" class="btn hidden !px-6 !py-3 md:inline-flex">
-        {fokus ? 'Analyse anfragen' : cta.primaer}
+      <!-- Der Wortlaut bleibt überall identisch — auch auf der Werbeseite. -->
+      <a
+        href={fokus ? '#potenzialanalyse' : '/kontakt'}
+        class="knopf hidden !px-6 !py-3 md:inline-flex"
+      >
+        {cta.primaer}
       </a>
 
       {
@@ -70,11 +68,11 @@ const aktuell = Astro.url.pathname.replace(/\/$/, '') || '/';
             data-menue-auf
             aria-expanded="false"
             aria-controls="mobilmenue"
-            class="flex h-11 w-11 -mr-2 items-center justify-center text-kalk lg:hidden"
+            class="-mr-1 flex h-11 w-11 items-center justify-center text-schiefer lg:hidden"
           >
             <span class="sr-only">Menü öffnen</span>
             <svg viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true">
-              <path d="M3 7h18M3 16h18" stroke="currentColor" stroke-width="1.6" />
+              <path d="M3 8h18M3 16h18" stroke="currentColor" stroke-width="1.4" />
             </svg>
           </button>
         )
@@ -88,47 +86,47 @@ const aktuell = Astro.url.pathname.replace(/\/$/, '') || '/';
     <dialog
       id="mobilmenue"
       data-menue
-      class="m-0 h-dvh max-h-none w-full max-w-none bg-schiefer p-0 text-kalk backdrop:bg-schiefer/80 lg:hidden"
+      class="m-0 h-dvh max-h-none w-full max-w-none bg-papier p-0 text-schiefer backdrop:bg-schiefer/70 lg:hidden"
     >
       <div class="flex h-full flex-col">
-        <div class="shell flex h-[4.4rem] shrink-0 items-center justify-between border-b border-linie">
-          <Wortmarke />
+        <div class="schiene flex h-[4.2rem] shrink-0 items-center justify-between border-b border-linie">
+          <Wortmarke class="text-[1.08rem]" />
           <button
             type="button"
             data-menue-zu
-            class="-mr-2 flex h-11 w-11 items-center justify-center text-kalk"
+            class="-mr-1 flex h-11 w-11 items-center justify-center text-schiefer"
           >
             <span class="sr-only">Menü schließen</span>
             <svg viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true">
-              <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.6" />
+              <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.4" />
             </svg>
           </button>
         </div>
 
-        <nav aria-label="Hauptnavigation mobil" class="shell flex-1 overflow-y-auto py-6">
+        <nav aria-label="Hauptnavigation mobil" class="schiene flex-1 overflow-y-auto py-4">
           <ul class="flex flex-col">
             {navigation.map((eintrag, i) => (
               <li class="border-b border-linie">
                 <a
                   href={eintrag.href}
-                  class="flex items-baseline gap-4 py-5 text-[1.6rem] font-semibold tracking-[-0.03em]"
+                  class="flex items-baseline justify-between gap-4 py-5 text-[1.75rem] font-medium tracking-[-0.03em]"
                 >
-                  <span class="font-mono text-[0.7rem] font-normal tracking-[0.14em] text-schnur-hell">
+                  {eintrag.label}
+                  <span class="font-mono text-[0.6rem] font-normal tracking-[0.14em] text-kies zahlen">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  {eintrag.label}
                 </a>
               </li>
             ))}
           </ul>
         </nav>
 
-        <div class="shell shrink-0 space-y-3 border-t border-linie py-6">
-          <a href="/kontakt" class="btn w-full">{cta.primaer}</a>
+        <div class="schiene shrink-0 space-y-3 border-t border-linie py-6">
+          <a href="/kontakt" class="knopf w-full">{cta.primaer}</a>
           <a
             href={`tel:${site.telefon}`}
             data-ereignis="call_click"
-            class="btn btn-linie w-full"
+            class="knopf knopf-linie w-full"
           >
             {site.telefonAnzeige}
           </a>

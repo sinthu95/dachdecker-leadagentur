@@ -1,59 +1,87 @@
 ---
+import Linie from './Linie.astro';
+import { abschlussBedingungen } from '../data/inhalte';
 import { site, cta } from '../config/site';
 
 interface Props {
-  titel?: string;
+  /** Zeilenumbrüche werden gesetzt, nicht dem Zufall überlassen. */
+  zeilen?: string[];
   text?: string;
 }
 const {
-  titel = 'Sehen wir uns Ihr Einzugsgebiet an.',
+  zeilen = [
+    'Lassen Sie uns',
+    'herausfinden, welches',
+    'Potenzial in Ihrem',
+    'Betrieb steckt.',
+  ],
   text = 'Vierzig Minuten, kostenfrei, mit einer ehrlichen Einschätzung am Ende — auch wenn sie lautet, dass wir nicht passen.',
 } = Astro.props;
+
+/**
+ * Der Abschluss ist zugleich der Übergang ins Kolophon. Damit die Seite nicht
+ * einfach aufhört, schließt sie in drei Stufen:
+ *   1. der letzte Aufruf, groß gesetzt,
+ *   2. die Bedingungen als Schlussleiste — was passiert, wenn man zusagt,
+ *   3. eine durchgehende Haarlinie, auf der die Fußzeile aufsetzt.
+ * Die Konstruktionslinien laufen dabei genau auf diese Kante zu.
+ */
 ---
 
-<section class="relative overflow-hidden border-t border-linie bg-blei">
-  <svg
-    class="pointer-events-none absolute inset-0 h-full w-full opacity-50"
-    viewBox="0 0 1440 420"
-    preserveAspectRatio="none"
-    aria-hidden="true"
-  >
-    <path
-      class="zeichne"
-      d="M-40 420 720 40 1480 420"
-      fill="none"
-      stroke="var(--color-schnur)"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"></path>
-  </svg>
+<section class="dunkel relative overflow-hidden" aria-labelledby="abschluss-titel">
+  <Linie
+    art="zusammenfuehrung"
+    class="pointer-events-none absolute inset-x-0 bottom-0 h-28 w-full text-papier opacity-[0.18] lg:h-40"
+  />
 
-  <div class="shell relative py-24 lg:py-32">
-    <div class="grid items-end gap-y-10 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-7">
-        <h2 class="steig text-display">{titel}</h2>
-        <p class="steig measure-wide mt-6 text-lead text-zink-hell" style="--i:1">{text}</p>
-      </div>
+  <div class="schiene relative pt-24 lg:pt-32">
+    <h2 id="abschluss-titel" class="zeilen max-w-[17ch] text-gross">
+      {
+        zeilen.map((z, i) => (
+          <span class="zeile">
+            <span style={`--i:${i}`}>{z}</span>
+          </span>
+        ))
+      }
+    </h2>
 
-      <div class="lg:col-span-5 lg:pl-8">
-        <div class="steig flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row" style="--i:2">
-          <a href="/kontakt" class="btn w-full sm:w-auto lg:w-full xl:w-auto">
+    <div class="mt-12 grid gap-x-8 gap-y-8 lg:mt-16 lg:grid-cols-12">
+      <p class="steig vorspann max-w-[40ch] lg:col-span-5">{text}</p>
+
+      <div class="lg:col-span-5 lg:col-start-8">
+        <div class="steig flex flex-col gap-3 sm:flex-row" style="--i:1">
+          <a href="/kontakt" class="knopf w-full sm:w-auto">
             {cta.primaer}
             <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8"></path>
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6"></path>
             </svg>
           </a>
           <a
             href={`tel:${site.telefon}`}
             data-ereignis="call_click"
-            class="btn btn-linie w-full sm:w-auto lg:w-full xl:w-auto"
+            class="knopf knopf-linie w-full sm:w-auto"
           >
             {site.telefonAnzeige}
           </a>
         </div>
-        <p class="steig mt-5 text-[0.82rem] leading-relaxed text-zink" style="--i:3">
+        <p class="steig mt-6 max-w-[42ch] text-klein text-graphit-hell" style="--i:2">
           {site.erreichbarkeit} · {site.emailHinweis}
         </p>
       </div>
     </div>
+
+    <!-- Schlussleiste: die Bedingungen, an der Stelle, an der entschieden wird -->
+    <dl
+      class="mt-16 grid gap-x-8 gap-y-7 border-t border-linie-dunkel pt-7 pb-28 sm:grid-cols-3 lg:mt-24 lg:pb-40"
+    >
+      {
+        abschlussBedingungen.map((bedingung, i) => (
+          <div class="steig" style={`--i:${i}`}>
+            <dt class="vermessung">{bedingung.marke}</dt>
+            <dd class="fliess mt-2.5 max-w-[30ch] text-klein">{bedingung.text}</dd>
+          </div>
+        ))
+      }
+    </dl>
   </div>
 </section>

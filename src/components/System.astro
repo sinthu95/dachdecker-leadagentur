@@ -1,109 +1,162 @@
 ---
 import Marke from './Marke.astro';
-import { stufen, kette } from '../data/inhalte';
+import { kette, systemGrenzen } from '../data/inhalte';
 import { site } from '../config/site';
 
 interface Props {
-  /** Auf der Leistungsseite ausführlicher als auf der Startseite. */
+  /** Auf der Leistungsseite folgt darunter die ausführliche Stufendarstellung. */
   ausfuehrlich?: boolean;
-  nr?: string;
 }
-const { ausfuehrlich = false, nr = '03' } = Astro.props;
+const { ausfuehrlich = false } = Astro.props;
+
+/**
+ * Das System als Konstruktionszeichnung, nicht als Kachelraster.
+ *
+ * Drei Bauteile tragen die Aussage:
+ *   1. Ein- und Austritt stehen außerhalb der Stationen — das System beginnt
+ *      bei einem Hausbesitzer und endet bei einem Termin.
+ *   2. Eine durchgehende Achse mit sechs Teilstrichen hält die Stationen
+ *      zusammen; jede trägt zusätzlich ihre Rolle im Ablauf (Filter, Zufluss …).
+ *   3. Die Rückführung von 06 nach 03 macht aus der Reihe einen Kreis. Das ist
+ *      der eigentliche Unterschied zwischen „sechs Leistungen" und „ein System".
+ *
+ * Alle Konstruktionslinien werden aus demselben Sechserraster abgeleitet wie
+ * die Stationen — nicht aus einem SVG-Koordinatensystem, das die in Pixeln
+ * stehenden Spaltenabstände nicht kennt und deshalb um einige Pixel danebenläge.
+ */
+
+/**
+ * Breite einer Spalte innerhalb eines Kastens, der vier Spalten und drei
+ * Abstände überspannt. Damit lässt sich die linke Kante der sechsten Spalte
+ * exakt vom rechten Rand aus setzen.
+ */
+const eineSpalte = 'calc((100% - 3 * 2rem) / 4)';
 ---
 
-<section class="abschnitt border-t border-linie bg-schiefer" aria-labelledby="system-titel">
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Das System" />
-      </div>
-      <div class="lg:col-span-9 xl:col-span-8">
-        <h2 id="system-titel" class="steig text-display">
-          Aufmaß. Aufbau. <span class="text-schnur-hell">Auslastung</span>.
+<section class="kapitel schnitt stein" aria-labelledby="system-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <Marke label="Das System" />
+        <h2 id="system-titel" class="mt-8 max-w-[18ch] text-gross lg:mt-10">
+          Kundengewinnung ist kein Kanal. Sie ist ein Kreislauf.
         </h2>
-        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
-          Zwölf Leistungen nebeneinander sind ein Katalog. Drei Stufen hintereinander sind
-          ein System. Wir haben die Namen aus Ihrer Sprache genommen — die dritte ist
-          zugleich Ihr Geschäftsziel.
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+        <p class="steig vorspann" style="--i:1">
+          Sechs Stationen, die ineinandergreifen. Reißt eine, hilft es nichts, an einer
+          anderen stärker zu ziehen.
         </p>
       </div>
     </div>
 
-    <!-- Die Konstruktionslinie verbindet die drei Stufen -->
-    <div class="relative mt-16 lg:mt-24">
-      <div class="absolute inset-x-0 top-[7px] hidden h-px bg-linie lg:block" aria-hidden="true">
-        <div class="zieh h-px w-full origin-left bg-schnur"></div>
+    <!-- ================================================================
+         Ein- und Austritt: die Grenzen des Systems, bewusst außerhalb
+         ================================================================ -->
+    <div class="mt-14 grid gap-x-8 gap-y-6 border-t border-linie-stark pt-6 lg:mt-16 lg:grid-cols-12">
+      <div class="steig lg:col-span-4">
+        <p class="vermessung">{systemGrenzen.eingang.marke}</p>
+        <p class="fliess mt-2 max-w-[34ch] text-klein">{systemGrenzen.eingang.text}</p>
       </div>
+      <div class="steig lg:col-span-4 lg:col-start-9 lg:text-right" style="--i:2">
+        <p class="vermessung lg:vermessung-rechts">{systemGrenzen.ausgang.marke}</p>
+        <p class="fliess mt-2 max-w-[34ch] text-klein lg:ml-auto">{systemGrenzen.ausgang.text}</p>
+      </div>
+    </div>
 
-      <div class="grid gap-y-12 lg:grid-cols-3 lg:gap-x-10">
+    <!-- ================================================================
+         Achse mit Teilstrichen — nur ab der Breite, auf der sechs Spalten
+         nebeneinander lesbar bleiben.
+
+         Die Teilstriche sitzen in denselben Rasterspalten wie die Stationen
+         darunter. Über einen SVG-Kasten mit fester Breite ginge das nicht
+         genau auf, weil die Spaltenabstände in Pixeln stehen, die Zeichnung
+         aber in Prozent skaliert.
+         ================================================================ -->
+    <div class="relative mt-12 hidden lg:block" aria-hidden="true">
+      <div class="zieh h-px w-full origin-left bg-schiefer"></div>
+      <div class="absolute inset-x-0 top-0 grid grid-cols-6 gap-x-8">
         {
-          stufen.map((stufe, i) => (
-            <div class="steig relative lg:pr-8" style={`--i:${i}`}>
-              <div
-                class="mb-6 hidden h-[15px] w-[15px] border border-schnur bg-schiefer lg:block"
-                aria-hidden="true"
-              />
-
-              <div class="flex items-baseline gap-4">
-                <span class="marke-num zahlen font-mono text-[1.6rem] leading-none text-schnur">
-                  {stufe.nr}
-                </span>
-                <div>
-                  <h3 class="text-statement">{stufe.name}</h3>
-                  <p class="mt-1 font-mono text-[0.62rem] tracking-[0.14em] text-zink uppercase">
-                    {stufe.zeit}
-                  </p>
-                </div>
-              </div>
-
-              <p class="mt-5 text-lead text-kalk">{stufe.satz}</p>
-              <p class="mt-3 text-klein text-zink">{stufe.text}</p>
-
-              <ul class="mt-6 space-y-0 border-t border-linie">
-                {stufe.punkte.map((punkt) => (
-                  <li class="border-b border-linie py-2.5 text-[0.86rem] text-zink-hell">
-                    {punkt}
-                  </li>
-                ))}
-              </ul>
-
-              <p class="mt-5 flex gap-2 text-[0.82rem] text-kalk">
-                <span class="mt-[0.55em] h-px w-4 shrink-0 bg-schnur" aria-hidden="true" />
-                {stufe.ergebnis}
-              </p>
-            </div>
+          kette.map((_, i) => (
+            <span class="zieh-y block h-3 w-px origin-top bg-schiefer" style={`--i:${i}`} />
           ))
         }
       </div>
     </div>
 
-    <!-- Was das System im Alltag erzeugt -->
-    <div class="mt-20 border-t border-linie pt-12 lg:mt-28">
-      <p class="steig font-mono text-micro font-medium text-zink uppercase">
-        Was dabei entsteht
-      </p>
-      <ol class="mt-7 grid gap-px bg-linie sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        {
-          kette.map((glied, i) => (
-            <li class="steig bg-schiefer px-4 py-5" style={`--i:${i}`}>
-              <span class="font-mono text-[0.6rem] tracking-[0.14em] text-schnur-hell">
-                {String(i + 1).padStart(2, '0')}
+    <!-- ================================================================
+         Die sechs Stationen
+         ================================================================ -->
+    <ol
+      class="mt-10 grid gap-x-8 gap-y-10 border-t border-linie-stark pt-8 lg:mt-7 lg:grid-cols-6 lg:gap-y-0 lg:border-t-0 lg:pt-0"
+    >
+      {
+        kette.map((glied, i) => (
+          <li
+            class:list={[
+              'steig relative',
+              /* Auf dem Telefon trägt eine Haarlinie die Reihung, am Rechner die Achse. */
+              i > 0 ? 'border-t border-linie pt-8 lg:border-t-0 lg:pt-0' : '',
+            ]}
+            style={`--i:${i}`}
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="marke zahlen">{String(i + 1).padStart(2, '0')}</span>
+              <span class="font-mono text-[0.6rem] tracking-[0.14em] text-kies uppercase">
+                {glied.rolle}
               </span>
-              <p class="mt-2 text-[0.92rem] font-semibold tracking-[-0.01em]">{glied.k}</p>
-              <p class="mt-1 text-[0.78rem] leading-snug text-zink">{glied.v}</p>
-            </li>
-          ))
-        }
-      </ol>
+            </div>
+            <h3 class="mt-3 text-[1.24rem] leading-[1.15] font-medium tracking-[-0.025em] lg:text-[1.32rem]">
+              {glied.k}
+            </h3>
+            <p class="fliess mt-2.5 max-w-[30ch] text-klein">{glied.v}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- ================================================================
+         Die Rückführung: aus der Reihe wird ein Kreis.
+
+         Der Bügel läuft von der sechsten Station zurück auf die dritte und
+         setzt dabei auf denselben Kanten auf wie die Teilstriche oben.
+         ================================================================ -->
+    <div class="relative mt-12 hidden grid-cols-6 gap-x-8 lg:grid" aria-hidden="true">
+      <div class="relative col-start-3 col-end-7 h-14">
+        <span class="zieh-y absolute top-0 left-0 block h-11 w-px origin-top bg-schiefer"></span>
+        <span
+          class="zieh-y absolute top-0 block h-11 w-px origin-top bg-schiefer"
+          style={`right:${eineSpalte}`}></span>
+        <span
+          class="zieh absolute top-11 left-0 block h-px origin-right bg-schiefer"
+          style={`right:${eineSpalte}`}></span>
+        <!-- Richtungsmarke: der Rücklauf zeigt zurück auf Station 03 -->
+        <span
+          class="steig absolute top-11 left-0 block h-2 w-2 -translate-y-1/2 rotate-45 border-b border-l border-schiefer"
+          style="--i:3"></span>
+      </div>
     </div>
+
+    <p
+      class="steig mx-auto mt-5 hidden max-w-[54ch] text-center text-klein text-graphit lg:block"
+      style="--i:4"
+    >
+      {systemGrenzen.rueckkopplung}
+    </p>
+
+    <!-- Auf dem Telefon steht dieselbe Aussage als Satz, nicht als Zeichnung -->
+    <p class="steig mt-10 flex gap-4 text-klein text-graphit lg:hidden">
+      <span class="mt-[0.7em] h-px w-5 shrink-0 bg-schiefer" aria-hidden="true"></span>
+      <span>{systemGrenzen.rueckkopplung}</span>
+    </p>
 
     {
       !ausfuehrlich && (
-        <div class="steig mt-12">
-          <a href="/leistungen" class="txtlink text-kalk">
+        <div class="steig mt-12 border-t border-linie-stark pt-6 lg:mt-14">
+          <a href="/leistungen" class="verweis text-schiefer">
             {site.angebot} im Detail
             <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" />
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
             </svg>
           </a>
         </div>

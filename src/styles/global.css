@@ -2,82 +2,84 @@
 @import 'tailwindcss';
 
 /* ============================================================================
-   DESIGNTOKENS — S&S Leadcraft
-   Die Marke ist dunkel, kühl und technisch. Sie steht damit bewusst im
-   Gegensatz zur Dachdecker-Demo (warm, hell, Kupferpatina, Serife), damit
-   die Demo im Mockup als fremde Marke lesbar bleibt.
+   ARCHITECTURAL PERFORMANCE — Designsystem S&S Leadcraft
+   ============================================================================
+   Grundfläche ist Papier, nicht Nacht. Dunkel ist eine Zäsur, kein Zustand.
+   Farbe trägt keine Bedeutung in Überschriften — Größe, Umbruch und Weißraum
+   tun das. Signalblau erscheint ausschließlich funktional: Fokus, Verweise,
+   Formularzustände.
    ============================================================================ */
 @theme {
-  /* Schiefer — blaustichiges Schwarz, kein Braun */
-  --color-schiefer: #0b0e12;
-  --color-blei: #141920;
-  --color-blei-2: #1d242d;
+  /* --- Papier und Stein: die tragenden Flächen ---------------------------- */
+  --color-papier: #f4f2ed; /* warmes gebrochenes Weiß, mineralisch */
+  --color-kalkstein: #e9e5dd; /* abgesetzte helle Fläche */
+  --color-beton: #d8d3c8; /* Steinton — Bildfelder, Zäsuren */
+  --color-kies: #b4aea2; /* mittlerer Steinton — nur Marken und Linien */
 
-  /* Haarlinien */
-  --color-linie: #2a323d;
-  --color-linie-stark: #3c4653;
+  /* --- Schrift und Tiefe -------------------------------------------------- */
+  --color-graphit: #6b6862; /* Sekundärtext auf hell */
+  --color-schiefer: #2c2e2b; /* Primärtext, warmes Dunkelgrau */
+  --color-anthrazit: #1c1e1b; /* dunkle Abschnitte */
+  --color-tinte: #121412; /* tiefste Fläche, sehr sparsam */
 
-  /* Zink — Sekundärtext */
-  --color-zink: #8c949e;
-  --color-zink-hell: #aeb5bd;
+  /* --- Auf dunklem Grund -------------------------------------------------- */
+  --color-papier-gedimmt: #cfccc4;
+  --color-graphit-hell: #8e8b83;
 
-  /* Kalk — Papier und Text auf Dunkel */
-  --color-kalk: #e7e7e4;
-  --color-kalk-2: #f2f2ef;
-  --color-kalk-3: #d8d8d3;
+  /* --- Linien ------------------------------------------------------------- */
+  --color-linie: #d5d0c5; /* Haarlinie auf Papier */
+  --color-linie-stark: #b9b3a6;
+  --color-linie-dunkel: #34362f; /* Haarlinie auf Anthrazit */
 
-  /* Schlagschnur — der einzige Akzent. Kreidepigmentblau. */
-  --color-schnur: #4a72d8;
-  --color-schnur-hell: #7c9bea;
-  --color-schnur-dunkel: #2f51b5;
+  /* --- Signal: ausschließlich funktional ---------------------------------- */
+  --color-signal: #2b4a6f;
+  --color-signal-hell: #8aa8c9;
 
-  /* Nur Mikroeinsatz */
-  --color-rotstift: #c2503a;
-  --color-rotstift-hell: #e0745c;
-  --color-gruen: #2f7a5e;
-  --color-gruen-hell: #6fb89a;
+  /* --- Korrekturfarben: nur Streichungen, Lücken, Passung ---------------- */
+  --color-zinnober: #a6432a;
+  --color-zinnober-hell: #c8765c;
+  --color-moos: #4a6b52;
+  --color-moos-hell: #86a88d;
 
-  --font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Plex Mono', ui-monospace, 'SFMono-Regular', 'Consolas', monospace;
+  /* --- Schriftrollen ------------------------------------------------------ */
+  --font-grotesk: 'SSL Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serife: 'SSL Serife', Georgia, 'Times New Roman', serif;
+  --font-mono: 'SSL Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
-  /* Extreme Größensprünge sind Gestaltungsmittel — dazwischen fast nichts. */
-  --text-colossal: clamp(3rem, 10.5vw, 10rem);
-  --text-colossal--line-height: 0.92;
-  --text-colossal--letter-spacing: -0.045em;
+  /* --- Typoskala: wenige Größen, große Sprünge ---------------------------- */
+  --text-titel: clamp(2.6rem, 6.6vw, 7rem);
+  --text-titel--line-height: 0.93;
+  --text-titel--letter-spacing: -0.045em;
 
-  --text-hero: clamp(2.3rem, 5.5vw, 5rem);
-  --text-hero--line-height: 1;
-  --text-hero--letter-spacing: -0.04em;
+  --text-gross: clamp(2rem, 4.6vw, 4.4rem);
+  --text-gross--line-height: 1;
+  --text-gross--letter-spacing: -0.035em;
 
-  --text-display: clamp(1.9rem, 4.2vw, 4rem);
-  --text-display--line-height: 1.02;
-  --text-display--letter-spacing: -0.035em;
+  --text-mittel: clamp(1.45rem, 2.4vw, 2.3rem);
+  --text-mittel--line-height: 1.16;
+  --text-mittel--letter-spacing: -0.022em;
 
-  --text-statement: clamp(1.4rem, 2.4vw, 2.35rem);
-  --text-statement--line-height: 1.22;
-  --text-statement--letter-spacing: -0.022em;
+  /* Vorspann und Zitate laufen in der Serife */
+  --text-vorspann: clamp(1.12rem, 1.35vw, 1.5rem);
+  --text-vorspann--line-height: 1.55;
 
-  --text-lead: clamp(1.08rem, 1.15vw, 1.3rem);
-  --text-lead--line-height: 1.6;
+  --text-fliess: clamp(0.98rem, 0.95vw, 1.05rem);
+  --text-fliess--line-height: 1.72;
 
-  --text-body: clamp(1rem, 1vw, 1.09rem);
-  --text-body--line-height: 1.68;
+  --text-klein: 0.875rem;
+  --text-klein--line-height: 1.62;
 
-  --text-klein: 0.9rem;
-  --text-klein--line-height: 1.6;
+  --text-marke: 0.68rem;
+  --text-marke--line-height: 1.4;
+  --text-marke--letter-spacing: 0.16em;
 
-  --text-micro: 0.7rem;
-  --text-micro--line-height: 1.4;
-  --text-micro--letter-spacing: 0.18em;
-
-  --ease-schnur: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-linie: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Ein einziger Winkel für die ganze Marke: die Regeldachneigung
-   eines Ziegeldachs. Er bestimmt Linien, Masken und die Wortmarke. */
 :root {
+  /* Ein Winkel für die ganze Marke: Regeldachneigung eines Ziegeldachs. */
   --winkel: 38deg;
-  --dauer: 0.9s;
+  --dauer: 1.1s;
 }
 
 /* ============================================================================
@@ -86,17 +88,16 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* verhindert, dass Sprungmarken unter dem fixierten Header landen */
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 7rem;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: var(--color-schiefer);
-    color: var(--color-kalk);
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: 1.68;
+    background-color: var(--color-papier);
+    color: var(--color-schiefer);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-fliess);
+    line-height: 1.72;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
@@ -106,268 +107,331 @@
   h2,
   h3,
   h4 {
-    font-weight: 600;
-    text-wrap: balance;
     margin: 0;
+    font-weight: 500;
+    text-wrap: balance;
+    /* Keine farbliche Hervorhebung in Überschriften. Betonung entsteht durch
+       Größe, Zeilenumbruch und Weißraum. */
+    color: inherit;
   }
 
   ::selection {
-    background: var(--color-schnur);
-    color: #fff;
+    background: var(--color-schiefer);
+    color: var(--color-papier);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-schnur-hell);
+    outline: 2px solid var(--color-signal);
     outline-offset: 3px;
   }
-
-  /* Auf hellen Abschnitten muss der Fokus ebenfalls sichtbar bleiben */
-  .hell :focus-visible {
-    outline-color: var(--color-schnur-dunkel);
+  .dunkel :focus-visible,
+  .dunkel:focus-visible {
+    outline-color: var(--color-signal-hell);
   }
 
   img,
   video {
+    display: block;
     max-width: 100%;
     height: auto;
-    display: block;
+  }
+
+  /* Verweise im Fließtext — die einzige Stelle, an der Signalblau als Farbe
+     erscheint. */
+  .fliess a {
+    color: var(--color-signal);
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--color-signal) 40%, transparent);
+    transition: text-decoration-color 0.4s var(--ease-linie);
+  }
+  .fliess a:hover {
+    text-decoration-color: var(--color-signal);
+  }
+  .dunkel .fliess a {
+    color: var(--color-signal-hell);
+    text-decoration-color: color-mix(in srgb, var(--color-signal-hell) 40%, transparent);
   }
 }
 
 /* ============================================================================
-   KOMPONENTEN
+   FLÄCHEN UND RASTER
    ============================================================================ */
 @layer components {
-  /* Raster: breit, mit großzügigen Rändern */
-  .shell {
+  .schiene {
     margin-inline: auto;
     width: 100%;
-    max-width: 1560px;
-    padding-inline: 1.25rem;
+    max-width: 1680px;
+    padding-inline: 1.15rem;
   }
   @media (min-width: 640px) {
-    .shell {
-      padding-inline: 2.5rem;
+    .schiene {
+      padding-inline: 2.25rem;
     }
   }
   @media (min-width: 1024px) {
-    .shell {
-      padding-inline: 4rem;
+    .schiene {
+      padding-inline: 3.5rem;
+    }
+  }
+  @media (min-width: 1440px) {
+    .schiene {
+      padding-inline: 5rem;
     }
   }
 
-  .measure {
+  /* Vertikaler Rhythmus in drei Stärken. Weißraum ist Gestaltungsmittel —
+     aber nur, solange er gesetzt wirkt. Ein gleichmäßig sehr großer Abstand
+     über die ganze Seite liest sich am Ende wie eine unfertige Seite, deshalb
+     tragen nur die gesetzten Momente den weiten Takt. */
+  .kapitel {
+    padding-block: clamp(4.25rem, 8.5vw, 8.75rem);
+  }
+  .kapitel-eng {
+    padding-block: clamp(3rem, 6vw, 6rem);
+  }
+  .kapitel-weit {
+    padding-block: clamp(5rem, 12vw, 11.5rem);
+  }
+
+  /* Dunkle Zäsur */
+  .dunkel {
+    background-color: var(--color-anthrazit);
+    color: var(--color-papier);
+  }
+  .dunkel ::selection {
+    background: var(--color-papier);
+    color: var(--color-anthrazit);
+  }
+  .stein {
+    background-color: var(--color-kalkstein);
+  }
+
+  /* Harte horizontale Trennlinie — das Gliederungsmittel statt Boxen. */
+  .schnitt {
+    border-top: 1px solid var(--color-linie);
+  }
+  .dunkel .schnitt,
+  .schnitt-dunkel {
+    border-top-color: var(--color-linie-dunkel);
+  }
+
+  /* Bildplatz mit eigenem Ausschnitt für kleine Bildschirme. Ein Telefon
+     bekommt nicht denselben Anschnitt wie ein 27-Zoll-Monitor. */
+  .bildfeld {
+    aspect-ratio: var(--verh-mobil, var(--verh, 4 / 5));
+  }
+  @media (min-width: 1024px) {
+    .bildfeld {
+      aspect-ratio: var(--verh, 4 / 5);
+    }
+  }
+
+  .messbreite {
     max-width: 34rem;
   }
-  .measure-wide {
-    max-width: 46rem;
+  .messbreite-weit {
+    max-width: 48rem;
   }
 
-  .abschnitt {
-    padding-block: clamp(4.5rem, 11vw, 10rem);
-  }
-
-  /* Heller Abschnitt — Zäsur im dunklen Verlauf */
-  .hell {
-    background-color: var(--color-kalk);
+  /* --- Textrollen --------------------------------------------------------- */
+  .vorspann {
+    font-family: var(--font-serife);
+    font-size: var(--text-vorspann);
+    line-height: 1.55;
+    letter-spacing: -0.005em;
     color: var(--color-schiefer);
   }
-  .hell ::selection {
-    background: var(--color-schnur-dunkel);
-    color: #fff;
+  .dunkel .vorspann {
+    color: var(--color-papier-gedimmt);
   }
 
-  /* ---- Kapitelmarke ---------------------------------------------------- */
+  .zitat {
+    font-family: var(--font-serife);
+    font-style: italic;
+    font-size: clamp(1.4rem, 2.6vw, 2.35rem);
+    line-height: 1.32;
+    letter-spacing: -0.015em;
+  }
+
+  .fliess {
+    font-size: var(--text-fliess);
+    line-height: 1.72;
+    color: var(--color-graphit);
+  }
+  .dunkel .fliess {
+    color: var(--color-graphit-hell);
+  }
+
+  /* --- Technische Beschriftungsebene -------------------------------------- */
   .marke {
-    display: flex;
-    align-items: baseline;
-    gap: 0.85rem;
     font-family: var(--font-mono);
-    font-size: var(--text-micro);
+    font-size: var(--text-marke);
     font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-schnur-hell);
-  }
-  .hell .marke {
-    color: var(--color-schnur-dunkel);
-  }
-  .marke-num {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.06em;
-  }
-
-  /* ---- Bemaßungslinie (Signaturornament) -------------------------------- */
-  .bemassung {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--color-zink);
+    color: var(--color-graphit);
   }
-  .bemassung-linie {
-    position: relative;
-    flex: 1;
-    min-width: 2rem;
-    height: 1px;
-    background: var(--color-schnur);
-    opacity: 0.8;
+  .dunkel .marke {
+    color: var(--color-graphit-hell);
   }
-  .bemassung-linie::before,
-  .bemassung-linie::after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    width: 1px;
-    height: 7px;
-    background: var(--color-schnur);
-  }
-  .bemassung-linie::before {
-    left: 0;
-  }
-  .bemassung-linie::after {
-    right: 0;
+  .zahlen {
+    font-variant-numeric: tabular-nums;
   }
 
-  /* ---- Schaltflächen ---------------------------------------------------- */
-  /* Der Akzent ist nie Buttonfläche — der Primärbutton ist hell oder dunkel. */
-  .btn {
+  /* Vermessungsmarke: kurzer Strich plus Text, ersetzt die frühere
+     Kapitelnummer-Manier. */
+  .vermessung {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-marke);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-graphit);
+  }
+  .vermessung::before {
+    content: '';
+    width: 1.6rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+  /* Spiegelbild für rechtsbündige Marken: der Strich zeigt nach außen. */
+  .vermessung-rechts {
+    flex-direction: row-reverse;
+  }
+  .dunkel .vermessung {
+    color: var(--color-graphit-hell);
+  }
+
+  /* --- Bedienelemente ----------------------------------------------------- */
+  /* Kein Radius. Kein Farbverlauf. Der Knopf ist eine Fläche mit Kante. */
+  .knopf {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.85rem;
-    padding: 1.05rem 2rem;
+    gap: 0.9rem;
+    padding: 1.1rem 2.1rem;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    background: var(--color-kalk);
-    color: var(--color-schiefer);
-    border: 1px solid var(--color-kalk);
-    transition:
-      background-color 0.45s var(--ease-schnur),
-      color 0.45s var(--ease-schnur),
-      border-color 0.45s var(--ease-schnur);
-  }
-  .btn:hover {
-    background: var(--color-schnur);
-    border-color: var(--color-schnur);
-    color: #fff;
-  }
-  .hell .btn {
     background: var(--color-schiefer);
-    color: var(--color-kalk);
-    border-color: var(--color-schiefer);
+    color: var(--color-papier);
+    border: 1px solid var(--color-schiefer);
+    transition:
+      background-color 0.5s var(--ease-linie),
+      color 0.5s var(--ease-linie),
+      border-color 0.5s var(--ease-linie);
   }
-  .hell .btn:hover {
-    background: var(--color-schnur-dunkel);
-    border-color: var(--color-schnur-dunkel);
+  .knopf:hover {
+    background: transparent;
+    color: var(--color-schiefer);
+  }
+  .dunkel .knopf {
+    background: var(--color-papier);
+    color: var(--color-anthrazit);
+    border-color: var(--color-papier);
+  }
+  .dunkel .knopf:hover {
+    background: transparent;
+    color: var(--color-papier);
   }
 
-  .btn-linie {
+  .knopf-linie {
     background: transparent;
-    color: var(--color-kalk);
+    color: var(--color-schiefer);
     border-color: var(--color-linie-stark);
   }
-  .btn-linie:hover {
-    background: transparent;
-    color: var(--color-schnur-hell);
-    border-color: var(--color-schnur);
+  .knopf-linie:hover {
+    background: var(--color-schiefer);
+    color: var(--color-papier);
+    border-color: var(--color-schiefer);
   }
-  .hell .btn-linie {
+  .dunkel .knopf-linie {
     background: transparent;
-    color: var(--color-schiefer);
-    border-color: color-mix(in srgb, var(--color-schiefer) 25%, transparent);
+    color: var(--color-papier);
+    border-color: var(--color-linie-dunkel);
   }
-  .hell .btn-linie:hover {
-    background: transparent;
-    color: var(--color-schnur-dunkel);
-    border-color: var(--color-schnur-dunkel);
+  .dunkel .knopf-linie:hover {
+    background: var(--color-papier);
+    color: var(--color-anthrazit);
+    border-color: var(--color-papier);
   }
 
-  /* ---- Textlink mit sich zurückziehender Unterstreichung ---------------- */
-  .txtlink {
+  /* Textverweis mit sich zurückziehender Linie */
+  .verweis {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.7rem;
-    padding-block: 0.3rem 0.45rem;
+    padding-block: 0.35rem 0.5rem;
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: inherit;
   }
-  .txtlink::after {
+  .verweis::after {
     content: '';
     position: absolute;
+    inset-inline: 0;
     bottom: 0;
-    left: 0;
-    width: 100%;
     height: 1px;
     background: currentColor;
     transform-origin: left;
-    transition: transform 0.6s var(--ease-schnur);
+    transition: transform 0.7s var(--ease-linie);
   }
-  .txtlink:hover::after {
-    transform: scaleX(0.22);
+  .verweis:hover::after {
+    transform: scaleX(0.2);
   }
-  .txtlink svg {
-    transition: transform 0.5s var(--ease-schnur);
+  .verweis svg {
+    transition: transform 0.6s var(--ease-linie);
   }
-  .txtlink:hover svg {
-    transform: translateX(4px);
+  .verweis:hover svg {
+    transform: translateX(5px);
   }
 
-  /* WCAG 2.5.8: Tippziele mindestens 24 px hoch. Betrifft die kompakten
-     Listenlinks in Fussbereich und Navigation; Links im Fliesstext sind
-     davon ausgenommen. */
+  /* Tippziele in kompakten Listen — WCAG 2.5.8 */
   .tipp {
     display: inline-block;
     padding-block: 0.35rem;
   }
 
-  .haarlinie {
-    height: 1px;
-    width: 100%;
-    background: var(--color-linie);
-  }
-  .hell .haarlinie {
-    background: color-mix(in srgb, var(--color-schiefer) 15%, transparent);
-  }
-
-  /* ---- Formularfelder: nur Grundlinie, keine Boxen ----------------------- */
+  /* --- Formular: ruhig, auf Grundlinien, keine Kästen --------------------- */
   .feld {
     width: 100%;
     border: 0;
     border-bottom: 1px solid var(--color-linie-stark);
-    background: transparent;
-    padding: 0.55rem 0;
-    color: var(--color-kalk);
-    font-family: inherit;
-    font-size: 1rem;
     border-radius: 0;
-    transition: border-color 0.4s var(--ease-schnur);
+    background: transparent;
+    padding: 0.6rem 0;
+    color: var(--color-schiefer);
+    font-family: var(--font-grotesk);
+    font-size: 1.05rem;
+    transition: border-color 0.45s var(--ease-linie);
   }
   .feld::placeholder {
-    color: color-mix(in srgb, var(--color-zink) 70%, transparent);
+    color: var(--color-kies);
   }
   .feld:focus {
     outline: none;
-    border-bottom-color: var(--color-schnur-hell);
+    border-bottom-color: var(--color-signal);
   }
   .feld:user-invalid {
-    border-bottom-color: var(--color-rotstift-hell);
+    border-bottom-color: var(--color-zinnober);
   }
   select.feld {
     appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--color-zink) 50%),
-      linear-gradient(135deg, var(--color-zink) 50%, transparent 50%);
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--color-graphit) 50%),
+      linear-gradient(135deg, var(--color-graphit) 50%, transparent 50%);
     background-position:
       calc(100% - 12px) calc(50% + 1px),
       calc(100% - 7px) calc(50% + 1px);
@@ -377,45 +441,40 @@
     background-repeat: no-repeat;
     padding-right: 1.75rem;
   }
-  select.feld option {
-    background: var(--color-blei);
-    color: var(--color-kalk);
-  }
   textarea.feld {
     resize: vertical;
-    min-height: 5.5rem;
+    min-height: 5rem;
   }
 
   .feld-label {
     display: block;
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.63rem;
     font-weight: 500;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--color-zink);
-    margin-bottom: 0.35rem;
+    color: var(--color-graphit);
+    margin-bottom: 0.3rem;
   }
 
-  /* Auswahlfelder als anklickbare Grundlinienzeilen statt runder Radios */
+  /* Auswahl als Grundlinienzeile, nicht als Kachel */
   .wahl {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    padding: 0.62rem 0.85rem;
-    border: 1px solid var(--color-linie);
+    gap: 0.75rem;
+    padding: 0.7rem 0.2rem;
+    border-bottom: 1px solid var(--color-linie);
     cursor: pointer;
-    font-size: 0.92rem;
-    color: var(--color-zink-hell);
+    font-size: 0.95rem;
+    color: var(--color-graphit);
     transition:
-      border-color 0.35s var(--ease-schnur),
-      color 0.35s var(--ease-schnur),
-      background-color 0.35s var(--ease-schnur);
+      color 0.4s var(--ease-linie),
+      border-color 0.4s var(--ease-linie);
   }
   .wahl:hover {
-    border-color: var(--color-linie-stark);
-    color: var(--color-kalk);
+    color: var(--color-schiefer);
+    border-bottom-color: var(--color-linie-stark);
   }
   .wahl input {
     position: absolute;
@@ -427,58 +486,44 @@
     cursor: pointer;
     appearance: none;
   }
-  .wahl-kasten {
+  .wahl-marke {
     flex: 0 0 auto;
-    width: 11px;
-    height: 11px;
+    width: 10px;
+    height: 10px;
     border: 1px solid var(--color-linie-stark);
     transition:
-      background-color 0.3s var(--ease-schnur),
-      border-color 0.3s var(--ease-schnur);
+      background-color 0.35s var(--ease-linie),
+      border-color 0.35s var(--ease-linie);
   }
   .wahl:has(input:checked) {
-    border-color: var(--color-schnur);
-    color: var(--color-kalk);
-    background: color-mix(in srgb, var(--color-schnur) 10%, transparent);
+    color: var(--color-schiefer);
+    border-bottom-color: var(--color-schiefer);
   }
-  .wahl:has(input:checked) .wahl-kasten {
-    background: var(--color-schnur);
-    border-color: var(--color-schnur);
+  .wahl:has(input:checked) .wahl-marke {
+    background: var(--color-schiefer);
+    border-color: var(--color-schiefer);
   }
   .wahl:has(input:focus-visible) {
-    outline: 2px solid var(--color-schnur-hell);
-    outline-offset: 3px;
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
   }
 
   .fehler {
     display: block;
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     letter-spacing: 0.06em;
-    color: var(--color-rotstift-hell);
+    color: var(--color-zinnober);
     margin-top: 0.4rem;
   }
 }
 
 /* ============================================================================
-   SIGNATUR UND BEWEGUNG
-   Ein einziges Prinzip: ziehen, freilegen, setzen.
+   BEWEGUNG — konstruieren, freilegen, setzen
+   Nur transform, opacity und clip-path. Eine Kurve. Keine Bibliothek.
    ============================================================================ */
 @layer utilities {
-  /* Rasterlinien als sichtbares Konstruktionsprinzip */
-  .raster {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-      to right,
-      currentColor 0 1px,
-      transparent 1px calc(100% / 6)
-    );
-    opacity: 0.06;
-  }
-
-  /* Freilegen: Zeilen kommen hinter einer harten Kante hervor */
+  /* Freilegen: Zeile fährt hinter einer harten Kante hervor */
   .zeilen > .zeile {
     display: block;
     overflow: hidden;
@@ -486,64 +531,81 @@
   .zeilen > .zeile > span {
     display: block;
     transform: translateY(105%);
-    transition: transform 1.05s var(--ease-schnur);
-    transition-delay: calc(var(--i, 0) * 90ms);
+    transition: transform 1.15s var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 105ms);
   }
   .zeilen.sichtbar > .zeile > span {
     transform: translateY(0);
   }
 
-  /* Setzen: 20 px aufsteigen und zur Ruhe kommen */
+  /* Setzen: ruhiges Aufsteigen */
   .steig {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
     transition:
-      opacity var(--dauer) var(--ease-schnur),
-      transform var(--dauer) var(--ease-schnur);
-    transition-delay: calc(var(--i, 0) * 80ms);
+      opacity var(--dauer) var(--ease-linie),
+      transform var(--dauer) var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 95ms);
   }
   .steig.sichtbar {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* Ziehen: Haarlinie zieht sich auf */
+  /* Ziehen: Linie baut sich auf */
   .zieh {
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 1.2s var(--ease-schnur);
-    transition-delay: calc(var(--i, 0) * 80ms);
+    transition: transform 1.4s var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 95ms);
   }
   .zieh.sichtbar {
     transform: scaleX(1);
   }
+  .zieh-y {
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.6s var(--ease-linie);
+  }
+  .zieh-y.sichtbar {
+    transform: scaleY(1);
+  }
 
-  /* Ziehen: SVG-Pfad zeichnet sich */
+  /* Konstruieren: SVG-Pfad zeichnet sich */
   .zeichne {
-    stroke-dasharray: var(--laenge, 1000);
-    stroke-dashoffset: var(--laenge, 1000);
-    transition: stroke-dashoffset 1.6s var(--ease-schnur);
+    stroke-dasharray: var(--laenge, 1200);
+    stroke-dashoffset: var(--laenge, 1200);
+    transition: stroke-dashoffset 2s var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 140ms);
   }
   .zeichne.sichtbar {
     stroke-dashoffset: 0;
   }
 
-  .zahlen {
-    font-variant-numeric: tabular-nums;
+  /* Bildfläche wird von unten freigelegt und beruhigt sich aus leichter
+     Vergrößerung — der einzige Skalierungseffekt der Seite. */
+  .bildmaske {
+    position: relative;
+    overflow: hidden;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 1.5s var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 110ms);
+  }
+  .bildmaske > * {
+    transform: scale(1.06);
+    transition: transform 2s var(--ease-linie);
+    transition-delay: calc(var(--i, 0) * 110ms);
+  }
+  .bildmaske.sichtbar {
+    clip-path: inset(0 0 0 0);
+  }
+  .bildmaske.sichtbar > * {
+    transform: scale(1);
   }
 
-  /* 38°-Anschnitt für Bildmasken */
-  .winkel-oben {
-    clip-path: polygon(0 3.5vw, 100% 0, 100% 100%, 0 100%);
-  }
-
-  .korn {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-    mix-blend-mode: overlay;
-    opacity: 0.22;
+  /* Sehr langsamer Versatz beim Scrollen; Stärke kommt aus dem Skript. */
+  .versatz {
+    will-change: transform;
   }
 
   .sr-only {
@@ -560,8 +622,7 @@
 }
 
 /* ============================================================================
-   BEWEGUNGSREDUKTION — gleichwertiger zweiter Zustand, kein Notbehelf.
-   Alle Inhalte sind sofort sichtbar, nichts geht verloren.
+   BEWEGUNGSREDUKTION — gleichwertiger zweiter Zustand
    ============================================================================ */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -569,14 +630,26 @@
   }
   .zeilen > .zeile > span,
   .steig,
-  .zieh {
+  .zieh,
+  .zieh-y {
     opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .bildmaske {
+    clip-path: none !important;
+    transition: none !important;
+  }
+  .bildmaske > * {
     transform: none !important;
     transition: none !important;
   }
   .zeichne {
     stroke-dashoffset: 0 !important;
     transition: none !important;
+  }
+  .versatz {
+    transform: none !important;
   }
   *,
   *::before,

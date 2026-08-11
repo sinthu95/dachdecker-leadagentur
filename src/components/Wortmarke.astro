@@ -1,38 +1,36 @@
 ---
 /**
- * Typografische Wortmarke. Das Ampersand trägt den 38°-Winkel als
- * aufgesetzte Dachlinie — dieselbe Neigung wie alle Winkel der Seite.
+ * Typografische Wortmarke. Über dem Ampersand sitzt die Dachneigung als
+ * feine Konstruktionslinie — dasselbe Motiv wie im Liniensystem der Seite.
  */
 interface Props {
-  klein?: boolean;
   class?: string;
 }
-const { klein = false, class: klasse = '' } = Astro.props;
+const { class: klasse = '' } = Astro.props;
 ---
 
 <span
   class:list={[
-    'inline-flex items-baseline gap-[0.42em] font-semibold tracking-[-0.03em] whitespace-nowrap',
-    klein ? 'text-[0.95rem]' : 'text-[1.12rem]',
+    'inline-flex items-baseline gap-[0.4em] font-grotesk font-medium tracking-[-0.03em] whitespace-nowrap',
     klasse,
   ]}
 >
   <span class="relative inline-block">
     S&amp;S
     <svg
-      class="pointer-events-none absolute -top-[0.42em] left-0 w-full"
-      viewBox="0 0 100 12"
+      class="pointer-events-none absolute -top-[0.36em] left-0 w-full"
+      viewBox="0 0 100 10"
       preserveAspectRatio="none"
       aria-hidden="true"
-      style="height:0.34em"
+      style="height:0.28em"
     >
       <path
-        d="M0 11 50 1.2 100 11"
+        d="M0 9 50 1 100 9"
         fill="none"
         stroke="currentColor"
-        stroke-width="2.2"
+        stroke-width="1.6"
         vector-effect="non-scaling-stroke"></path>
     </svg>
   </span>
-  <span class="font-normal text-current/70">Leadcraft</span>
+  <span class="font-normal opacity-65">Leadcraft</span>
 </span>

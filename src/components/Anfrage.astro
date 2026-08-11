@@ -4,80 +4,55 @@ import { formularWerte } from '../data/inhalte';
 import { site, cta } from '../config/site';
 
 interface Props {
-  nr?: string;
   /** Auf /kontakt ohne wiederholte Argumentation. */
   knapp?: boolean;
 }
-const { nr = '10', knapp = false } = Astro.props;
+const { knapp = false } = Astro.props;
 ---
 
-<section
-  id="potenzialanalyse"
-  class="abschnitt border-t border-linie bg-blei"
-  aria-labelledby="anfrage-titel"
->
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Potenzialanalyse" />
-        {
-          !knapp && (
-            <div class="steig mt-10 hidden lg:block" style="--i:2">
-              <p class="font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
-                Was danach passiert
-              </p>
-              <ol class="mt-4 space-y-3">
-                {[
-                  'Wir sehen uns Ihr Einzugsgebiet an.',
-                  'Wir melden uns innerhalb eines Werktags.',
-                  'Sie bekommen eine ehrliche Einschätzung — auch wenn sie negativ ausfällt.',
-                ].map((s, i) => (
-                  <li class="flex gap-3 text-[0.82rem] leading-snug text-zink">
-                    <span class="font-mono text-[0.62rem] text-schnur-hell">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    {s}
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )
-        }
-      </div>
-
-      <div class="lg:col-span-9 xl:col-span-8">
-        <h2 id="anfrage-titel" class="steig text-display">
-          Sehen wir uns Ihr <span class="text-schnur-hell">Einzugsgebiet</span> an.
+<section id="potenzialanalyse" class="kapitel schnitt bg-papier" aria-labelledby="anfrage-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-10 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <Marke label="Potenzialanalyse" />
+        <h2 id="anfrage-titel" class="mt-8 max-w-[14ch] text-gross lg:mt-10">
+          Sehen wir uns Ihr Einzugsgebiet an.
         </h2>
-        <p class="steig measure-wide mt-7 text-lead text-zink-hell" style="--i:1">
+        <p class="steig vorspann mt-8 max-w-[38ch]" style="--i:1">
           Elf kurze Fragen. Sie sind der Grund, warum das Gespräch danach in vierzig
           Minuten zu einem Ergebnis kommt und nicht bei „erzählen Sie mal" beginnt.
         </p>
 
-        <form
-          data-anfrage
-          method="POST"
-          action="/api/anfrage"
-          novalidate={false}
-          class="mt-12"
-        >
-          <!-- Fortschritt als Bemaßungslinie statt als Fortschrittsbalken -->
-          <div class="mb-9">
-            <div class="flex items-baseline justify-between">
-              <span
-                data-schritt-zaehler
-                class="font-mono text-[0.62rem] tracking-[0.16em] text-schnur-hell uppercase"
-              >
-                Ihre Angaben
-              </span>
-              <span class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Pflichtfelder mit *
-              </span>
+        {
+          !knapp && (
+            <ol class="steig mt-12 hidden border-t border-linie-stark lg:block" style="--i:2">
+              {[
+                'Wir sehen uns Ihr Einzugsgebiet an.',
+                'Wir melden uns innerhalb eines Werktags.',
+                'Sie bekommen eine ehrliche Einschätzung — auch wenn sie negativ ausfällt.',
+              ].map((s, i) => (
+                <li class="flex gap-5 border-b border-linie py-4">
+                  <span class="marke zahlen">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="fliess text-klein">{s}</span>
+                </li>
+              ))}
+            </ol>
+          )
+        }
+      </div>
+
+      <div class="lg:col-span-6 lg:col-start-7">
+        <form data-anfrage method="POST" action="/api/anfrage" class="steig" style="--i:1">
+          <!-- Fortschritt als Bemaßung, nicht als Balken -->
+          <div class="mb-10 border-b border-schiefer pb-3">
+            <div class="flex items-baseline justify-between gap-6">
+              <span data-schritt-zaehler class="marke text-schiefer">Ihre Angaben</span>
+              <span class="marke">Pflichtfelder mit *</span>
             </div>
-            <div class="mt-3 h-px w-full bg-linie">
+            <div class="relative mt-3 h-px w-full bg-linie">
               <div
                 data-schritt-balken
-                class="h-px w-full origin-left bg-schnur transition-transform duration-700 [transition-timing-function:var(--ease-schnur)]"
+                class="h-px w-full origin-left bg-schiefer transition-transform duration-1000 [transition-timing-function:var(--ease-linie)]"
               >
               </div>
             </div>
@@ -85,9 +60,9 @@ const { nr = '10', knapp = false } = Astro.props;
 
           <!-- ================= Schritt 1 ================= -->
           <fieldset data-schritt class="border-0 p-0">
-            <legend class="mb-7 text-statement">Ihr Betrieb</legend>
+            <legend class="mb-8 text-mittel">Ihr Betrieb</legend>
 
-            <div class="grid gap-7 sm:grid-cols-2">
+            <div class="grid gap-8 sm:grid-cols-2">
               <div class="sm:col-span-2">
                 <label class="feld-label" for="betrieb">Wie heißt Ihr Betrieb? *</label>
                 <input
@@ -140,23 +115,19 @@ const { nr = '10', knapp = false } = Astro.props;
 
           <!-- ================= Schritt 2 ================= -->
           <fieldset data-schritt class="mt-14 border-0 p-0">
-            <legend class="mb-7 text-statement">Ihr Ziel</legend>
+            <legend class="mb-8 text-mittel">Ihr Ziel</legend>
 
-            <div class="space-y-9">
+            <div class="space-y-10">
               <div data-pflichtgruppe>
                 <p class="feld-label" id="leistungen-label">
                   Welche Leistungen möchten Sie stärker verkaufen? *
                 </p>
-                <div
-                  class="mt-3 grid gap-2 sm:grid-cols-2"
-                  role="group"
-                  aria-labelledby="leistungen-label"
-                >
+                <div class="mt-2 grid sm:grid-cols-2 sm:gap-x-8" role="group" aria-labelledby="leistungen-label">
                   {
                     formularWerte.leistungen.map((l) => (
                       <label class="wahl">
                         <input type="checkbox" name="leistungen" value={l} />
-                        <span class="wahl-kasten" aria-hidden="true" />
+                        <span class="wahl-marke" aria-hidden="true" />
                         <span>{l}</span>
                       </label>
                     ))
@@ -171,7 +142,7 @@ const { nr = '10', knapp = false } = Astro.props;
                   annehmen? *
                 </p>
                 <div
-                  class="mt-3 grid gap-2 sm:grid-cols-2"
+                  class="mt-2 grid sm:grid-cols-2 sm:gap-x-8"
                   role="radiogroup"
                   aria-labelledby="kapazitaet-label"
                 >
@@ -179,7 +150,7 @@ const { nr = '10', knapp = false } = Astro.props;
                     formularWerte.kapazitaet.map((k) => (
                       <label class="wahl">
                         <input type="radio" name="kapazitaet" value={k} required />
-                        <span class="wahl-kasten" aria-hidden="true" />
+                        <span class="wahl-marke" aria-hidden="true" />
                         <span>{k}</span>
                       </label>
                     ))
@@ -188,7 +159,7 @@ const { nr = '10', knapp = false } = Astro.props;
                 <span class="fehler" data-gruppenfehler role="status" aria-live="polite"></span>
               </div>
 
-              <div class="grid gap-7 sm:grid-cols-2">
+              <div class="grid gap-8 sm:grid-cols-2">
                 <div>
                   <label class="feld-label" for="herkunft">
                     Wie gewinnen Sie heute die meisten Kunden?
@@ -201,12 +172,12 @@ const { nr = '10', knapp = false } = Astro.props;
 
                 <div>
                   <p class="feld-label" id="werbung-label">Nutzen Sie bereits Werbung?</p>
-                  <div class="mt-3 grid gap-2" role="group" aria-labelledby="werbung-label">
+                  <div class="mt-2" role="group" aria-labelledby="werbung-label">
                     {
                       formularWerte.werbung.map((w) => (
                         <label class="wahl">
                           <input type="checkbox" name="werbung" value={w} />
-                          <span class="wahl-kasten" aria-hidden="true" />
+                          <span class="wahl-marke" aria-hidden="true" />
                           <span>{w}</span>
                         </label>
                       ))
@@ -219,9 +190,9 @@ const { nr = '10', knapp = false } = Astro.props;
 
           <!-- ================= Schritt 3 ================= -->
           <fieldset data-schritt class="mt-14 border-0 p-0">
-            <legend class="mb-7 text-statement">Kontakt</legend>
+            <legend class="mb-8 text-mittel">Kontakt</legend>
 
-            <div class="grid gap-7 sm:grid-cols-2">
+            <div class="grid gap-8 sm:grid-cols-2">
               <div class="sm:col-span-2">
                 <label class="feld-label" for="name">Ansprechpartner *</label>
                 <input
@@ -266,7 +237,7 @@ const { nr = '10', knapp = false } = Astro.props;
                   Wann erreichen wir Sie am besten?
                 </p>
                 <div
-                  class="mt-3 grid gap-2 sm:grid-cols-4"
+                  class="mt-2 grid sm:grid-cols-2 sm:gap-x-8"
                   role="radiogroup"
                   aria-labelledby="erreichbar-label"
                 >
@@ -274,13 +245,13 @@ const { nr = '10', knapp = false } = Astro.props;
                     formularWerte.erreichbar.map((e) => (
                       <label class="wahl">
                         <input type="radio" name="erreichbar" value={e} />
-                        <span class="wahl-kasten" aria-hidden="true" />
+                        <span class="wahl-marke" aria-hidden="true" />
                         <span>{e}</span>
                       </label>
                     ))
                   }
                 </div>
-                <p class="mt-2 text-[0.78rem] text-zink">
+                <p class="mt-3 text-[0.8rem] text-graphit">
                   Wir wissen, dass Sie tagsüber nicht am Schreibtisch sitzen.
                 </p>
               </div>
@@ -292,28 +263,24 @@ const { nr = '10', knapp = false } = Astro.props;
               </div>
             </div>
 
-            <!-- Einwilligung: nicht vorbelegt, eigener Absatz, verlinkte Erklärung -->
-            <div class="mt-9">
+            <div class="mt-10">
               <label class="flex cursor-pointer items-start gap-3.5">
                 <input
                   type="checkbox"
                   name="einwilligung"
                   required
                   value="ja"
-                  class="mt-1 h-4 w-4 shrink-0 accent-schnur"
+                  class="mt-1 h-4 w-4 shrink-0 accent-schiefer"
                 />
-                <span class="text-[0.85rem] leading-relaxed text-zink-hell">
-                  Ich habe die <a
-                    href="/datenschutz"
-                    class="text-schnur-hell underline underline-offset-4">Datenschutzerklärung</a
-                  > gelesen und bin damit einverstanden, dass meine Angaben zur Bearbeitung
-                  meiner Anfrage gespeichert und verarbeitet werden. *
+                <span class="fliess text-[0.85rem] leading-relaxed">
+                  Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> gelesen und bin
+                  damit einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage
+                  gespeichert und verarbeitet werden. *
                 </span>
               </label>
             </div>
 
-            <!-- Spamschutz ohne Captcha: kein Drittanbieter-Skript, keine
-                 Übermittlung von Besucherdaten an Google. -->
+            <!-- Spamschutz ohne Captcha: kein Drittanbieter-Skript -->
             <div aria-hidden="true" class="absolute h-px w-px overflow-hidden opacity-0">
               <label for="firmenzusatz">Bitte nicht ausfüllen</label>
               <input
@@ -330,33 +297,27 @@ const { nr = '10', knapp = false } = Astro.props;
 
           <!-- ================= Steuerung ================= -->
           <div class="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <button type="button" data-zurueck hidden class="btn btn-linie order-2 sm:order-1">
+            <button type="button" data-zurueck hidden class="knopf knopf-linie order-2 sm:order-1">
               Zurück
             </button>
-            <button type="button" data-weiter hidden class="btn order-1 sm:order-2">
+            <button type="button" data-weiter hidden class="knopf order-1 sm:order-2">
               Weiter
               <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8"
-                ></path>
+                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6"></path>
               </svg>
             </button>
-            <button type="submit" data-senden class="btn order-1 sm:order-2">
+            <button type="submit" data-senden class="knopf order-1 sm:order-2">
               {cta.primaer}
             </button>
           </div>
 
-          <p class="mt-6 max-w-xl text-[0.82rem] leading-relaxed text-zink">
-            {cta.mikro}
-            {' '}
-            {site.antwortzeit}
+          <p class="fliess mt-7 max-w-[52ch] text-[0.85rem]">
+            {cta.mikro} {site.antwortzeit}
           </p>
 
-          <p class="mt-4 max-w-xl text-[0.8rem] leading-relaxed text-zink">
-            Lieber direkt sprechen?
-            <a
-              href={`tel:${site.telefon}`}
-              data-ereignis="call_click"
-              class="text-kalk underline underline-offset-4">{site.telefonAnzeige}</a
+          <p class="fliess mt-3 max-w-[52ch] text-[0.82rem]">
+            Lieber direkt sprechen? <a href={`tel:${site.telefon}`} data-ereignis="call_click"
+              >{site.telefonAnzeige}</a
             > · {site.erreichbarkeit}. {site.emailHinweis}
           </p>
         </form>

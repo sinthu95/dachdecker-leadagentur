@@ -93,6 +93,33 @@ tools/                  Aufnahme- und Prüfskripte (nicht Teil des Auslieferungs
 
 ---
 
+## Benötigte Fotografie
+
+Für dieses Projekt liegt noch keine eigene Fotografie vor. Es wurde **keine erfunden**:
+weder Stockmotive noch bildgenerierte Aufnahmen. Stattdessen steht an jeder Bildstelle
+ein gestaltetes Bildfeld (`src/components/Bildfeld.astro`) mit Motiv, Ausschnitt und
+Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins zu eins —
+Platz, Format und Anschnitt stehen bereits fest.
+
+| Nr. | Ort | Motiv | Format (Desktop / Mobil) |
+| --- | --- | --- | --- |
+| B-01 | Startseite, Hero | Moderne Dachlandschaft aus erhöhter Position: Firstlinien gegen offenen Himmel, ruhige Geometrie, kühles Tageslicht | 16:9 / 4:5 |
+| B-02 | Startseite, Hero (rechte Spalte, ab 1024 px) | Detail einer Doppelstehfalz-Deckung in Titanzink: Kante, Schattenkante, Materialoberfläche | 3:4 |
+| B-03 | Startseite, „Das Problem" | Dachdecker bei der präzisen Arbeit am Falz: Hände, Werkzeug, Materialkante — Konzentration statt Pose | 3:2 / 4:5 |
+| B-04 | Startseite, Bildband vor „Prozess" (randlos) | Modernes Wohnhaus in der Totalen: klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar, kein Weitwinkelverzug | 21:9 / 4:5 |
+| B-05 | Startseite und `/ueber-uns`, „Spezialisierung" | Schiefer, Zink und Ziegel nebeneinander als Materialprobe im Streiflicht, Oberflächen und Kanten deutlich | 4:5 |
+| B-06 | Startseite und `/ueber-uns`, Gründerabschnitt | Porträt Sinthusan Sinnathurai, halbnah, ruhiger Hintergrund, natürliches Seitenlicht — kein Anzug vor Glasfassade | 4:5 |
+
+**Was nicht infrage kommt:** Handwerker mit verschränkten Armen vor dem Firmenwagen,
+Daumen-hoch-Motive, Bilddatenbank-Baustellen ohne Bezug, sichtbar generierte Bilder.
+Die Aufnahmen entstehen auf echten Baustellen; bis dahin bleiben die Bildfelder stehen
+und benennen sichtbar, was fehlt.
+
+Die Bildschirmaufnahmen im Concept Case (`public/images/demo/`) sind davon nicht
+betroffen — sie zeigen die real gebaute Demo.
+
+---
+
 ## Das Anfrageformular
 
 Ein `<form>` mit drei `<fieldset>`. Ohne JavaScript sind alle Felder sichtbar und

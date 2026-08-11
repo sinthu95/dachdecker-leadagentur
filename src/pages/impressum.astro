@@ -9,6 +9,29 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
  * vorliegt, erscheint als markierte Lücke. Solange auch nur eine Angabe fehlt,
  * bleibt die Seite auf noindex — ein unvollständiges Impressum ist abmahnfähig.
  */
+
+const hinweise = [
+  {
+    titel: 'Streitbeilegung',
+    text: 'Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.',
+  },
+  {
+    titel: 'Haftung für Inhalte',
+    text: 'Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.',
+  },
+  {
+    titel: 'Haftung für Links',
+    text: 'Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar.',
+  },
+  {
+    titel: 'Urheberrecht',
+    text: 'Die durch uns erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Beiträge Dritter sind als solche gekennzeichnet.',
+  },
+  {
+    titel: 'Demonstrationsprojekt',
+    text: 'Der auf dieser Website gezeigte Concept Case („Musterdach GmbH") ist ein frei erfundenes Demonstrationsprojekt. Es besteht keine Geschäftsbeziehung zu einem realen Betrieb dieses Namens; sämtliche dort gezeigten Angaben sind Beispielinhalte.',
+  },
+];
 ---
 
 <BaseLayout
@@ -17,17 +40,15 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
   path="/impressum"
   noindex={!impressumVollstaendig}
 >
-  <SeitenKopf marke="Rechtliches" titel="Impressum" />
+  <SeitenKopf marke="Rechtliches" zeilen={['Impressum']} />
 
-  <section class="abschnitt bg-schiefer">
-    <div class="shell">
+  <section class="kapitel-eng schnitt bg-papier">
+    <div class="schiene">
       {
         !impressumVollstaendig && (
-          <div class="mb-14 max-w-3xl border-l-2 border-rotstift-hell bg-rotstift/10 px-6 py-5">
-            <p class="font-mono text-[0.62rem] tracking-[0.16em] text-rotstift-hell uppercase">
-              Noch nicht vollständig
-            </p>
-            <p class="mt-3 text-klein text-kalk">
+          <div class="mb-16 max-w-[62ch] border-l border-zinnober bg-zinnober/8 px-6 py-5">
+            <p class="marke text-zinnober">Noch nicht vollständig</p>
+            <p class="fliess mt-3 text-klein">
               Dieses Impressum enthält noch nicht alle Pflichtangaben nach § 5 DDG. Die
               fehlenden Angaben sind unten markiert und werden vor dem Livegang ergänzt.
               Bis dahin ist diese Seite für Suchmaschinen gesperrt, und die Website ist
@@ -37,28 +58,22 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
         )
       }
 
-      <div class="grid gap-y-14 lg:grid-cols-12 lg:gap-8">
-        <div class="lg:col-span-8 xl:col-span-7">
-          <h2 class="text-statement">Anbieter</h2>
-          <dl class="mt-7 border-t border-linie">
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Name
-              </dt>
+      <div class="grid gap-x-8 gap-y-16 lg:grid-cols-12">
+        <div class="lg:col-span-7">
+          <h2 class="text-mittel">Anbieter</h2>
+          <dl class="mt-8 border-t border-schiefer">
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Name</dt>
               <dd class="sm:col-span-2">{impressum.anbieter}</dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Rechtsform
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Rechtsform</dt>
               <dd class="sm:col-span-2">
                 {impressum.rechtsform ?? <Luecke was="Rechtsform" />}
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Anschrift
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Anschrift</dt>
               <dd class="sm:col-span-2">
                 {
                   impressum.strasse && impressum.plzOrt ? (
@@ -75,24 +90,18 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
                 }
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Telefon
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Telefon</dt>
               <dd class="sm:col-span-2">
-                <a href={`tel:${site.telefon}`} class="tipp underline underline-offset-4"
-                  >{site.telefonAnzeige}</a
-                >
+                <a href={`tel:${site.telefon}`} class="tipp verweis">{site.telefonAnzeige}</a>
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                E-Mail
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">E-Mail</dt>
               <dd class="sm:col-span-2">
                 {
                   site.contactEmail ? (
-                    <a href={`mailto:${site.contactEmail}`} class="underline underline-offset-4">
+                    <a href={`mailto:${site.contactEmail}`} class="verweis">
                       {site.contactEmail}
                     </a>
                   ) : (
@@ -101,10 +110,8 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
                 }
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Umsatzsteuer
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Umsatzsteuer</dt>
               <dd class="sm:col-span-2">
                 {
                   impressum.umsatzsteuerId ??
@@ -116,18 +123,14 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
                 }
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Register
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Register</dt>
               <dd class="sm:col-span-2">
                 {impressum.register ?? <Luecke was="Registereintrag, falls zutreffend" />}
               </dd>
             </div>
-            <div class="grid gap-2 border-b border-linie py-4 sm:grid-cols-3">
-              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
-                Verantwortlich für den Inhalt
-              </dt>
+            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+              <dt class="marke sm:pt-[0.35em]">Verantwortlich für den Inhalt</dt>
               <dd class="sm:col-span-2">
                 {
                   impressum.strasse && impressum.plzOrt ? (
@@ -141,56 +144,17 @@ import { site, impressum, impressumVollstaendig } from '../config/site';
           </dl>
         </div>
 
-        <div class="lg:col-span-4 xl:col-start-9">
-          <h2 class="text-statement">Hinweise</h2>
-
-          <div class="mt-7 space-y-8 text-klein text-zink">
-            <div>
-              <h3 class="font-semibold text-kalk">Streitbeilegung</h3>
-              <p class="mt-2">
-                Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren
-                vor einer Verbraucherschlichtungsstelle teilzunehmen.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-semibold text-kalk">Haftung für Inhalte</h3>
-              <p class="mt-2">
-                Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den
-                allgemeinen Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet,
-                übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach
-                Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-semibold text-kalk">Haftung für Links</h3>
-              <p class="mt-2">
-                Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte
-                wir keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets
-                der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren
-                keine Rechtsverstöße erkennbar.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-semibold text-kalk">Urheberrecht</h3>
-              <p class="mt-2">
-                Die durch uns erstellten Inhalte und Werke auf diesen Seiten unterliegen
-                dem deutschen Urheberrecht. Beiträge Dritter sind als solche
-                gekennzeichnet.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-semibold text-kalk">Demonstrationsprojekt</h3>
-              <p class="mt-2">
-                Der auf dieser Website gezeigte Concept Case („Musterdach GmbH") ist ein
-                frei erfundenes Demonstrationsprojekt. Es besteht keine Geschäftsbeziehung
-                zu einem realen Betrieb dieses Namens; sämtliche dort gezeigten Angaben
-                sind Beispielinhalte.
-              </p>
-            </div>
+        <div class="lg:col-span-4 lg:col-start-9">
+          <h2 class="text-mittel">Hinweise</h2>
+          <div class="mt-8 border-t border-linie-stark">
+            {
+              hinweise.map((h) => (
+                <div class="border-b border-linie py-5">
+                  <h3 class="text-[1rem] font-medium tracking-[-0.02em]">{h.titel}</h3>
+                  <p class="fliess mt-2 text-klein">{h.text}</p>
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>

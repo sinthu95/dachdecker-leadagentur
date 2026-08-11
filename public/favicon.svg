@@ -1,8 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#0B0E12"/>
+  <rect width="32" height="32" fill="#F4F2ED"/>
   <!-- Dachneigung 38° — die Regeldachneigung eines Ziegeldachs -->
-  <path d="M4 21.4 16 12 28 21.4" fill="none" stroke="#E7E7E4" stroke-width="2.1"
+  <path d="M4 21.4 16 12 28 21.4" fill="none" stroke="#2C2E2B" stroke-width="2"
         stroke-linecap="square" stroke-linejoin="miter"/>
-  <!-- geschlagene Linie -->
-  <path d="M3 26h26" stroke="#4A72D8" stroke-width="1.6" stroke-linecap="square"/>
+  <path d="M4 26h24" stroke="#2C2E2B" stroke-width="1.4" stroke-linecap="square" opacity=".45"/>
 </svg>

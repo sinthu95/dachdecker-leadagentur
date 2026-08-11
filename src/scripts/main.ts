@@ -12,7 +12,9 @@ const sanft = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
    1 · Enthüllung beim Scrollen
    --------------------------------------------------------------------------- */
 function enthuellen() {
-  const ziele = document.querySelectorAll<HTMLElement>('.steig, .zeilen, .zieh, .zeichne');
+  const ziele = document.querySelectorAll<HTMLElement>(
+    '.steig, .zeilen, .zieh, .zieh-y, .zeichne, .bildmaske',
+  );
   if (!ziele.length) return;
 
   if (!sanft || !('IntersectionObserver' in window)) {
@@ -20,11 +22,29 @@ function enthuellen() {
     return;
   }
 
-  // Pfadlängen für das Zeichnen der Konstruktionslinie setzen
-  document.querySelectorAll<SVGPathElement>('path.zeichne, line.zeichne').forEach((p) => {
-    const laenge = typeof p.getTotalLength === 'function' ? p.getTotalLength() : 1000;
-    p.style.setProperty('--laenge', String(Math.ceil(laenge)));
-  });
+  // Pfadlängen für das Zeichnen der Konstruktionslinien setzen. Kreise und
+  // Rechtecke gehören dazu — der Lageplan im Gebietsschema besteht daraus.
+  //
+  // Achtung: Unsere Linien tragen `vector-effect="non-scaling-stroke"`, damit
+  // sie in jeder Größe Haarlinien bleiben. Damit rechnet der Browser das
+  // Strichmuster aber in Bildschirmpixeln, während getTotalLength() in
+  // Koordinaten des viewBox misst. Ohne Umrechnung bleibt jede Linie auf dem
+  // Anteil stehen, den der Maßstab gerade ausmacht. Der Faktor kommt aus dem
+  // SVG selbst; ein kleiner Aufschlag deckt spätere Größenänderungen ab.
+  document
+    .querySelectorAll<SVGGeometryElement>(
+      'path.zeichne, line.zeichne, circle.zeichne, rect.zeichne, polyline.zeichne',
+    )
+    .forEach((el) => {
+      if (typeof el.getTotalLength !== 'function') return;
+      const svg = el.ownerSVGElement;
+      const kasten = svg?.getBoundingClientRect();
+      const sicht = svg?.viewBox.baseVal;
+      const massstab =
+        kasten && sicht && sicht.width > 0 && kasten.width > 0 ? kasten.width / sicht.width : 1;
+      const laenge = el.getTotalLength() * massstab * 1.02;
+      el.style.setProperty('--laenge', String(Math.ceil(laenge)));
+    });
 
   const beobachter = new IntersectionObserver(
     (eintraege) => {
@@ -41,22 +61,56 @@ function enthuellen() {
 }
 
 /* ---------------------------------------------------------------------------
-   2 · Kopfzeile: transparent über dem Hero, fest ab dem ersten Scrollen
+   1b · Sehr langsamer Versatz: Bildflächen laufen minimal gegen den Scroll.
+   Bewegte Hintergründe gibt es nicht — nur der Bildinhalt versetzt sich
+   um wenige Pixel, damit große Flächen nicht wie aufgeklebt wirken.
+   --------------------------------------------------------------------------- */
+function versatz() {
+  const ziele = Array.from(document.querySelectorAll<HTMLElement>('.versatz'));
+  if (!ziele.length || !sanft) return;
+
+  let angefordert = false;
+
+  const zeichnen = () => {
+    angefordert = false;
+    const hoehe = window.innerHeight;
+    ziele.forEach((el) => {
+      const kasten = el.getBoundingClientRect();
+      if (kasten.bottom < -200 || kasten.top > hoehe + 200) return;
+      // −1 … +1, gemessen an der Bildmitte gegenüber der Bildschirmmitte
+      const lage = (kasten.top + kasten.height / 2 - hoehe / 2) / (hoehe / 2 + kasten.height / 2);
+      const staerke = Number.parseFloat(el.dataset.versatz ?? '') || 22;
+      el.style.transform = `translate3d(0, ${(lage * staerke).toFixed(2)}px, 0)`;
+    });
+  };
+
+  const beiScroll = () => {
+    if (angefordert) return;
+    angefordert = true;
+    requestAnimationFrame(zeichnen);
+  };
+
+  window.addEventListener('scroll', beiScroll, { passive: true });
+  window.addEventListener('resize', beiScroll, { passive: true });
+  zeichnen();
+}
+
+/* ---------------------------------------------------------------------------
+   2 · Kopfzeile: ohne Trennlinie über der Titelseite, mit Linie ab dem Scrollen
    --------------------------------------------------------------------------- */
 function kopfzeile() {
   const kopf = document.querySelector<HTMLElement>('[data-header]');
-  if (!kopf || kopf.dataset.transparent !== 'true') return;
+  if (!kopf) return;
 
-  // bg-transparent und bg-schiefer/92 sind gleich spezifisch. Bleibt das
-  // transparente zurück, gewinnt es je nach Reihenfolge im Stylesheet — die
-  // Kopfzeile wäre dann über den hellen Abschnitten durchsichtig und die
-  // Wortmarke unlesbar. Beide Zustände müssen sich deshalb ausschließen.
-  const fixiert = ['bg-schiefer/92', 'backdrop-blur-md', 'border-linie'];
-  const schwebend = ['bg-transparent', 'border-transparent'];
+  // Beide Zustände müssen sich ausschließen: border-transparent und
+  // border-linie sind gleich spezifisch, sonst entscheidet die Reihenfolge
+  // im Stylesheet statt der Zustand.
+  const fest = ['border-linie', 'bg-papier/92', 'backdrop-blur-sm'];
+  const offen = ['border-transparent', 'bg-papier'];
   const pruefen = () => {
-    const fest = window.scrollY > 40;
-    fixiert.forEach((k) => kopf.classList.toggle(k, fest));
-    schwebend.forEach((k) => kopf.classList.toggle(k, !fest));
+    const gescrollt = window.scrollY > 24;
+    fest.forEach((k) => kopf.classList.toggle(k, gescrollt));
+    offen.forEach((k) => kopf.classList.toggle(k, !gescrollt));
   };
 
   pruefen();
@@ -336,8 +390,8 @@ function conceptCase() {
       const an = i === index;
       n.classList.toggle('opacity-100', an);
       n.classList.toggle('opacity-25', !an);
-      n.classList.toggle('text-kalk', an);
-      n.classList.toggle('text-zink', !an);
+      n.classList.toggle('text-papier', an);
+      n.classList.toggle('text-graphit-hell', !an);
     });
 
     if (p > 0.92 && !vollstaendigGemeldet) {
@@ -375,6 +429,7 @@ function mobilLeiste() {
 /* ------------------------------------------------------------------------- */
 function start() {
   enthuellen();
+  versatz();
   kopfzeile();
   menue();
   ereignisse();

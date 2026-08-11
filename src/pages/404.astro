@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Linie from '../components/Linie.astro';
 import { navigation } from '../data/inhalte';
 import { site } from '../config/site';
 ---
@@ -10,60 +11,50 @@ import { site } from '../config/site';
   path="/404"
   noindex={true}
 >
-  <section class="relative flex min-h-[80svh] items-center overflow-hidden bg-schiefer pt-36 pb-24">
-    <div class="raster text-kalk" aria-hidden="true"></div>
-    <svg
-      class="pointer-events-none absolute inset-0 h-full w-full opacity-50"
-      viewBox="0 0 1440 600"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-    >
-      <path
-        class="zeichne"
-        d="M-40 520 720 60 1480 520"
-        fill="none"
-        stroke="var(--color-schnur)"
-        stroke-width="1"
-        vector-effect="non-scaling-stroke"></path>
-    </svg>
+  <section class="relative flex min-h-[80svh] items-center overflow-hidden bg-papier pt-32 pb-20">
+    <div class="schiene relative w-full">
+      <div
+        class="steig flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-b border-linie pb-3"
+      >
+        <span class="marke">Nicht gefunden</span>
+        <span class="marke zahlen">404</span>
+      </div>
 
-    <div class="shell relative">
-      <p class="marke steig">
-        <span class="marke-num zahlen">404</span>
-        <span>Nicht gefunden</span>
-      </p>
+      <div class="mt-10 grid items-end gap-8 lg:mt-14 lg:grid-cols-12">
+        <h1 class="zeilen max-w-[14ch] text-gross lg:col-span-9">
+          <span class="zeile"><span style="--i:0">Diese Seite</span></span>
+          <span class="zeile"><span style="--i:1">gibt es nicht.</span></span>
+        </h1>
+        <div class="hidden lg:col-span-3 lg:block" aria-hidden="true">
+          <Linie art="dach" class="h-24 w-full text-schiefer opacity-40" />
+        </div>
+      </div>
 
-      <h1 class="steig mt-7 max-w-3xl text-display" style="--i:1">
-        Diese Seite gibt es <span class="text-schnur-hell">nicht</span>.
-      </h1>
-      <p class="steig measure-wide mt-6 text-lead text-zink-hell" style="--i:2">
+      <p class="steig vorspann mt-10 max-w-[44ch]" style="--i:1">
         Entweder hat sich ein Tippfehler in die Adresse geschlichen oder die Seite wurde
         umbenannt. Hier kommen Sie weiter:
       </p>
 
-      <nav aria-label="Weiterführende Seiten" class="mt-10 max-w-2xl border-t border-linie">
+      <nav aria-label="Weiterführende Seiten" class="mt-12 max-w-2xl border-t border-schiefer">
         {
           navigation.map((eintrag, i) => (
             <a
               href={eintrag.href}
-              class="steig flex items-center justify-between gap-6 border-b border-linie py-4 transition-colors duration-300 hover:text-schnur-hell"
-              style={`--i:${i}`}
+              class="steig tipp flex items-center justify-between gap-6 border-b border-linie-stark py-4 transition-opacity duration-500 hover:opacity-60"
+              style={`--i:${Math.min(i, 4)}`}
             >
-              <span class="text-[1.05rem]">{eintrag.label}</span>
+              <span class="text-[1.1rem] tracking-[-0.02em]">{eintrag.label}</span>
               <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" />
+                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
               </svg>
             </a>
           ))
         }
       </nav>
 
-      <p class="steig mt-8 text-[0.85rem] text-zink">
-        Oder direkt anrufen:
-        <a
-          href={`tel:${site.telefon}`}
-          data-ereignis="call_click"
-          class="text-kalk underline underline-offset-4">{site.telefonAnzeige}</a
+      <p class="steig fliess mt-8 text-klein">
+        Oder direkt anrufen: <a href={`tel:${site.telefon}`} data-ereignis="call_click"
+          >{site.telefonAnzeige}</a
         >
       </p>
     </div>

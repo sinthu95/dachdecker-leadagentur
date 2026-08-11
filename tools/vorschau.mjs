@@ -90,30 +90,32 @@ const daten = JSON.stringify({ seiten, bilder });
 
 const rahmen = `<title>S&S Leadcraft — Vorschau</title>
 <style>
+  /* Die Betrachterleiste folgt denselben Tokens wie die Seite, damit sie beim
+     Gestaltungsabgleich nicht mit einer fremden Farbe dazwischenfunkt. */
   :root { color-scheme: dark; }
-  html, body { margin:0; padding:0; height:100%; background:#0b0e12; }
+  html, body { margin:0; padding:0; height:100%; background:#121412; }
   body { display:flex; flex-direction:column; font-family:ui-monospace,Consolas,monospace; }
-  #buehne { flex:1; display:flex; justify-content:center; background:#0b0e12; overflow:hidden; }
-  #rahmen { width:100%; height:100%; border:0; background:#0b0e12; transition:width .3s ease; }
-  #rahmen.telefon { width:390px; border-left:1px solid #2a323d; border-right:1px solid #2a323d; }
+  #buehne { flex:1; display:flex; justify-content:center; background:#121412; overflow:hidden; }
+  #rahmen { width:100%; height:100%; border:0; background:#f4f2ed; transition:width .3s ease; }
+  #rahmen.telefon { width:390px; border-left:1px solid #34362f; border-right:1px solid #34362f; }
   #leiste {
     flex:0 0 auto; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
-    padding:.5rem .9rem; background:#161a20; border-top:1px solid #2a323d;
-    font-size:11px; letter-spacing:.08em; color:#8c949e;
+    padding:.55rem .9rem; background:#1c1e1b; border-top:1px solid #34362f;
+    font-size:11px; letter-spacing:.08em; color:#8e8b83;
   }
-  #leiste b { color:#e7e7e4; font-weight:500; }
+  #leiste b { color:#f4f2ed; font-weight:500; }
   #leiste .tag {
     text-transform:uppercase; letter-spacing:.16em; font-size:10px;
-    border:1px solid #3c4653; padding:.15rem .45rem; color:#7c9bea;
+    border:1px solid #34362f; padding:.15rem .45rem; color:#cfccc4;
   }
   #leiste button {
     font:inherit; letter-spacing:.1em; text-transform:uppercase; font-size:10px;
-    background:transparent; color:#8c949e; border:1px solid #3c4653;
-    padding:.3rem .7rem; cursor:pointer;
+    background:transparent; color:#8e8b83; border:1px solid #34362f;
+    padding:.32rem .7rem; cursor:pointer;
   }
-  #leiste button[aria-pressed="true"] { color:#0b0e12; background:#e7e7e4; border-color:#e7e7e4; }
+  #leiste button[aria-pressed="true"] { color:#1c1e1b; background:#f4f2ed; border-color:#f4f2ed; }
   #leiste .weg { margin-left:auto; }
-  #hinweis { color:#e0745c; }
+  #hinweis { color:#c8765c; }
 </style>
 
 <div id="buehne"><iframe id="rahmen" title="Vorschau der Website"></iframe></div>
@@ -204,9 +206,9 @@ const rahmen = `<title>S&S Leadcraft — Vorschau</title>
     }
     if (leer) {
       document.getElementById('buehne').innerHTML =
-        '<div style="max-width:34rem;margin:auto;padding:2rem;color:#e7e7e4;' +
+        '<div style="max-width:34rem;margin:auto;padding:2rem;color:#f4f2ed;' +
         'font-family:system-ui,sans-serif;line-height:1.6">' +
-        '<p style="color:#e0745c;font-size:11px;letter-spacing:.16em;' +
+        '<p style="color:#c8765c;font-size:11px;letter-spacing:.16em;' +
         'text-transform:uppercase;margin:0 0 .8rem">Vorschau blockiert</p>' +
         '<p style="margin:0 0 1rem">Dieser Betrachter konnte den eingebetteten ' +
         'Rahmen nicht anzeigen. Laden Sie die Datei herunter und öffnen Sie sie ' +

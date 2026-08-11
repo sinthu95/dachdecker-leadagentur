@@ -1,0 +1,141 @@
+---
+/**
+ * Die Konstruktionslinie — das wiederkehrende Markenelement.
+ *
+ * Eine einzige Geometrie, die sich über die Seite verwandelt: im Hero eine
+ * abstrahierte Dachneigung, im Prozess eine Konstruktionsachse, in den
+ * Leistungen ein tragendes Raster, im Concept Case ein Projektrahmen, im
+ * Abschluss die Zusammenführung. Immer Haarlinie, immer 38° — die
+ * Regeldachneigung eines Ziegeldachs.
+ *
+ * Bewusst kein Dachdecker-Piktogramm: die Form bleibt so abstrakt, dass sie
+ * als Konstruktionszeichnung und nicht als Symbol gelesen wird.
+ */
+interface Props {
+  art: 'dach' | 'achse' | 'raster' | 'rahmen' | 'zusammenfuehrung';
+  class?: string;
+  /** Farbe der Linie; erbt sonst die Textfarbe des Umfelds. */
+  ton?: string;
+}
+const { art, class: klasse = '', ton = 'currentColor' } = Astro.props;
+
+const gemeinsam = {
+  fill: 'none',
+  stroke: ton,
+  'vector-effect': 'non-scaling-stroke' as const,
+};
+---
+
+{
+  art === 'dach' && (
+    <svg
+      class={`pointer-events-none ${klasse}`}
+      viewBox="0 0 1440 620"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      {/* Firstlinie: zwei Schenkel in 38°, dazu eine zweite, tiefer gesetzte
+          Sparrenlage — die Andeutung eines Schnitts, keine Silhouette. */}
+      <path class="zeichne" d="M-40 560 720 166 1480 560" stroke-width="1" {...gemeinsam} />
+      <path
+        class="zeichne"
+        style="--i:1"
+        d="M-40 616 720 222 1480 616"
+        stroke-width="1"
+        opacity="0.45"
+        {...gemeinsam}
+      />
+      {/* Traufkante */}
+      <path class="zeichne" style="--i:2" d="M-40 560 1480 560" stroke-width="1" opacity="0.3" {...gemeinsam} />
+      {/* Vermessungsmarke am First */}
+      <path class="zeichne" style="--i:3" d="M720 130 720 200" stroke-width="1" opacity="0.55" {...gemeinsam} />
+      <path class="zeichne" style="--i:3" d="M704 166 736 166" stroke-width="1" opacity="0.55" {...gemeinsam} />
+    </svg>
+  )
+}
+
+{
+  art === 'achse' && (
+    <svg
+      class={`pointer-events-none ${klasse}`}
+      viewBox="0 0 24 1000"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* Senkrechte Konstruktionsachse für den Prozess */}
+      <path class="zeichne" d="M12 0 12 1000" stroke-width="1" {...gemeinsam} />
+    </svg>
+  )
+}
+
+{
+  art === 'raster' && (
+    <svg
+      class={`pointer-events-none ${klasse}`}
+      viewBox="0 0 1200 400"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* Tragendes Raster: Senkrechte plus zwei Diagonalen im Dachwinkel */}
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <path
+          class="zeichne"
+          style={`--i:${i}`}
+          d={`M${i * 200} 0 ${i * 200} 400`}
+          stroke-width="1"
+          opacity="0.35"
+          {...gemeinsam}
+        />
+      ))}
+      <path class="zeichne" style="--i:4" d="M0 400 600 130 1200 400" stroke-width="1" {...gemeinsam} />
+    </svg>
+  )
+}
+
+{
+  art === 'rahmen' && (
+    <svg
+      class={`pointer-events-none ${klasse}`}
+      viewBox="0 0 1200 700"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* Projektzeichnung: Rahmen mit abgesetzten Ecken statt geschlossener Box */}
+      <path class="zeichne" d="M0 60 0 0 84 0" stroke-width="1" {...gemeinsam} />
+      <path class="zeichne" style="--i:1" d="M1116 0 1200 0 1200 60" stroke-width="1" {...gemeinsam} />
+      <path class="zeichne" style="--i:2" d="M1200 640 1200 700 1116 700" stroke-width="1" {...gemeinsam} />
+      <path class="zeichne" style="--i:3" d="M84 700 0 700 0 640" stroke-width="1" {...gemeinsam} />
+    </svg>
+  )
+}
+
+{
+  art === 'zusammenfuehrung' && (
+    <svg
+      class={`pointer-events-none ${klasse}`}
+      viewBox="0 0 1440 340"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {/* Alle Linien laufen auf einen Punkt zu — der Abschluss der Konstruktion */}
+      <path class="zeichne" d="M-40 340 720 40" stroke-width="1" {...gemeinsam} />
+      <path class="zeichne" style="--i:1" d="M1480 340 720 40" stroke-width="1" {...gemeinsam} />
+      <path
+        class="zeichne"
+        style="--i:2"
+        d="M-40 240 720 40"
+        stroke-width="1"
+        opacity="0.35"
+        {...gemeinsam}
+      />
+      <path
+        class="zeichne"
+        style="--i:2"
+        d="M1480 240 720 40"
+        stroke-width="1"
+        opacity="0.35"
+        {...gemeinsam}
+      />
+    </svg>
+  )
+}

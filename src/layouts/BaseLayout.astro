@@ -13,8 +13,6 @@ interface Props {
   fokus?: boolean;
   /** Seiten, die nie in den Index sollen (Danke-Seite, unfertige Rechtstexte). */
   noindex?: boolean;
-  /** Startseite und Landingpages: Kopfzeile liegt transparent über dem Hero. */
-  transparenterHeader?: boolean;
   /** Zusätzliches JSON-LD für einzelne Seiten. */
   strukturierteDaten?: Record<string, unknown> | null;
 }
@@ -25,7 +23,6 @@ const {
   path,
   fokus = false,
   noindex = false,
-  transparenterHeader = false,
   strukturierteDaten = null,
 } = Astro.props;
 
@@ -68,11 +65,11 @@ const organisation = {
     {kanonisch && <link rel="canonical" href={kanonisch} />}
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#0B0E12" />
+    <meta name="theme-color" content="#F4F2ED" />
 
     <link
       rel="preload"
-      href="/fonts/instrumentsans.woff2"
+      href="/fonts/grotesk.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -116,14 +113,14 @@ const organisation = {
     }
   </head>
 
-  <body class="bg-schiefer text-kalk">
+  <body class="bg-papier text-schiefer">
     <a
       href="#inhalt"
-      class="btn absolute top-4 left-4 z-[200] -translate-y-32 focus:translate-y-0"
+      class="knopf absolute top-4 left-4 z-[200] -translate-y-32 focus:translate-y-0"
       >Zum Inhalt springen</a
     >
 
-    <Header fokus={fokus} transparent={transparenterHeader} />
+    <Header fokus={fokus} />
 
     <main id="inhalt">
       <slot />

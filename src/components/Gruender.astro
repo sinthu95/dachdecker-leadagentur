@@ -1,83 +1,50 @@
 ---
 import Marke from './Marke.astro';
+import Bildfeld from './Bildfeld.astro';
 import { site } from '../config/site';
 
 interface Props {
-  nr?: string;
   ausfuehrlich?: boolean;
 }
-const { nr = '08', ausfuehrlich = false } = Astro.props;
+const { ausfuehrlich = false } = Astro.props;
 ---
 
-<section class="hell abschnitt border-t border-schiefer/10" aria-labelledby="gruender-titel">
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Wer dahintersteht" />
+<section class="kapitel schnitt bg-papier" aria-labelledby="gruender-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-12 lg:grid-cols-12">
+      <!-- Das Porträt trägt den Abschnitt. Kein Stockfoto, keine Platzhalterperson. -->
+      <div class="bildmaske versatz lg:col-span-5" data-versatz="14">
+        <Bildfeld
+          nummer="B-06"
+          motiv="Porträt Sinthusan Sinnathurai — halbnah, ruhiger Hintergrund, natürliches Seitenlicht. Kein Anzug vor Glasfassade."
+          ausschnitt="Hochformat, Blick zur Kamera"
+          format="4/5"
+          class="h-full w-full"
+        />
       </div>
 
-      <div class="lg:col-span-5 xl:col-span-4">
-        <!--
-          Gestaltete Leerstelle statt Platzhaltergesicht: Solange kein echtes
-          Porträt vorliegt, wird hier kein Stockfoto eingesetzt. Sobald die
-          Aufnahme da ist, ersetzt sie diesen Block eins zu eins.
-        -->
-        <figure class="steig">
-          <div
-            class="relative flex aspect-4/5 items-end overflow-hidden border border-schiefer/15 bg-schiefer/[0.04]"
-          >
-            <svg
-              class="absolute inset-0 h-full w-full"
-              viewBox="0 0 400 500"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M-20 400 200 228 420 400"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1"
-                class="text-schiefer/15"></path>
-              <path
-                d="M-20 440 200 268 420 440"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1"
-                class="text-schnur-dunkel/25"></path>
-            </svg>
-            <figcaption
-              class="relative w-full border-t border-schiefer/12 bg-kalk/70 px-4 py-3 font-mono text-[0.6rem] tracking-[0.14em] uppercase opacity-60 backdrop-blur-sm"
-            >
-              Porträtaufnahme folgt
-            </figcaption>
-          </div>
-        </figure>
-      </div>
+      <div class="lg:col-span-6 lg:col-start-7">
+        <Marke label="Wer dahintersteht" />
 
-      <div class="lg:col-span-4 xl:col-span-5">
-        <h2 id="gruender-titel" class="steig text-statement">
+        <h2 id="gruender-titel" class="mt-8 text-gross lg:mt-10">
           {site.gruender}
         </h2>
-        <p class="steig mt-2 font-mono text-[0.62rem] tracking-[0.14em] uppercase opacity-60" style="--i:1">
-          Gründer · {site.ort}
-        </p>
+        <p class="steig marke mt-4" style="--i:1">Gründer · {site.ort}</p>
 
-        <div class="mt-7 space-y-5 text-lead">
-          <p class="steig" style="--i:2">
-            Ich habe S&amp;S Leadcraft aufgebaut, weil mir eine Sache immer wieder
-            aufgefallen ist: Es gibt sehr viele Handwerksbetriebe, die ihre Arbeit
-            ausgezeichnet machen und trotzdem online kaum stattfinden — während
-            Portale und größere Anbieter genau die Anfragen abgreifen, die diesen
-            Betrieben zustehen würden.
+        <div class="mt-10 space-y-6">
+          <p class="steig vorspann max-w-[44ch]" style="--i:2">
+            Es gibt sehr viele Handwerksbetriebe, die ihre Arbeit ausgezeichnet machen und
+            trotzdem online kaum stattfinden — während Portale und größere Anbieter genau
+            die Anfragen abgreifen, die diesen Betrieben zustehen würden.
           </p>
-          <p class="steig" style="--i:3">
+          <p class="steig fliess max-w-[48ch]" style="--i:3">
             Statt das für zwanzig Branchen halb zu lösen, habe ich mich für eine
             entschieden. Dachdeckerbetriebe arbeiten mit hohen Auftragswerten, klaren
             Leistungsgrenzen und einem Einzugsgebiet, das man sauber abstecken kann. Das
             ist eine Branche, in der ein durchdachtes digitales System einen messbaren
             Unterschied macht.
           </p>
-          <p class="steig" style="--i:4">
+          <p class="steig fliess max-w-[48ch]" style="--i:4">
             Ich verspreche Ihnen keine zwanzig Jahre Agenturerfahrung. Was ich Ihnen
             zusage: Sie sprechen mit mir und nicht mit einem Vertriebsteam, Sie bekommen
             eine ehrliche Einschätzung — auch wenn sie lautet, dass wir nicht passen — und
@@ -87,11 +54,11 @@ const { nr = '08', ausfuehrlich = false } = Astro.props;
 
         {
           !ausfuehrlich && (
-            <div class="steig mt-9" style="--i:5">
-              <a href="/ueber-uns" class="txtlink">
+            <div class="steig mt-10" style="--i:5">
+              <a href="/ueber-uns" class="verweis text-schiefer">
                 Mehr über die Arbeitsweise
                 <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-                  <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
                 </svg>
               </a>
             </div>

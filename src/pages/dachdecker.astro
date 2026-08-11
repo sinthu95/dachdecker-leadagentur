@@ -20,58 +20,51 @@ import { wettbewerb } from '../data/inhalte';
   description="Mehr qualifizierte Anfragen für Dachsanierung, Neueindeckung und Flachdach. Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe — ein Betrieb je Einzugsgebiet."
   path="/dachdecker"
   fokus={true}
-  transparenterHeader={true}
 >
   <Hero variante="c" />
   <Orientierung />
 
   <!-- Der schärfste Einwand zuerst: geteilte Portal-Leads -->
-  <section class="abschnitt bg-schiefer" aria-labelledby="portale-titel">
-    <div class="shell">
-      <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-        <div class="lg:col-span-3">
-          <Marke nr="01" label="Der Unterschied" />
-        </div>
-
-        <div class="lg:col-span-9 xl:col-span-8">
-          <h2 id="portale-titel" class="steig text-display">
-            Ihre Anfragen. Nicht der <span class="text-schnur-hell">vierte Anruf</span> beim
-            selben Kunden.
+  <section class="kapitel schnitt stein" aria-labelledby="portale-titel">
+    <div class="schiene">
+      <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+        <div class="lg:col-span-7">
+          <Marke label="Der Unterschied" />
+          <h2 id="portale-titel" class="mt-8 max-w-[16ch] text-gross lg:mt-10">
+            Ihre Anfragen. Nicht der vierte Anruf beim selben Kunden.
           </h2>
-          <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
-            Wer Anfragen über Portale kauft, kauft sie geteilt: Derselbe Interessent hat
-            in der Regel schon mit drei weiteren Betrieben gesprochen, bevor Sie ihn
-            erreichen. Das Gespräch dreht sich dann nur noch um den Preis. Eine Anfrage
-            über Ihre eigene Seite kommt nur bei Ihnen an.
-          </p>
-
-          <div class="mt-14 border-t border-linie">
-            {
-              wettbewerb.map((zeile, i) => (
-                <div
-                  class="steig grid gap-3 border-b border-linie py-6 md:grid-cols-12 md:gap-8"
-                  style={`--i:${i}`}
-                >
-                  <div class="md:col-span-3">
-                    <p class="font-semibold tracking-[-0.01em]">{zeile.was}</p>
-                    {zeile.zusatz && (
-                      <p class="mt-1 font-mono text-[0.62rem] tracking-[0.12em] text-zink uppercase">
-                        {zeile.zusatz}
-                      </p>
-                    )}
-                  </div>
-                  <p class="text-klein text-zink italic md:col-span-4">„{zeile.denkt}"</p>
-                  <p class="text-klein text-kalk md:col-span-5">{zeile.antwort}</p>
-                </div>
-              ))
-            }
-          </div>
         </div>
+
+        <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+          <p class="steig vorspann" style="--i:1">
+            Wer Anfragen über Portale kauft, kauft sie geteilt: Derselbe Interessent hat in
+            der Regel schon mit drei weiteren Betrieben gesprochen, bevor Sie ihn erreichen.
+            Eine Anfrage über Ihre eigene Seite kommt nur bei Ihnen an.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-12 border-t border-schiefer lg:mt-16">
+        {
+          wettbewerb.map((zeile, i) => (
+            <div
+              class="steig grid gap-x-8 gap-y-3 border-b border-linie-stark py-7 md:grid-cols-12"
+              style={`--i:${Math.min(i, 4)}`}
+            >
+              <div class="md:col-span-3">
+                <p class="text-[1.12rem] font-medium tracking-[-0.02em]">{zeile.was}</p>
+                {zeile.zusatz && <p class="marke mt-1.5">{zeile.zusatz}</p>}
+              </div>
+              <p class="fliess text-klein italic md:col-span-4">„{zeile.denkt}"</p>
+              <p class="fliess max-w-[46ch] text-klein md:col-span-5">{zeile.antwort}</p>
+            </div>
+          ))
+        }
       </div>
     </div>
   </section>
 
-  <ConceptCase nr="02" />
-  <System nr="03" />
-  <Anfrage nr="04" />
+  <ConceptCase />
+  <System />
+  <Anfrage />
 </BaseLayout>

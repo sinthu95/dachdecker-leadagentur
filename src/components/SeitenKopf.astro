@@ -1,41 +1,42 @@
 ---
+import Linie from './Linie.astro';
+
 interface Props {
   marke: string;
-  titel: string;
-  akzent?: string;
+  /** Zeilenumbrüche werden gesetzt, nicht dem Zufall überlassen. */
+  zeilen: string[];
   text?: string;
 }
-const { marke, titel, akzent, text } = Astro.props;
+const { marke, zeilen, text } = Astro.props;
 ---
 
-<section class="relative overflow-hidden border-b border-linie bg-schiefer pt-40 pb-16 lg:pt-52 lg:pb-24">
-  <div class="raster text-kalk" aria-hidden="true"></div>
-  <svg
-    class="pointer-events-none absolute inset-x-0 bottom-0 h-40 w-full opacity-60"
-    viewBox="0 0 1440 160"
-    preserveAspectRatio="none"
-    aria-hidden="true"
-  >
-    <path
-      class="zeichne"
-      d="M-40 160 720 12 1480 160"
-      fill="none"
-      stroke="var(--color-schnur)"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"></path>
-  </svg>
+<section class="relative overflow-hidden bg-papier pt-28 pb-14 lg:pt-36 lg:pb-20">
+  <div class="schiene relative">
+    <div
+      class="steig flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-b border-linie pb-3"
+    >
+      <span class="marke">{marke}</span>
+      <span class="marke zahlen">38°</span>
+    </div>
 
-  <div class="shell relative">
-    <p class="marke steig">
-      <span class="marke-num zahlen">·</span>
-      <span>{marke}</span>
-    </p>
-    <h1 class="steig mt-6 max-w-4xl text-display" style="--i:1">
-      {titel}{akzent && <span class="text-schnur-hell"> {akzent}</span>}
-    </h1>
+    <div class="mt-10 grid items-end gap-8 lg:mt-14 lg:grid-cols-12">
+      <h1 class="zeilen max-w-[20ch] text-gross lg:col-span-9">
+        {
+          zeilen.map((z, i) => (
+            <span class="zeile">
+              <span style={`--i:${i}`}>{z}</span>
+            </span>
+          ))
+        }
+      </h1>
+      <div class="hidden lg:col-span-3 lg:block" aria-hidden="true">
+        <Linie art="dach" class="h-24 w-full text-schiefer opacity-40" />
+      </div>
+    </div>
+
     {
       text && (
-        <p class="steig measure-wide mt-7 text-lead text-zink-hell" style="--i:2">
+        <p class="steig vorspann mt-10 max-w-[46ch]" style="--i:1">
           {text}
         </p>
       )

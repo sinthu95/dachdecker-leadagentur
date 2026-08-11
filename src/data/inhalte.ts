@@ -74,15 +74,96 @@ export const stufen = [
   },
 ] as const;
 
-/** Der Ablauf, den das System erzeugt. Wird als gezeichnete Kette dargestellt. */
+/**
+ * Der Ablauf, den das System erzeugt — sechs Glieder einer Kette, nicht sechs
+ * Leistungen nebeneinander. Wird als durchgehende Konstruktionslinie gezeigt.
+ */
 export const kette = [
-  { k: 'Aufmerksamkeit', v: 'Suche und regionale Anzeigen' },
-  { k: 'Landingpage', v: 'Ein Ziel je Seite' },
-  { k: 'Vertrauen', v: 'Arbeit sichtbar machen' },
-  { k: 'Qualifizierung', v: 'Passt der Auftrag?' },
-  { k: 'Anfrage', v: 'Exklusiv, an Sie' },
-  { k: 'Messung', v: 'Herkunft jeder Anfrage' },
-  { k: 'Optimierung', v: 'Budget dorthin, wo es wirkt' },
+  {
+    k: 'Positionierung',
+    rolle: 'Festlegung',
+    v: 'Welche Arbeiten sollen es sein — und für wen im Einzugsgebiet?',
+  },
+  {
+    k: 'Website',
+    rolle: 'Aufnahme',
+    v: 'Ein Auftritt, der diese Arbeiten zeigt und Anfragen aufnehmen kann.',
+  },
+  {
+    k: 'Aufmerksamkeit',
+    rolle: 'Zufluss',
+    v: 'Suchanzeigen und regionale Kampagnen bringen die passenden Leute hin.',
+  },
+  {
+    k: 'Qualifizierung',
+    rolle: 'Filter',
+    v: 'Vorab geklärt: Leistung, Umkreis, Objektgröße, Zeitrahmen.',
+  },
+  {
+    k: 'Anfrage',
+    rolle: 'Übergabe',
+    v: 'Exklusiv bei Ihnen, mit der Herkunft im Gepäck.',
+  },
+  {
+    k: 'Optimierung',
+    rolle: 'Steuerung',
+    v: 'Ihre Rückmeldung zur Anfragequalität steuert das Budget.',
+  },
+] as const;
+
+/**
+ * Ein- und Austritt des Systems. Sie stehen bewusst außerhalb der sechs
+ * Stationen: Das System beginnt nicht bei uns, sondern bei einem Hausbesitzer,
+ * und es endet nicht bei einer Zahl, sondern bei einem Termin.
+ */
+export const systemGrenzen = {
+  eingang: {
+    marke: 'Eingang',
+    text: 'Ein Hausbesitzer im Umkreis merkt, dass sein Dach eine Entscheidung verlangt.',
+  },
+  ausgang: {
+    marke: 'Ausgang',
+    text: 'Ein Termin auf dem Dach, bei dem beide Seiten wissen, worum es geht.',
+  },
+  rueckkopplung:
+    'Ihre Einschätzung jeder Anfrage läuft zurück in die Aussteuerung — deshalb ist es ein Kreis und keine Liste.',
+} as const;
+
+/**
+ * Leistungsindex. Nach außen ein System — die einzelnen Positionen erscheinen
+ * als redaktioneller Index, nicht als Kachelraster.
+ */
+export const leistungen = [
+  {
+    nr: '01',
+    name: 'Websites',
+    text: 'Individuelle Auftritte und Conversion-Landingpages für Dachdeckerbetriebe. Gebaut auf eine Anfrage hin, nicht auf einen Katalog.',
+  },
+  {
+    nr: '02',
+    name: 'Google Ads',
+    text: 'Suchkampagnen für Menschen, die gerade jetzt einen Dachdecker in Ihrer Region suchen. Mit ausgeschlossenen Begriffen, die nur Geld kosten.',
+  },
+  {
+    nr: '03',
+    name: 'Meta Ads',
+    text: 'Regionale Nachfrage auf Facebook und Instagram, später Retargeting. Für Arbeiten, nach denen noch niemand sucht.',
+  },
+  {
+    nr: '04',
+    name: 'Content',
+    text: 'Anzeigenmotive, Hooks, Kurzvideos und Beiträge — aus Ihren eigenen Baustellen, nicht aus einer Bilddatenbank.',
+  },
+  {
+    nr: '05',
+    name: 'Tracking',
+    text: 'Conversion-Messung und Herkunft jeder Anfrage. Die Grundlage dafür, dass Optimierung mehr ist als eine Vermutung.',
+  },
+  {
+    nr: '06',
+    name: 'Optimierung',
+    text: 'Monatliche Auswertung, Budgetverschiebung und die Rückkopplung aus Ihrer Einschätzung der Anfragequalität.',
+  },
 ] as const;
 
 /** Was der Betrieb kennt — und was wir dagegensetzen. */
@@ -171,6 +252,86 @@ export const passung = {
     'Ein-Personen-Betrieb ohne Wachstumsabsicht',
   ],
 } as const;
+
+/**
+ * Der Anfrageweg als Schema: von der Suche bis zum Termin.
+ *
+ * Die Suchbegriffe sind Beispiele für die Art von Suche, um die es geht —
+ * keine gemessenen Volumina, keine Rankingbehauptungen. Die ausgeschlossenen
+ * Begriffe stehen dort, weil das Aussortieren die eigentliche Arbeit ist.
+ */
+export const anfrageweg = {
+  gesucht: [
+    'dachsanierung kosten',
+    'flachdach abdichten firma',
+    'dachdecker notdienst sturm',
+  ],
+  ausgeschlossen: [
+    'dachrinne reinigen',
+    'dachpappe baumarkt',
+    'dachdecker ausbildung',
+    'dach selber decken',
+  ],
+  /** Die vier Stationen der Zeichnung. */
+  stationen: [
+    {
+      marke: 'Suche',
+      titel: 'Jemand sucht — mit Absicht',
+      text: 'Nicht jede Suche nach „Dach" ist ein Auftrag. Wir kaufen nur die Suchen, hinter denen eine Entscheidung steht.',
+    },
+    {
+      marke: 'Anzeige',
+      titel: 'Leistung und Ort stehen drin',
+      text: 'Wer nach einer Flachdachabdichtung sucht, bekommt eine Anzeige über Flachdachabdichtung — nicht über „Ihr Dachdecker aus Leidenschaft".',
+    },
+    {
+      marke: 'Seite',
+      titel: 'Eine Seite je Leistung',
+      text: 'Die Anzeige führt nicht auf die Startseite, sondern auf die Seite, die genau diese Arbeit zeigt. Die Anfrage steht darauf im ersten Bildschirm.',
+    },
+    {
+      marke: 'Anfrage',
+      titel: 'Vorab geklärt statt Rückruf-Roulette',
+      text: 'Leistung, Objekt, Umkreis und Zeitrahmen kommen mit. Sie entscheiden am Schreibtisch, ob Sie rausfahren.',
+    },
+  ],
+  /** Felder, die die Anfrage mitbringt — dieselben wie im echten Formular. */
+  felder: ['Leistung', 'Standort und Umkreis', 'Objektgröße', 'Zeitrahmen', 'Erreichbarkeit'],
+} as const;
+
+/**
+ * Regionale Aussteuerung als Schema. Die Radien sind ein Beispiel für die
+ * Denkweise, keine Zusage: Was ein Betrieb sinnvoll bedient, ergibt sich aus
+ * dem Aufmaß — Anfahrt, Kolonnenstärke und Auftragsart.
+ */
+export const gebiet = {
+  ringe: [
+    { marke: '15 min', text: 'Kernzone. Höchstes Gebot, jede Leistung.' },
+    { marke: '30 min', text: 'Erweitert. Nur Aufträge ab einer Größe, die die Anfahrt trägt.' },
+    { marke: '45 min', text: 'Rand. Ausgewählte Arbeiten, gesondert entschieden.' },
+  ],
+  ausserhalb: 'Keine Ausspielung — jede Anfrage von dort kostet Sie einen halben Tag.',
+} as const;
+
+/**
+ * Die Bedingungen der Potenzialanalyse, als Schlussleiste unter dem letzten
+ * Aufruf. Bewusst nichts Neues: Es sind dieselben drei Zusagen, die weiter
+ * oben schon stehen — hier nur an der Stelle, an der jemand entscheidet.
+ */
+export const abschlussBedingungen = [
+  {
+    marke: 'Kostenfrei',
+    text: 'Die Analyse kostet nichts — auch dann nicht, wenn wir danach nicht zusammenarbeiten.',
+  },
+  {
+    marke: 'Rund 40 Minuten',
+    text: 'Ein Telefonat zu einer Zeit, die zu Ihrem Tag passt. Kein Termin im Büro nötig.',
+  },
+  {
+    marke: 'Ohne Verkaufsgespräch',
+    text: 'Am Ende steht eine Einschätzung — kein Angebot, das Sie am Telefon unterschreiben sollen.',
+  },
+] as const;
 
 /** Auswahlmöglichkeiten im Qualifizierungsformular. */
 export const formularWerte = {

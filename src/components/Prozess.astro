@@ -2,72 +2,76 @@
 import Marke from './Marke.astro';
 import { prozess } from '../data/inhalte';
 
-interface Props {
-  nr?: string;
-}
-const { nr = '06' } = Astro.props;
+/**
+ * Die Signaturlinie wird hier zur senkrechten Konstruktionsachse. Die Schritte
+ * hängen daran wie Bauteile an einem Lot — kein Kachelraster, keine Karten.
+ */
 ---
 
-<section class="abschnitt border-t border-linie bg-blei" aria-labelledby="prozess-titel">
-  <div class="shell">
-    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
-      <div class="lg:col-span-3">
-        <Marke nr={nr} label="Prozess" />
-      </div>
-
-      <div class="lg:col-span-9 xl:col-span-8">
-        <h2 id="prozess-titel" class="steig text-display">
-          Was wann passiert — und was <span class="text-schnur-hell">Sie</span> dabei tun müssen.
+<section class="kapitel schnitt dunkel" aria-labelledby="prozess-titel">
+  <div class="schiene">
+    <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+      <div class="lg:col-span-7">
+        <Marke label="Prozess" />
+        <h2 id="prozess-titel" class="mt-8 max-w-[20ch] text-gross lg:mt-10">
+          Was wann passiert — und was Sie dabei tun müssen.
         </h2>
-        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+        <p class="steig vorspann" style="--i:1">
           Die häufigste Sorge im Erstgespräch ist nicht der Preis, sondern der Aufwand.
-          Deshalb steht in der rechten Spalte, was jeweils bei Ihnen liegt. Es ist wenig —
-          bis auf einen Punkt, und der ist der wichtigste.
+          Deshalb steht er hier in jeder Zeile.
         </p>
       </div>
     </div>
 
-    <!-- Zeitachse als Bemaßungslinie -->
-    <ol class="mt-16 lg:mt-20">
-      {
-        prozess.map((schritt, i) => (
-          <li
-            class="steig relative grid gap-x-8 gap-y-3 border-t border-linie py-7 md:grid-cols-12 lg:py-9"
-            style={`--i:${i}`}
-          >
-            <div class="flex items-baseline gap-4 md:col-span-3">
-              <span class="marke-num zahlen font-mono text-[1.15rem] text-schnur">
-                {schritt.nr}
-              </span>
-              <div>
-                <h3 class="text-[1.15rem] font-semibold tracking-[-0.015em]">
+    <div class="relative mt-12 pl-9 lg:mt-16 lg:pl-16">
+      <!-- Senkrechte Achse, an der die Schritte hängen wie Bauteile am Lot -->
+      <div
+        class="zieh-y absolute top-2 bottom-2 left-0 w-px origin-top bg-papier/35"
+        aria-hidden="true"
+      >
+      </div>
+
+      <ol>
+        {
+          prozess.map((schritt, i) => (
+            <li class="steig relative" style={`--i:${Math.min(i, 4)}`}>
+              <div class="grid gap-x-8 gap-y-3 border-b border-linie-dunkel py-8 lg:grid-cols-12 lg:py-10">
+                <div class="lg:col-span-2">
+                  <span class="marke zahlen">{schritt.nr}</span>
+                  <p class="mt-1 font-mono text-[0.62rem] tracking-[0.14em] text-graphit-hell uppercase">
+                    {schritt.zeit}
+                  </p>
+                </div>
+
+                <h3 class="text-[1.5rem] font-medium tracking-[-0.025em] lg:col-span-3 lg:text-[1.7rem]">
                   {schritt.name}
                 </h3>
-                <p class="mt-1 font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
-                  {schritt.zeit}
-                </p>
+
+                <p class="fliess max-w-[48ch] lg:col-span-4">{schritt.text}</p>
+
+                <div class="lg:col-span-3">
+                  <p class="marke">Ihr Aufwand</p>
+                  <p class="mt-1.5 text-klein text-papier">{schritt.ihrAufwand}</p>
+                </div>
               </div>
-            </div>
 
-            <p class="text-klein text-zink-hell md:col-span-6">{schritt.text}</p>
-
-            <div class="md:col-span-3">
-              <p class="font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
-                Ihr Aufwand
-              </p>
-              <p class="mt-1.5 text-[0.9rem] text-kalk">{schritt.ihrAufwand}</p>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
-
-    <div class="steig mt-10 border-l-2 border-schnur pl-6">
-      <p class="measure-wide text-klein text-zink-hell">
-        Der letzte Punkt ist keine Höflichkeitsfloskel: Ihre kurze Rückmeldung, ob eine
-        Anfrage brauchbar war, ist die wichtigste Steuerungsgröße im laufenden Betrieb.
-        Ohne sie optimieren wir auf Klicks statt auf Aufträge.
-      </p>
+              {/* Knotenpunkt auf der Achse */}
+              <span
+                class="steig absolute top-[2.7rem] left-[calc(-2.25rem-3.5px)] h-[7px] w-[7px] bg-papier lg:top-[3.4rem] lg:left-[calc(-4rem-3.5px)]"
+                style={`--i:${Math.min(i, 4)}`}
+                aria-hidden="true"
+              />
+            </li>
+          ))
+        }
+      </ol>
     </div>
+
+    <p class="steig mt-12 max-w-[54ch] text-klein text-graphit-hell">
+      Der letzte Punkt ist keine Höflichkeitsfloskel: Ihre kurze Rückmeldung, ob eine
+      Anfrage brauchbar war, ist die wichtigste Steuerungsgröße im laufenden Betrieb.
+    </p>
   </div>
 </section>

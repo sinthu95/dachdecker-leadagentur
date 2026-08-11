@@ -105,17 +105,15 @@ const abschnitte = [
 >
   <SeitenKopf
     marke="Rechtliches"
-    titel="Datenschutz"
+    zeilen={['Datenschutz']}
     text="Diese Seite beschreibt, welche Daten beim Besuch dieser Website und bei einer Anfrage verarbeitet werden. Sie ist bewusst kurz, weil die Website bewusst wenig verarbeitet."
   />
 
-  <section class="abschnitt bg-schiefer">
-    <div class="shell">
-      <div class="mb-14 max-w-3xl border-l-2 border-schnur bg-schnur/10 px-6 py-5">
-        <p class="font-mono text-[0.62rem] tracking-[0.16em] text-schnur-hell uppercase">
-          Stand der Fassung
-        </p>
-        <p class="mt-3 text-klein text-zink-hell">
+  <section class="kapitel-eng schnitt bg-papier">
+    <div class="schiene">
+      <div class="mb-16 max-w-[62ch] border-l border-signal bg-signal/8 px-6 py-5">
+        <p class="marke text-signal">Stand der Fassung</p>
+        <p class="fliess mt-3 text-klein">
           Dieser Text beschreibt den technischen Stand dieser Website zum Zeitpunkt der
           Erstellung. Er wird vor dem Livegang rechtlich geprüft und bei jeder technischen
           Änderung — insbesondere vor dem Start von Werbekampagnen mit Conversion-Messung
@@ -123,19 +121,21 @@ const abschnitte = [
         </p>
       </div>
 
-      <div class="max-w-3xl space-y-14">
+      <div class="border-t border-schiefer">
         {
           abschnitte.map((a) => (
-            <div>
-              <h2 class="flex items-baseline gap-4 text-statement">
-                <span class="font-mono text-[0.9rem] text-schnur">{a.nr}</span>
-                {a.titel}
+            <div class="grid gap-x-8 gap-y-4 border-b border-linie-stark py-10 lg:grid-cols-12">
+              <h2 class="lg:col-span-4">
+                <span class="marke zahlen block">{a.nr}</span>
+                <span class="mt-2 block text-[1.35rem] font-medium tracking-[-0.025em]">
+                  {a.titel}
+                </span>
               </h2>
 
               {a.inhalt === 'verantwortlicher' ? (
-                <div class="mt-5 space-y-3 text-klein text-zink-hell">
+                <div class="fliess space-y-3 text-klein lg:col-span-7 lg:col-start-6">
                   <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
-                  <p class="text-kalk">
+                  <p class="text-schiefer">
                     {impressum.anbieter}
                     <br />
                     {impressum.strasse && impressum.plzOrt ? (
@@ -166,7 +166,7 @@ const abschnitte = [
                   </p>
                 </div>
               ) : (
-                <div class="mt-5 space-y-4 text-klein text-zink-hell">
+                <div class="fliess space-y-4 text-klein lg:col-span-7 lg:col-start-6">
                   {a.text?.map((absatz) => <p>{absatz}</p>)}
                 </div>
               )}
