@@ -74,9 +74,13 @@ Fließtext sind davon ausgenommen.
 ## Nach jeder Änderung
 
 ```bash
-npm run build
+npm run check:build
 node tools/pruefen.mjs             http://127.0.0.1:4321
 node tools/pruefen-interaktion.mjs http://127.0.0.1:4321
 ```
 
 Beide Prüfläufe müssen ohne Befund durchlaufen.
+
+`npm run build` allein baut nur — ohne Typprüfung, damit die Auslieferung auf
+Cloudflare nicht an einer interaktiven Rückfrage hängenbleibt. Vor einem Commit
+gilt `check:build`.

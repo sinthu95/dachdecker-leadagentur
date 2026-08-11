@@ -4,10 +4,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
+    "build": "astro build",
     "check": "astro check",
-    "deploy": "astro build && wrangler deploy"
+    "check:build": "astro check && astro build",
+    "preview": "astro preview",
+    "deploy": "wrangler deploy"
   },
   "repository": {
     "type": "git",

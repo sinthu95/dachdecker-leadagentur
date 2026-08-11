@@ -27,10 +27,17 @@ solche Werte gehen erfahrungsgemäß versehentlich live.
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321 — inklusive /api/anfrage
-npm run build      # astro check && astro build
-npx wrangler dev   # Produktionsbuild lokal, wie auf Cloudflare
+npm run dev          # http://localhost:4321 — inklusive /api/anfrage
+npm run build        # Produktionsbau (astro build)
+npm run check        # Typprüfung (astro check)
+npm run check:build  # beides — die Kontrolle vor jedem Commit
+npx wrangler dev     # Produktionsbuild lokal, wie auf Cloudflare
 ```
+
+`build` enthält bewusst **keine** Typprüfung: `astro check` fordert
+`@astrojs/check` bei Bedarf interaktiv nach und darf deshalb nicht im Pfad einer
+automatischen Auslieferung liegen. Für die eigene Kontrolle ist
+`npm run check:build` gedacht.
 
 ### Prüfläufe
 
