@@ -52,6 +52,17 @@ Gemessen am 11.08.2026 gegen den Produktionsbuild, mobil, 4× CPU-Drosselung, ~1
 
 JavaScript gesamt: 5,9 KB unkomprimiert, ein einziges Modul.
 
+### Vorschau ohne Server
+
+```bash
+npm run build && node tools/vorschau.mjs   # erzeugt vorschau.html
+```
+
+Packt alle Seiten, Stile, Schriften, Bilder und das Skript in eine einzelne
+HTML-Datei. Navigation, Scroll-Effekte und die Formularstrecke funktionieren;
+nur das Absenden führt ohne Server direkt auf `/danke`, ohne etwas zu
+verschicken. Praktisch, um den Stand ohne Einrichtung durchzuklicken.
+
 ---
 
 ## Aufbau
