@@ -1,0 +1,81 @@
+---
+import Marke from './Marke.astro';
+import { passung } from '../data/inhalte';
+
+interface Props {
+  nr?: string;
+}
+const { nr = '09' } = Astro.props;
+---
+
+<section class="abschnitt border-t border-linie bg-schiefer" aria-labelledby="passung-titel">
+  <div class="shell">
+    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-3">
+        <Marke nr={nr} label="Passung" />
+      </div>
+
+      <div class="lg:col-span-9 xl:col-span-8">
+        <h2 id="passung-titel" class="steig text-display">
+          Nicht jeder Betrieb ist <span class="text-schnur-hell">passend</span>.
+        </h2>
+        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+          Wir arbeiten mit einem Dachdeckerbetrieb je Einzugsgebiet. Das zwingt uns zu
+          einer Auswahl — und Ihnen erspart es ein Gespräch, das ohnehin zu nichts führt.
+          Deshalb steht hier offen, wen wir ablehnen.
+        </p>
+
+        <div class="mt-12 grid gap-px bg-linie md:grid-cols-2">
+          <div class="bg-schiefer p-7 lg:p-9">
+            <h3
+              class="steig flex items-center gap-2.5 font-mono text-[0.66rem] font-medium tracking-[0.15em] text-gruen-hell uppercase"
+            >
+              <span class="inline-block h-2 w-2 bg-gruen-hell" aria-hidden="true"></span>
+              Passt
+            </h3>
+            <ul class="mt-6 space-y-3.5">
+              {
+                passung.ja.map((p, i) => (
+                  <li class="steig flex gap-3 text-[0.95rem] text-kalk" style={`--i:${i}`}>
+                    <span
+                      class="mt-[0.62em] h-px w-4 shrink-0 bg-gruen-hell"
+                      aria-hidden="true"
+                    />
+                    {p}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="bg-schiefer p-7 lg:p-9">
+            <h3
+              class="steig flex items-center gap-2.5 font-mono text-[0.66rem] font-medium tracking-[0.15em] text-rotstift-hell uppercase"
+            >
+              <span class="inline-block h-2 w-2 bg-rotstift-hell" aria-hidden="true"></span>
+              Passt nicht
+            </h3>
+            <ul class="mt-6 space-y-3.5">
+              {
+                passung.nein.map((p, i) => (
+                  <li class="steig flex gap-3 text-[0.95rem] text-zink" style={`--i:${i}`}>
+                    <span
+                      class="mt-[0.62em] h-px w-4 shrink-0 bg-rotstift-hell"
+                      aria-hidden="true"
+                    />
+                    {p}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+
+        <p class="steig mt-8 text-[0.85rem] text-zink">
+          Wenn Sie in der rechten Spalte stehen, sagen wir das im Erstgespräch — und
+          nennen Ihnen, wenn möglich, den sinnvolleren nächsten Schritt.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

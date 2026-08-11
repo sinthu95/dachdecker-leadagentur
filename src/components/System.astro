@@ -1,0 +1,113 @@
+---
+import Marke from './Marke.astro';
+import { stufen, kette } from '../data/inhalte';
+import { site } from '../config/site';
+
+interface Props {
+  /** Auf der Leistungsseite ausführlicher als auf der Startseite. */
+  ausfuehrlich?: boolean;
+  nr?: string;
+}
+const { ausfuehrlich = false, nr = '03' } = Astro.props;
+---
+
+<section class="abschnitt border-t border-linie bg-schiefer" aria-labelledby="system-titel">
+  <div class="shell">
+    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-3">
+        <Marke nr={nr} label="Das System" />
+      </div>
+      <div class="lg:col-span-9 xl:col-span-8">
+        <h2 id="system-titel" class="steig text-display">
+          Aufmaß. Aufbau. <span class="text-schnur-hell">Auslastung</span>.
+        </h2>
+        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+          Zwölf Leistungen nebeneinander sind ein Katalog. Drei Stufen hintereinander sind
+          ein System. Wir haben die Namen aus Ihrer Sprache genommen — die dritte ist
+          zugleich Ihr Geschäftsziel.
+        </p>
+      </div>
+    </div>
+
+    <!-- Die Konstruktionslinie verbindet die drei Stufen -->
+    <div class="relative mt-16 lg:mt-24">
+      <div class="absolute inset-x-0 top-[7px] hidden h-px bg-linie lg:block" aria-hidden="true">
+        <div class="zieh h-px w-full origin-left bg-schnur"></div>
+      </div>
+
+      <div class="grid gap-y-12 lg:grid-cols-3 lg:gap-x-10">
+        {
+          stufen.map((stufe, i) => (
+            <div class="steig relative lg:pr-8" style={`--i:${i}`}>
+              <div
+                class="mb-6 hidden h-[15px] w-[15px] border border-schnur bg-schiefer lg:block"
+                aria-hidden="true"
+              />
+
+              <div class="flex items-baseline gap-4">
+                <span class="marke-num zahlen font-mono text-[1.6rem] leading-none text-schnur">
+                  {stufe.nr}
+                </span>
+                <div>
+                  <h3 class="text-statement">{stufe.name}</h3>
+                  <p class="mt-1 font-mono text-[0.62rem] tracking-[0.14em] text-zink uppercase">
+                    {stufe.zeit}
+                  </p>
+                </div>
+              </div>
+
+              <p class="mt-5 text-lead text-kalk">{stufe.satz}</p>
+              <p class="mt-3 text-klein text-zink">{stufe.text}</p>
+
+              <ul class="mt-6 space-y-0 border-t border-linie">
+                {stufe.punkte.map((punkt) => (
+                  <li class="border-b border-linie py-2.5 text-[0.86rem] text-zink-hell">
+                    {punkt}
+                  </li>
+                ))}
+              </ul>
+
+              <p class="mt-5 flex gap-2 text-[0.82rem] text-kalk">
+                <span class="mt-[0.55em] h-px w-4 shrink-0 bg-schnur" aria-hidden="true" />
+                {stufe.ergebnis}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Was das System im Alltag erzeugt -->
+    <div class="mt-20 border-t border-linie pt-12 lg:mt-28">
+      <p class="steig font-mono text-micro font-medium text-zink uppercase">
+        Was dabei entsteht
+      </p>
+      <ol class="mt-7 grid gap-px bg-linie sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        {
+          kette.map((glied, i) => (
+            <li class="steig bg-schiefer px-4 py-5" style={`--i:${i}`}>
+              <span class="font-mono text-[0.6rem] tracking-[0.14em] text-schnur-hell">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <p class="mt-2 text-[0.92rem] font-semibold tracking-[-0.01em]">{glied.k}</p>
+              <p class="mt-1 text-[0.78rem] leading-snug text-zink">{glied.v}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    {
+      !ausfuehrlich && (
+        <div class="steig mt-12">
+          <a href="/leistungen" class="txtlink text-kalk">
+            {site.angebot} im Detail
+            <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" />
+            </svg>
+          </a>
+        </div>
+      )
+    }
+  </div>
+</section>

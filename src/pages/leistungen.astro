@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SeitenKopf from '../components/SeitenKopf.astro';
+import System from '../components/System.astro';
+import Prozess from '../components/Prozess.astro';
+import Fragen from '../components/Fragen.astro';
+import AbschlussCTA from '../components/AbschlussCTA.astro';
+import Marke from '../components/Marke.astro';
+import { site } from '../config/site';
+
+/** Preise werden bewusst nicht genannt — aber die Struktur wird erklärt.
+ *  Völlige Intransparenz ist die häufigste Absprungursache auf Agenturseiten. */
+const kosten = [
+  {
+    was: 'Potenzialanalyse',
+    wie: 'kostenfrei',
+    text: 'Rund 40 Minuten. Sie bekommen eine Einschätzung zu Ihrem Einzugsgebiet — unabhängig davon, ob wir danach zusammenarbeiten.',
+  },
+  {
+    was: 'Aufmaß und Aufbau',
+    wie: 'einmaliges Honorar',
+    text: 'Die Höhe hängt vom Umfang ab, der sich aus der Analyse ergibt: eine Landingpage ist etwas anderes als ein vollständiger Auftritt.',
+  },
+  {
+    was: 'Auslastung',
+    wie: 'monatliche Betreuung',
+    text: 'Laufende Kampagnen, Auswertung und Optimierung. Getrennt vom Werbebudget abgerechnet.',
+  },
+  {
+    was: 'Werbebudget',
+    wie: 'direkt an Google und Meta',
+    text: 'Über Ihre eigenen Konten. Wir fassen es nicht an und verdienen nicht daran mit — das schließt einen Interessenkonflikt aus.',
+  },
+];
+---
+
+<BaseLayout
+  title="Das System"
+  description="Das Dachdecker-Auftragssystem von S&S Leadcraft: Aufmaß, Aufbau, Auslastung. Website, Google Ads, Meta Ads, Tracking und Optimierung als ein zusammenhängender Ablauf."
+  path="/leistungen"
+>
+  <SeitenKopf
+    marke="Das System"
+    titel="Zwölf Leistungen ergeben noch kein"
+    akzent="System."
+    text={`Wir verkaufen keinen Leistungskatalog, sondern einen Ablauf, in dem jedes Bauteil eine Aufgabe hat und einzeln überprüfbar ist. Intern heißt er ${site.angebot}.`}
+  />
+
+  <System ausfuehrlich={true} nr="01" />
+  <Prozess nr="02" />
+
+  <!-- Kostenstruktur ohne erfundene Zahlen -->
+  <section class="abschnitt border-t border-linie bg-schiefer" aria-labelledby="kosten-titel">
+    <div class="shell">
+      <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-3">
+          <Marke nr="03" label="Was es kostet" />
+        </div>
+
+        <div class="lg:col-span-9 xl:col-span-8">
+          <h2 id="kosten-titel" class="steig text-display">
+            Wir nennen hier keine Zahl — aber wir erklären die
+            <span class="text-schnur-hell">Struktur</span>.
+          </h2>
+          <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+            Ein Preisschild auf dieser Seite wäre für Ihren Betrieb mit hoher
+            Wahrscheinlichkeit falsch: Ein Betrieb mit acht Mitarbeitern in einem dicht
+            besetzten Ballungsraum braucht etwas anderes als ein Betrieb mit 25
+            Mitarbeitern im ländlichen Raum. Was wir Ihnen stattdessen offenlegen, ist,
+            wie sich die Kosten überhaupt zusammensetzen.
+          </p>
+
+          <div class="mt-12 border-t border-linie">
+            {
+              kosten.map((posten, i) => (
+                <div
+                  class="steig grid gap-x-8 gap-y-2 border-b border-linie py-6 md:grid-cols-12"
+                  style={`--i:${i}`}
+                >
+                  <p class="font-semibold tracking-[-0.01em] md:col-span-3">{posten.was}</p>
+                  <p class="font-mono text-[0.68rem] tracking-[0.12em] text-schnur-hell uppercase md:col-span-3">
+                    {posten.wie}
+                  </p>
+                  <p class="text-klein text-zink md:col-span-6">{posten.text}</p>
+                </div>
+              ))
+            }
+          </div>
+
+          <div class="steig mt-10 border-l-2 border-schnur pl-6">
+            <p class="measure-wide text-klein text-zink-hell">
+              Ein Grundsatz vorab: Website, Domain, Werbekonten und Tracking laufen auf
+              Ihren Namen. Wenn wir uns trennen, bleibt das System bei Ihnen — ohne dass
+              Sie etwas herauskaufen müssen.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Fragen nr="04" />
+  <AbschlussCTA />
+</BaseLayout>

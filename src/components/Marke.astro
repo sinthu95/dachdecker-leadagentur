@@ -1,0 +1,15 @@
+---
+/** Kapitelmarke: Nummer plus Label. Die Nummerierung bildet die Dramaturgie
+ *  der Seite ab — sie ist eine echte Reihenfolge, kein Ornament. */
+interface Props {
+  nr: string;
+  label: string;
+  class?: string;
+}
+const { nr, label, class: klasse = '' } = Astro.props;
+---
+
+<p class:list={['marke steig', klasse]}>
+  <span class="marke-num zahlen">{nr}</span>
+  <span>{label}</span>
+</p>

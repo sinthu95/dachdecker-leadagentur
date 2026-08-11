@@ -1,0 +1,279 @@
+---
+import Marke from './Marke.astro';
+import { demoStationen } from '../data/inhalte';
+import { site } from '../config/site';
+
+interface Props {
+  nr?: string;
+  /** Auf /demo trägt die Seite die Überschrift bereits selbst. */
+  kompakt?: boolean;
+}
+const { nr = '04', kompakt = false } = Astro.props;
+
+/**
+ * Der gepinnte Rundgang läuft genau einmal je Seite und nur dort, wo die
+ * Stationen nicht ohnehin ausführlich folgen. Auf /demo stehen sie direkt
+ * darunter in voller Größe — ihn dort zusätzlich zu zeigen, wäre eine
+ * Wiederholung über sechs Bildschirmhöhen.
+ */
+const zeigeRundgang = !kompakt;
+
+/**
+ * Position jeder Station in der langen Aufnahme, als Anteil der Bildhöhe.
+ * Ermittelt aus den echten Abschnittsoffsets der Demo (tools/shot-stationen.mjs),
+ * damit die Anmerkung exakt dann wechselt, wenn der Abschnitt im Rahmen steht —
+ * gleichmäßige Abschnitte wären hier falsch, weil die Projektstrecke sehr lang ist.
+ */
+const positionen = [0, 0.1435, 0.2464, 0.2924, 0.8442, 0.9035];
+const demoHost = new URL(site.demoUrl).host;
+---
+
+<section
+  class="relative overflow-hidden border-t border-linie bg-blei"
+  aria-labelledby="case-titel"
+>
+  <div class="shell pt-[clamp(4.5rem,11vw,10rem)]">
+    <div class="grid gap-y-10 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-3">
+        <Marke nr={nr} label="Concept Case" />
+      </div>
+
+      <div class="lg:col-span-9 xl:col-span-8">
+        {
+          kompakt ? (
+            /* Die Seite /demo traegt die Aussage bereits in ihrer h1. Die
+               Ueberschrift bleibt trotzdem im Dokument, damit die
+               Gliederungsebenen ohne Sprung bleiben. */
+            <h2 id="case-titel" class="sr-only">
+              Der geführte Rundgang durch den Concept Case
+            </h2>
+          ) : (
+            <h2 id="case-titel" class="steig text-display">
+              Wir haben eine komplette Dachdecker-Website gebaut —
+              <span class="text-schnur-hell"> für einen Betrieb, den es nicht gibt</span>.
+            </h2>
+          )
+        }
+
+        <!-- Die Einordnung steht offensiv am Anfang, nicht im Kleingedruckten. -->
+        <div class="steig mt-8 border-l-2 border-schnur pl-6" style="--i:1">
+          <p class="font-mono text-[0.62rem] tracking-[0.16em] text-schnur-hell uppercase">
+            Concept Project · kein Kundenprojekt
+          </p>
+          <p class="measure-wide mt-3 text-lead text-zink-hell">
+            Die „Musterdach GmbH" ist ein frei erfundener Betrieb. Wir haben diesen
+            Auftritt gebaut, um zu zeigen, wie ein moderner digitaler Auftritt eines
+            Dachdeckerbetriebs aussehen kann — nicht, um einen Kunden zu behaupten, den
+            wir nicht haben. Sämtliche Inhalte darin sind als Beispiel gekennzeichnet.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       Gepinnter Rundgang — der einzige fixierte Scroll-Moment der Seite.
+       Nur ab Desktopbreite und nur ohne Bewegungsreduktion; sonst greift
+       die gestapelte Fassung weiter unten, die dieselben Inhalte zeigt.
+       ==================================================================== -->
+  { zeigeRundgang && (
+  <div data-case class="relative mt-16 hidden h-[560vh] lg:block">
+    <div class="sticky top-0 flex h-screen items-center">
+      <div class="shell w-full">
+        <div class="grid grid-cols-12 items-center gap-8">
+          <!-- Browserrahmen -->
+          <div class="col-span-8">
+            <div class="border border-linie-stark bg-schiefer">
+              <div class="flex items-center gap-2 border-b border-linie bg-blei-2 px-4 py-2.5">
+                <span class="h-2 w-2 rounded-full bg-linie-stark"></span>
+                <span class="h-2 w-2 rounded-full bg-linie-stark"></span>
+                <span class="h-2 w-2 rounded-full bg-linie-stark"></span>
+                <span class="ml-3 truncate font-mono text-[0.62rem] text-zink">
+                  {demoHost}
+                </span>
+              </div>
+              <div
+                data-case-rahmen
+                class="relative h-[min(64vh,620px)] overflow-hidden bg-schiefer"
+              >
+                <img
+                  data-case-bild
+                  src="/images/demo/demo-desktop.webp"
+                  width="1200"
+                  height="11428"
+                  alt="Vollständige Startseite der Dachdecker-Demo, von oben nach unten durchlaufend"
+                  class="w-full will-change-transform"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="h-px w-full bg-linie">
+                <div
+                  data-case-fortschritt
+                  class="h-px w-full origin-left scale-x-0 bg-schnur"
+                >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anmerkungen: erklären, warum das Sichtbare so gebaut ist -->
+          <div class="col-span-4">
+            <p class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
+              Geführter Rundgang
+            </p>
+            <ol class="mt-6 space-y-5">
+              {
+                demoStationen.map((station, i) => (
+                  <li
+                    data-case-notiz
+                    data-pos={positionen[i]}
+                    class="flex gap-4 text-zink opacity-25 transition-[opacity,color] duration-500"
+                  >
+                    <span class="mt-[0.15em] font-mono text-[0.66rem] text-schnur-hell">
+                      {station.nr}
+                    </span>
+                    <span>
+                      <span class="block text-[0.95rem] font-semibold tracking-[-0.01em]">
+                        {station.titel}
+                      </span>
+                      <span class="mt-1 block text-[0.82rem] leading-snug">
+                        {station.kurz}
+                      </span>
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+
+            <p class="mt-8 font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
+              Weiterscrollen bewegt die Seite im Rahmen
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  ) }
+
+  <!-- ====================================================================
+       Gestapelte Fassung: Telefone und Bewegungsreduktion. Gleiche Aussage,
+       ohne Scroll-Entführung — auf kleinen Geräten ist Pinning fast immer
+       eine Verschlechterung.
+       ==================================================================== -->
+  { zeigeRundgang && (
+  <div class="shell mt-14 lg:hidden">
+    <ol class="space-y-12">
+      {
+        demoStationen.map((station, i) => (
+          <li class="steig" style={`--i:${Math.min(i, 3)}`}>
+            <div class="flex items-baseline gap-3">
+              <span class="font-mono text-[0.68rem] text-schnur-hell">{station.nr}</span>
+              <h3 class="text-[1.15rem] font-semibold tracking-[-0.015em]">
+                {station.titel}
+              </h3>
+            </div>
+            <p class="mt-2 text-klein text-zink">{station.kurz}</p>
+            <div class="mt-4 border border-linie-stark bg-schiefer">
+              <div class="flex items-center gap-1.5 border-b border-linie bg-blei-2 px-3 py-2">
+                <span class="h-1.5 w-1.5 rounded-full bg-linie-stark" />
+                <span class="h-1.5 w-1.5 rounded-full bg-linie-stark" />
+                <span class="ml-2 truncate font-mono text-[0.55rem] text-zink">
+                  {demoHost}
+                </span>
+              </div>
+              <img
+                src={station.bild}
+                width="1100"
+                height="640"
+                alt={`Ausschnitt der Dachdecker-Demo: ${station.titel}`}
+                class="w-full"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  ) }
+
+  <!-- Mobilkomposition als eigener Beweis -->
+  <div class="shell mt-20 lg:mt-28">
+    <div class="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+      <div class="order-2 lg:order-1 lg:col-span-7">
+        <h3 class="steig text-statement">
+          Mobil ist keine gestauchte Desktopversion.
+        </h3>
+        <p class="steig measure-wide mt-5 text-lead text-zink-hell" style="--i:1">
+          Die meisten Dachanfragen entstehen abends auf dem Telefon. Deshalb sind Hero,
+          Navigation und Anfragestrecke in der Demo für kleine Bildschirme eigenständig
+          komponiert — mit eigener Zeilenführung, eigener Reihenfolge und einer
+          Telefonnummer, die immer erreichbar bleibt.
+        </p>
+        <p class="steig measure-wide mt-4 text-klein text-zink" style="--i:2">
+          Dieselbe Regel gilt für diese Seite hier: Wenn Sie gerade auf dem Telefon lesen,
+          sehen Sie keine verkleinerte Desktopfassung, sondern eine eigene Komposition.
+        </p>
+      </div>
+
+      <div class="order-1 flex justify-center lg:order-2 lg:col-span-5">
+        <div
+          class="steig w-[236px] shrink-0 rounded-[1.6rem] border border-linie-stark bg-schiefer p-2 shadow-2xl"
+        >
+          <div class="relative h-[440px] overflow-hidden rounded-[1.1rem] bg-blei-2">
+            <img
+              src="/images/demo/demo-mobil.webp"
+              width="430"
+              height="5733"
+              alt="Die Dachdecker-Demo auf einem Telefon: eigenständig komponierter Hero und Anfragestrecke"
+              class="w-full"
+              loading="lazy"
+              decoding="async"
+            />
+            <div
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-schiefer to-transparent"
+            >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Übergabe -->
+  <div class="shell pb-[clamp(4.5rem,11vw,10rem)]">
+    <div class="mt-16 border-t border-linie pt-10">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <a
+          href={site.demoUrl}
+          target="_blank"
+          rel="noopener"
+          data-ereignis="demo_open"
+          class="btn w-full sm:w-auto"
+        >
+          Live-Demo öffnen
+          <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+            <path
+              d="M7 17 17 7M9 7h8v8"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="square"></path>
+          </svg>
+        </a>
+        {
+          !kompakt && (
+            <a href="/demo" class="btn btn-linie w-full sm:w-auto">
+              Concept Case im Detail
+            </a>
+          )
+        }
+      </div>
+      <p class="mt-5 text-[0.82rem] text-zink">
+        Öffnet die Demo in einem neuen Tab. Sie ist ein Demonstrationsprojekt — die dort
+        genannten Kontaktdaten gehören zu keinem realen Betrieb.
+      </p>
+    </div>
+  </div>
+</section>

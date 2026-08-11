@@ -1,0 +1,35 @@
+---
+import { site } from '../config/site';
+
+/**
+ * Feste Leiste am unteren Rand — nur auf Telefonen. Handwerksinhaber rufen an;
+ * die Nummer darf nie mehr als einen Daumen entfernt sein.
+ * Wird ausgeblendet, sobald das Anfrageformular selbst im Bild ist.
+ */
+---
+
+<div
+  data-mobil-cta
+  class="fixed inset-x-0 bottom-0 z-[90] grid grid-cols-2 border-t border-linie bg-schiefer/95 backdrop-blur-md transition-transform duration-500 [transition-timing-function:var(--ease-schnur)] md:hidden"
+>
+  <a
+    href="/kontakt"
+    class="flex items-center justify-center gap-2 border-r border-linie px-3 py-4 font-mono text-[0.68rem] font-medium tracking-[0.12em] text-kalk uppercase"
+  >
+    Potenzialanalyse
+  </a>
+  <a
+    href={`tel:${site.telefon}`}
+    data-ereignis="call_click"
+    class="flex items-center justify-center gap-2 px-3 py-4 font-mono text-[0.68rem] font-medium tracking-[0.12em] text-kalk uppercase"
+  >
+    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" aria-hidden="true">
+      <path
+        d="M6.5 3h3l1.5 4-2 1.5a12 12 0 006.5 6.5L17 13l4 1.5v3a2 2 0 01-2.2 2A17 17 0 014.5 5.2 2 2 0 016.5 3z"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linejoin="round"></path>
+    </svg>
+    Anrufen
+  </a>
+</div>

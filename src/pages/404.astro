@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { navigation } from '../data/inhalte';
+import { site } from '../config/site';
+---
+
+<BaseLayout
+  title="Seite nicht gefunden"
+  description="Diese Seite existiert nicht."
+  path="/404"
+  noindex={true}
+>
+  <section class="relative flex min-h-[80svh] items-center overflow-hidden bg-schiefer pt-36 pb-24">
+    <div class="raster text-kalk" aria-hidden="true"></div>
+    <svg
+      class="pointer-events-none absolute inset-0 h-full w-full opacity-50"
+      viewBox="0 0 1440 600"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <path
+        class="zeichne"
+        d="M-40 520 720 60 1480 520"
+        fill="none"
+        stroke="var(--color-schnur)"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"></path>
+    </svg>
+
+    <div class="shell relative">
+      <p class="marke steig">
+        <span class="marke-num zahlen">404</span>
+        <span>Nicht gefunden</span>
+      </p>
+
+      <h1 class="steig mt-7 max-w-3xl text-display" style="--i:1">
+        Diese Seite gibt es <span class="text-schnur-hell">nicht</span>.
+      </h1>
+      <p class="steig measure-wide mt-6 text-lead text-zink-hell" style="--i:2">
+        Entweder hat sich ein Tippfehler in die Adresse geschlichen oder die Seite wurde
+        umbenannt. Hier kommen Sie weiter:
+      </p>
+
+      <nav aria-label="Weiterführende Seiten" class="mt-10 max-w-2xl border-t border-linie">
+        {
+          navigation.map((eintrag, i) => (
+            <a
+              href={eintrag.href}
+              class="steig flex items-center justify-between gap-6 border-b border-linie py-4 transition-colors duration-300 hover:text-schnur-hell"
+              style={`--i:${i}`}
+            >
+              <span class="text-[1.05rem]">{eintrag.label}</span>
+              <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+                <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </a>
+          ))
+        }
+      </nav>
+
+      <p class="steig mt-8 text-[0.85rem] text-zink">
+        Oder direkt anrufen:
+        <a
+          href={`tel:${site.telefon}`}
+          data-ereignis="call_click"
+          class="text-kalk underline underline-offset-4">{site.telefonAnzeige}</a
+        >
+      </p>
+    </div>
+  </section>
+</BaseLayout>

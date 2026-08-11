@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SeitenKopf from '../components/SeitenKopf.astro';
+import Anfrage from '../components/Anfrage.astro';
+import { site } from '../config/site';
+---
+
+<BaseLayout
+  title="Potenzialanalyse anfragen"
+  description="Fordern Sie eine kostenfreie Potenzialanalyse für Ihren Dachdeckerbetrieb an: rund 40 Minuten, mit einer ehrlichen Einschätzung zu Ihrem Einzugsgebiet."
+  path="/kontakt"
+>
+  <SeitenKopf
+    marke="Kontakt"
+    titel="Potenzialanalyse"
+    akzent="anfragen."
+    text="Kostenfrei, rund 40 Minuten, kein Verkaufsgespräch. Am Ende wissen Sie, ob in Ihrem Einzugsgebiet digital etwas zu holen ist — und wir sagen Ihnen auch, wenn wir nicht die Richtigen sind."
+  />
+
+  <!-- Fehlerhinweis nach serverseitiger Ablehnung. Die Seite ist statisch,
+       deshalb wird der Hinweis clientseitig anhand der Adresse eingeblendet. -->
+  <div class="shell">
+    <div
+      id="formularfehler"
+      hidden
+      role="alert"
+      class="mt-10 border-l-2 border-rotstift-hell bg-rotstift/10 px-5 py-4"
+    >
+      <p class="font-mono text-[0.62rem] tracking-[0.16em] text-rotstift-hell uppercase">
+        Anfrage nicht abgeschickt
+      </p>
+      <p class="mt-2 text-klein text-kalk" id="formularfehler-text"></p>
+    </div>
+  </div>
+
+  <Anfrage nr="·" knapp={true} />
+
+  <!-- Direkter Weg -->
+  <section class="border-t border-linie bg-schiefer py-16 lg:py-20">
+    <div class="shell">
+      <div class="grid gap-y-10 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-3">
+          <p class="marke steig">
+            <span class="marke-num zahlen">·</span>
+            <span>Direkt</span>
+          </p>
+        </div>
+
+        <div class="lg:col-span-9 xl:col-span-8">
+          <h2 class="steig text-statement">Lieber direkt sprechen?</h2>
+          <dl class="mt-8 grid gap-8 sm:grid-cols-3">
+            <div class="steig">
+              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
+                Telefon
+              </dt>
+              <dd class="mt-2">
+                <a
+                  href={`tel:${site.telefon}`}
+                  data-ereignis="call_click"
+                  class="tipp text-lead text-kalk underline decoration-linie-stark underline-offset-4 transition-colors duration-300 hover:text-schnur-hell"
+                  >{site.telefonAnzeige}</a
+                >
+              </dd>
+              <dd class="mt-1 text-[0.82rem] text-zink">{site.erreichbarkeit}</dd>
+            </div>
+
+            <div class="steig" style="--i:1">
+              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
+                E-Mail
+              </dt>
+              {/* Keine erfundene Adresse — der Hinweis nennt den Weg, der wirklich geht. */}
+              <dd class="mt-2 text-klein text-zink-hell">{site.emailHinweis}</dd>
+            </div>
+
+            <div class="steig" style="--i:2">
+              <dt class="font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
+                Sitz
+              </dt>
+              <dd class="mt-2 text-klein text-zink-hell">
+                {site.gruender}<br />{site.ort}, {site.land}
+              </dd>
+              <dd class="mt-1 text-[0.82rem] text-zink">Wir arbeiten deutschlandweit.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    var meldungen = {
+      pflichtfelder:
+        'Bitte prüfen Sie Betrieb, Standort, Kapazität, Name, Telefon, E-Mail und die Einwilligung zum Datenschutz. Ihre übrigen Angaben sind nicht verloren gegangen — bitte tragen Sie sie erneut ein.',
+      format: 'Die Anfrage konnte technisch nicht gelesen werden. Bitte versuchen Sie es erneut.',
+    };
+    var art = new URLSearchParams(window.location.search).get('fehler');
+    if (!art) return;
+    var kasten = document.getElementById('formularfehler');
+    var text = document.getElementById('formularfehler-text');
+    if (!kasten || !text) return;
+    text.textContent = meldungen[art] || meldungen.format;
+    kasten.hidden = false;
+    kasten.scrollIntoView({ block: 'center' });
+  })();
+</script>

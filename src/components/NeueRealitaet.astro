@@ -1,0 +1,57 @@
+---
+import Marke from './Marke.astro';
+import { wettbewerb } from '../data/inhalte';
+---
+
+<section class="abschnitt border-t border-linie bg-blei" aria-labelledby="realitaet-titel">
+  <div class="shell">
+    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-3">
+        <Marke nr="02" label="Die neue Realität" />
+      </div>
+
+      <div class="lg:col-span-9 xl:col-span-8">
+        <h2 id="realitaet-titel" class="steig text-display">
+          Empfehlungen bringen Aufträge.<br />
+          Aber nicht <span class="text-schnur-hell">auf Bestellung</span>.
+        </h2>
+
+        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+          Empfehlung bleibt der beste Kanal, den ein Handwerksbetrieb haben kann — und wir
+          würden nie versuchen, ihn zu ersetzen. Er hat nur einen Konstruktionsfehler: Sie
+          können ihn nicht aufdrehen, wenn der Kalender im Februar Lücken zeigt. Ein
+          zweiter, steuerbarer Kanal daneben ist keine Modernisierung um ihrer selbst
+          willen. Er ist Risikoverteilung.
+        </p>
+
+        <div class="mt-16 lg:mt-20">
+          <p class="steig font-mono text-micro font-medium text-zink uppercase" style="--i:2">
+            Womit Sie uns vergleichen
+          </p>
+
+          <div class="mt-6 border-t border-linie">
+            {
+              wettbewerb.map((zeile, i) => (
+                <div
+                  class="steig grid gap-3 border-b border-linie py-6 md:grid-cols-12 md:gap-8 md:py-7"
+                  style={`--i:${i}`}
+                >
+                  <div class="md:col-span-3">
+                    <p class="font-semibold tracking-[-0.01em] text-kalk">{zeile.was}</p>
+                    {zeile.zusatz && (
+                      <p class="mt-1 font-mono text-[0.62rem] tracking-[0.12em] text-zink uppercase">
+                        {zeile.zusatz}
+                      </p>
+                    )}
+                  </div>
+                  <p class="text-klein text-zink italic md:col-span-4">„{zeile.denkt}"</p>
+                  <p class="text-klein text-kalk md:col-span-5">{zeile.antwort}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

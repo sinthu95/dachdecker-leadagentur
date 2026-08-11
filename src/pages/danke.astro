@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../config/site';
+
+/** Ziel der Conversion-Messung. Nie im Index. */
+const schritte = [
+  {
+    nr: '01',
+    titel: 'Wir sehen uns Ihr Gebiet an',
+    text: 'Vor dem Gespräch prüfen wir Wettbewerb, Suchvolumen und Ihren jetzigen Auftritt. Damit müssen Sie uns nicht erst erklären, wie Ihr Markt aussieht.',
+  },
+  {
+    nr: '02',
+    titel: 'Wir melden uns innerhalb eines Werktags',
+    text: 'Telefonisch, zur angegebenen Zeit. Wenn wir Sie nicht erreichen, versuchen wir es erneut — und schreiben Ihnen.',
+  },
+  {
+    nr: '03',
+    titel: 'Sie bekommen eine ehrliche Einschätzung',
+    text: 'Rund 40 Minuten. Am Ende wissen Sie, was in Ihrem Einzugsgebiet realistisch ist — auch wenn die Antwort lautet, dass sich der Aufwand für Sie nicht lohnt.',
+  },
+];
+---
+
+<BaseLayout
+  title="Anfrage eingegangen"
+  description="Ihre Anfrage für eine Potenzialanalyse ist eingegangen."
+  path="/danke"
+  noindex={true}
+>
+  <section class="relative overflow-hidden bg-schiefer pt-40 pb-20 lg:pt-52 lg:pb-28">
+    <div class="raster text-kalk" aria-hidden="true"></div>
+    <svg
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-52 w-full opacity-60"
+      viewBox="0 0 1440 200"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        class="zeichne"
+        d="M-40 200 720 16 1480 200"
+        fill="none"
+        stroke="var(--color-schnur)"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"></path>
+    </svg>
+
+    <div class="shell relative">
+      <p class="marke steig">
+        <span class="marke-num zahlen">·</span>
+        <span>Eingegangen</span>
+      </p>
+      <h1 class="steig mt-6 max-w-4xl text-display" style="--i:1">
+        Danke. Ihre Anfrage ist <span class="text-schnur-hell">angekommen</span>.
+      </h1>
+      <p class="steig measure-wide mt-7 text-lead text-zink-hell" style="--i:2">
+        {site.antwortzeit} Bis dahin müssen Sie nichts weiter tun.
+      </p>
+    </div>
+  </section>
+
+  <section class="abschnitt border-t border-linie bg-blei">
+    <div class="shell">
+      <p class="steig font-mono text-micro font-medium text-zink uppercase">Was jetzt passiert</p>
+
+      <ol class="mt-10 grid gap-px bg-linie md:grid-cols-3">
+        {
+          schritte.map((s, i) => (
+            <li class="steig bg-blei p-7 lg:p-9" style={`--i:${i}`}>
+              <span class="font-mono text-[1.15rem] text-schnur">{s.nr}</span>
+              <h2 class="mt-4 text-[1.15rem] font-semibold tracking-[-0.015em]">{s.titel}</h2>
+              <p class="mt-3 text-klein text-zink">{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="mt-14 border-t border-linie pt-10">
+        <div class="grid gap-y-8 lg:grid-cols-12 lg:gap-8">
+          <div class="lg:col-span-7">
+            <h2 class="steig text-statement">Solange können Sie sich das hier ansehen.</h2>
+            <p class="steig measure-wide mt-4 text-klein text-zink" style="--i:1">
+              Der Concept Case zeigt an einem vollständig gebauten Auftritt, wie wir
+              arbeiten und warum wir welche Entscheidung treffen.
+            </p>
+            <div class="steig mt-7 flex flex-col gap-3 sm:flex-row" style="--i:2">
+              <a href="/demo" class="btn w-full sm:w-auto">Concept Case ansehen</a>
+              <a href="/leistungen" class="btn btn-linie w-full sm:w-auto">Das System</a>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 lg:pl-8">
+            <p class="steig font-mono text-[0.62rem] tracking-[0.16em] text-zink uppercase">
+              Dringend?
+            </p>
+            <p class="steig mt-3" style="--i:1">
+              <a
+                href={`tel:${site.telefon}`}
+                data-ereignis="call_click"
+                class="text-lead text-kalk underline decoration-linie-stark underline-offset-4 transition-colors duration-300 hover:text-schnur-hell"
+                >{site.telefonAnzeige}</a
+              >
+            </p>
+            <p class="steig mt-2 text-[0.82rem] text-zink" style="--i:2">
+              {site.erreichbarkeit}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

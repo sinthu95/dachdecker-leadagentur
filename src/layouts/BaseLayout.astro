@@ -1,0 +1,139 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileCTA from '../components/MobileCTA.astro';
+import { site, siteUrl, istVeroeffentlicht } from '../config/site';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  /** Reduzierte Kopfzeile ohne Menü — für Werbe-Landingpages. */
+  fokus?: boolean;
+  /** Seiten, die nie in den Index sollen (Danke-Seite, unfertige Rechtstexte). */
+  noindex?: boolean;
+  /** Startseite und Landingpages: Kopfzeile liegt transparent über dem Hero. */
+  transparenterHeader?: boolean;
+  /** Zusätzliches JSON-LD für einzelne Seiten. */
+  strukturierteDaten?: Record<string, unknown> | null;
+}
+
+const {
+  title,
+  description,
+  path,
+  fokus = false,
+  noindex = false,
+  transparenterHeader = false,
+  strukturierteDaten = null,
+} = Astro.props;
+
+const vollerTitel = `${title} — ${site.name}`;
+const kanonisch = istVeroeffentlicht ? new URL(path, siteUrl!).href : null;
+
+// Solange keine Domain existiert, darf nichts indexiert werden.
+const robots = !istVeroeffentlicht || noindex ? 'noindex, nofollow' : 'index, follow';
+
+const organisation = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  description:
+    'Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe in Deutschland.',
+  founder: { '@type': 'Person', name: site.gruender },
+  telephone: site.telefon,
+  areaServed: { '@type': 'Country', name: 'Deutschland' },
+  address: { '@type': 'PostalAddress', addressLocality: site.ort, addressCountry: 'DE' },
+  knowsAbout: [
+    'Kundengewinnung für Dachdeckerbetriebe',
+    'Google Ads für Handwerksbetriebe',
+    'Conversion-Landingpages',
+    'Lokale Suchmaschinenoptimierung',
+  ],
+  ...(kanonisch ? { url: new URL('/', siteUrl!).href } : {}),
+  // Bewusst kein aggregateRating und keine review: Ohne echte Bewertungen wäre
+  // das nicht nur unzulässig, sondern ein Abstrafungsgrund.
+};
+---
+
+<!doctype html>
+<html lang="de" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{vollerTitel}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    {kanonisch && <link rel="canonical" href={kanonisch} />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0B0E12" />
+
+    <link
+      rel="preload"
+      href="/fonts/instrumentsans.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={vollerTitel} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="de_DE" />
+    {kanonisch && <meta property="og:url" content={kanonisch} />}
+    {kanonisch && <meta property="og:image" content={new URL('/og.png', siteUrl!).href} />}
+    {kanonisch && <meta property="og:image:width" content="1200" />}
+    {kanonisch && <meta property="og:image:height" content="630" />}
+    {
+      kanonisch && (
+        <meta
+          property="og:image:alt"
+          content="S&S Leadcraft — Der beste Dachdecker der Region ist selten der, den man zuerst findet."
+        />
+      )
+    }
+    {kanonisch && <meta name="twitter:image" content={new URL('/og.png', siteUrl!).href} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={vollerTitel} />
+    <meta name="twitter:description" content={description} />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(organisation)}
+    />
+    {
+      strukturierteDaten && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(strukturierteDaten)}
+        />
+      )
+    }
+  </head>
+
+  <body class="bg-schiefer text-kalk">
+    <a
+      href="#inhalt"
+      class="btn absolute top-4 left-4 z-[200] -translate-y-32 focus:translate-y-0"
+      >Zum Inhalt springen</a
+    >
+
+    <Header fokus={fokus} transparent={transparenterHeader} />
+
+    <main id="inhalt">
+      <slot />
+    </main>
+
+    <Footer fokus={fokus} />
+    <MobileCTA />
+
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </body>
+</html>

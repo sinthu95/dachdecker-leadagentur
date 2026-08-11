@@ -1,0 +1,96 @@
+---
+import Wortmarke from './Wortmarke.astro';
+import { navigation } from '../data/inhalte';
+import { site } from '../config/site';
+
+interface Props {
+  fokus?: boolean;
+}
+const { fokus = false } = Astro.props;
+const jahr = new Date().getFullYear();
+---
+
+<footer class="border-t border-linie bg-schiefer pb-28 md:pb-0">
+  <div class="shell py-16 lg:py-20">
+    <div class="grid gap-12 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-5">
+        <Wortmarke class="text-[1.3rem]" />
+        <p class="measure mt-5 text-klein text-zink">
+          Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe. Ein Betrieb je
+          Einzugsgebiet.
+        </p>
+      </div>
+
+      <div class="lg:col-span-3">
+        <p class="font-mono text-micro font-medium text-zink uppercase">Kontakt</p>
+        <ul class="mt-4 space-y-0.5 text-klein">
+          <li>{site.gruender}</li>
+          <li class="text-zink">{site.ort}, {site.land}</li>
+          <li>
+            <a
+              href={`tel:${site.telefon}`}
+              data-ereignis="call_click"
+              class="tipp transition-colors duration-300 hover:text-schnur-hell"
+              >{site.telefonAnzeige}</a
+            >
+          </li>
+          <li class="text-zink">{site.erreichbarkeit}</li>
+        </ul>
+        {/* Keine erfundene Adresse: solange keine existiert, steht hier der Weg,
+            der tatsächlich funktioniert. */}
+        <p class="measure mt-4 text-[0.8rem] leading-relaxed text-zink">
+          {site.emailHinweis}
+        </p>
+      </div>
+
+      {
+        !fokus && (
+          <nav aria-label="Fußnavigation" class="lg:col-span-2">
+            <p class="font-mono text-micro font-medium text-zink uppercase">Seiten</p>
+            <ul class="mt-4 space-y-0.5 text-klein">
+              {navigation.map((eintrag) => (
+                <li>
+                  <a
+                    href={eintrag.href}
+                    class="tipp text-zink transition-colors duration-300 hover:text-kalk"
+                  >
+                    {eintrag.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+
+      <div class:list={[fokus ? 'lg:col-span-4' : 'lg:col-span-2']}>
+        <p class="font-mono text-micro font-medium text-zink uppercase">Rechtliches</p>
+        <ul class="mt-4 space-y-0.5 text-klein">
+          <li>
+            <a
+              href="/impressum"
+              class="tipp text-zink transition-colors duration-300 hover:text-kalk">Impressum</a
+            >
+          </li>
+          <li>
+            <a
+              href="/datenschutz"
+              class="tipp text-zink transition-colors duration-300 hover:text-kalk"
+              >Datenschutz</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="haarlinie mt-14"></div>
+
+    <div
+      class="mt-6 flex flex-col gap-3 font-mono text-[0.66rem] tracking-[0.14em] text-zink uppercase sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {jahr} {site.name} · {site.gruender}</p>
+      {/* Kein Gag, sondern Beleg: derselbe Winkel liegt in jeder Linie der Seite. */}
+      <p>Alle Winkel dieser Seite: 38° — die Regeldachneigung eines Ziegeldachs.</p>
+    </div>
+  </div>
+</footer>

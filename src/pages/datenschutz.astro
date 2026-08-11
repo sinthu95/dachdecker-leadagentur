@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SeitenKopf from '../components/SeitenKopf.astro';
+import Luecke from '../components/Luecke.astro';
+import { site, impressum, impressumVollstaendig } from '../config/site';
+
+/**
+ * Datenschutzerklärung. Beschreibt exakt das, was diese Website technisch tut:
+ * keine Drittanbieter-Schriften, kein Captcha, keine Karten-Einbettung, keine
+ * Cookies, keine Reichweitenmessung im Auslieferungszustand.
+ * Der Text ersetzt keine rechtliche Prüfung — der Hinweis dazu steht oben.
+ */
+const abschnitte = [
+  {
+    nr: '01',
+    titel: 'Verantwortlicher',
+    inhalt: 'verantwortlicher',
+  },
+  {
+    nr: '02',
+    titel: 'Grundsatz der Datensparsamkeit',
+    text: [
+      'Diese Website ist so gebaut, dass sie so wenig personenbezogene Daten wie möglich verarbeitet. Sie bindet keine Schriften, Karten, Videos oder Skripte von Drittanbietern ein. Es wird kein Captcha eingesetzt, das Besucherdaten an Dritte überträgt. Es werden keine Cookies gesetzt und keine Profile gebildet.',
+      'Personenbezogene Daten verarbeiten wir daher im Wesentlichen nur dann, wenn Sie uns aktiv etwas schicken — über das Anfrageformular — oder wenn Sie uns anrufen.',
+    ],
+  },
+  {
+    nr: '03',
+    titel: 'Hosting und Server-Logfiles',
+    text: [
+      'Diese Website wird bei Cloudflare, Inc. gehostet. Beim Abruf der Seite verarbeitet der Server technisch notwendige Zugriffsdaten: aufgerufene Adresse, Zeitpunkt, übertragene Datenmenge, Statusmeldung, Browsertyp und die IP-Adresse. Diese Daten sind für die Auslieferung und die Abwehr von Angriffen erforderlich.',
+      'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO — unser berechtigtes Interesse an einem sicheren und funktionsfähigen Betrieb. Eine Zusammenführung dieser Daten mit anderen Datenquellen findet nicht statt.',
+      'Cloudflare kann Daten auch außerhalb der EU verarbeiten. Grundlage dafür sind die Standardvertragsklauseln der EU-Kommission.',
+    ],
+  },
+  {
+    nr: '04',
+    titel: 'Anfrageformular (Potenzialanalyse)',
+    text: [
+      'Wenn Sie das Anfrageformular ausfüllen, verarbeiten wir die von Ihnen eingetragenen Angaben: Betriebsname, Website, Standort, Mitarbeiterzahl, gewünschte Leistungsschwerpunkte, freie Kapazität, bisherige Kundengewinnung, bereits genutzte Werbekanäle, Ansprechpartner, Telefonnummer, E-Mail-Adresse, bevorzugte Erreichbarkeit sowie Ihre freiwillige Anmerkung.',
+      'Zusätzlich wird technisch übermittelt, über welchen Weg Sie auf unsere Website gelangt sind (etwa Kampagnenparameter einer Anzeige, die verweisende Seite und die zuerst aufgerufene Unterseite). Diese Angaben helfen uns einzuordnen, welche Kanäle passende Anfragen liefern.',
+      'Zweck ist ausschließlich die Bearbeitung Ihrer Anfrage und die Vorbereitung des Gesprächs. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Durchführung vorvertraglicher Maßnahmen) sowie Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO, die Sie mit dem Absenden erteilen.',
+      'Ihre Einwilligung können Sie jederzeit für die Zukunft widerrufen. Eine formlose Mitteilung genügt; die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.',
+    ],
+  },
+  {
+    nr: '05',
+    titel: 'Schutz vor automatisierten Einsendungen',
+    text: [
+      'Um Spam abzuwehren, enthält das Formular ein für Menschen unsichtbares Zusatzfeld sowie eine Prüfung, wie viel Zeit zwischen dem Laden der Seite und dem Absenden vergangen ist. Dabei werden keine personenbezogenen Daten an Dritte übermittelt und keine Cookies gesetzt.',
+    ],
+  },
+  {
+    nr: '06',
+    titel: 'Speicherdauer',
+    text: [
+      'Anfragedaten speichern wir, solange dies für die Bearbeitung und eine mögliche Anschlusskommunikation erforderlich ist. Kommt keine Zusammenarbeit zustande, löschen wir die Daten spätestens sechs Monate nach dem letzten Kontakt. Kommt eine Zusammenarbeit zustande, gelten die gesetzlichen Aufbewahrungsfristen, insbesondere aus Handels- und Steuerrecht.',
+    ],
+  },
+  {
+    nr: '07',
+    titel: 'Empfänger',
+    text: [
+      'Eine Weitergabe Ihrer Daten an Dritte erfolgt nicht, außer an technische Dienstleister, die uns beim Betrieb der Website und beim Empfang der Anfragen unterstützen (Hosting, E-Mail-Zustellung). Diese sind vertraglich als Auftragsverarbeiter nach Art. 28 DSGVO gebunden und dürfen die Daten nicht zu eigenen Zwecken verwenden.',
+    ],
+  },
+  {
+    nr: '08',
+    titel: 'Reichweitenmessung und Werbung',
+    text: [
+      'Im aktuellen Auslieferungszustand findet keine Reichweitenmessung statt. Es sind keine Analyse- oder Werbedienste eingebunden, es werden keine Mess-Pixel geladen und keine Kennungen gespeichert.',
+      'Sollten wir künftig eine Reichweitenmessung oder Werbekampagnen mit Conversion-Messung einsetzen, werden wir diese Erklärung vorher entsprechend ergänzen und — soweit erforderlich — vorab Ihre Einwilligung über einen Einwilligungsdialog einholen.',
+    ],
+  },
+  {
+    nr: '09',
+    titel: 'Externe Verlinkungen',
+    text: [
+      'Unsere Seite verlinkt auf ein von uns betriebenes Demonstrationsprojekt sowie gegebenenfalls auf externe Angebote. Für die Datenverarbeitung auf verlinkten Websites ist der jeweilige Anbieter verantwortlich.',
+    ],
+  },
+  {
+    nr: '10',
+    titel: 'Ihre Rechte',
+    text: [
+      'Sie haben das Recht auf Auskunft über die zu Ihrer Person gespeicherten Daten (Art. 15 DSGVO), auf Berichtigung (Art. 16), auf Löschung (Art. 17), auf Einschränkung der Verarbeitung (Art. 18), auf Datenübertragbarkeit (Art. 20) sowie ein Widerspruchsrecht gegen Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21).',
+      'Außerdem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Zuständig ist in der Regel die Behörde des Bundeslandes, in dem der Verantwortliche seinen Sitz hat.',
+    ],
+  },
+  {
+    nr: '11',
+    titel: 'Verschlüsselung',
+    text: [
+      'Diese Website wird ausschließlich verschlüsselt über HTTPS ausgeliefert. Ihre Formulareingaben werden dadurch auf dem Transportweg geschützt.',
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title="Datenschutz"
+  description="Informationen zur Verarbeitung personenbezogener Daten auf der Website von S&S Leadcraft."
+  path="/datenschutz"
+  noindex={!impressumVollstaendig}
+>
+  <SeitenKopf
+    marke="Rechtliches"
+    titel="Datenschutz"
+    text="Diese Seite beschreibt, welche Daten beim Besuch dieser Website und bei einer Anfrage verarbeitet werden. Sie ist bewusst kurz, weil die Website bewusst wenig verarbeitet."
+  />
+
+  <section class="abschnitt bg-schiefer">
+    <div class="shell">
+      <div class="mb-14 max-w-3xl border-l-2 border-schnur bg-schnur/10 px-6 py-5">
+        <p class="font-mono text-[0.62rem] tracking-[0.16em] text-schnur-hell uppercase">
+          Stand der Fassung
+        </p>
+        <p class="mt-3 text-klein text-zink-hell">
+          Dieser Text beschreibt den technischen Stand dieser Website zum Zeitpunkt der
+          Erstellung. Er wird vor dem Livegang rechtlich geprüft und bei jeder technischen
+          Änderung — insbesondere vor dem Start von Werbekampagnen mit Conversion-Messung
+          — aktualisiert.
+        </p>
+      </div>
+
+      <div class="max-w-3xl space-y-14">
+        {
+          abschnitte.map((a) => (
+            <div>
+              <h2 class="flex items-baseline gap-4 text-statement">
+                <span class="font-mono text-[0.9rem] text-schnur">{a.nr}</span>
+                {a.titel}
+              </h2>
+
+              {a.inhalt === 'verantwortlicher' ? (
+                <div class="mt-5 space-y-3 text-klein text-zink-hell">
+                  <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+                  <p class="text-kalk">
+                    {impressum.anbieter}
+                    <br />
+                    {impressum.strasse && impressum.plzOrt ? (
+                      <>
+                        {impressum.strasse}
+                        <br />
+                        {impressum.plzOrt}
+                        <br />
+                      </>
+                    ) : (
+                      <>
+                        <Luecke was="Anschrift" />
+                        <br />
+                      </>
+                    )}
+                    Telefon: {site.telefonAnzeige}
+                    <br />
+                    {site.contactEmail ? (
+                      <>E-Mail: {site.contactEmail}</>
+                    ) : (
+                      <Luecke was="E-Mail-Adresse" />
+                    )}
+                  </p>
+                  <p>
+                    Solange keine E-Mail-Adresse eingerichtet ist, erreichen Sie uns für
+                    Auskünfte, Widerruf und Löschanfragen telefonisch unter der oben
+                    genannten Nummer.
+                  </p>
+                </div>
+              ) : (
+                <div class="mt-5 space-y-4 text-klein text-zink-hell">
+                  {a.text?.map((absatz) => <p>{absatz}</p>)}
+                </div>
+              )}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

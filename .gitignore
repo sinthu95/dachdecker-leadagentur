@@ -1,0 +1,16 @@
+# build
+dist/
+.astro/
+.wrangler/
+
+# dependencies
+node_modules/
+
+# umgebung — enthält Domain, Zieladresse und Schlüssel
+.env
+.env.production
+.dev.vars
+
+# system
+.DS_Store
+*.log

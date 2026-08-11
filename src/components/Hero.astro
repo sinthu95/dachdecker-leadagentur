@@ -1,0 +1,119 @@
+---
+import { site, cta } from '../config/site';
+
+interface Props {
+  /** Variante C für Werbe-Landingpages: bestätigend statt spannungsaufbauend. */
+  variante?: 'a' | 'c';
+}
+const { variante = 'a' } = Astro.props;
+---
+
+<section
+  class="relative flex min-h-[100svh] items-end overflow-hidden bg-schiefer pt-32 pb-28 lg:min-h-[92vh] lg:items-center lg:pt-36 lg:pb-24"
+>
+  <div class="raster text-kalk" aria-hidden="true"></div>
+
+  <!-- Signatur: die geschlagene Linie legt den 38°-Dachwinkel über die Fläche -->
+  <svg
+    class="pointer-events-none absolute inset-0 h-full w-full opacity-70"
+    viewBox="0 0 1440 900"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+  >
+    <path
+      class="zeichne"
+      d="M-60 740 720 140 1500 740"
+      fill="none"
+      stroke="var(--color-schnur)"
+      stroke-width="1.25"
+      vector-effect="non-scaling-stroke"></path>
+    <path
+      class="zeichne"
+      style="transition-delay:.35s"
+      d="M-60 800 720 200 1500 800"
+      fill="none"
+      stroke="var(--color-linie-stark)"
+      stroke-width="1"
+      vector-effect="non-scaling-stroke"></path>
+    <circle cx="720" cy="140" r="3" fill="var(--color-schnur)" class="steig"></circle>
+  </svg>
+
+  <div class="shell relative">
+    <div class="grid gap-y-10 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-10 xl:col-span-9">
+        <p
+          class="steig font-mono text-micro font-medium text-zink uppercase"
+          style="--i:0"
+        >
+          <span class="text-schnur-hell">{site.name}</span> — {site.claim}
+        </p>
+
+        {
+          variante === 'a' ? (
+            <h1 class="zeilen mt-7 text-hero lg:mt-9">
+              <span class="zeile">
+                <span style="--i:0">Der beste Dachdecker</span>
+              </span>
+              <span class="zeile">
+                <span style="--i:1">der Region ist selten der,</span>
+              </span>
+              <span class="zeile">
+                <span style="--i:2">
+                  den man <span class="text-schnur-hell">zuerst findet</span>.
+                </span>
+              </span>
+            </h1>
+          ) : (
+            <h1 class="zeilen mt-7 text-hero lg:mt-9">
+              <span class="zeile">
+                <span style="--i:0">Digitale Kundengewinnung.</span>
+              </span>
+              <span class="zeile">
+                <span style="--i:1">
+                  <span class="text-schnur-hell">Ausschließlich</span> für
+                </span>
+              </span>
+              <span class="zeile">
+                <span style="--i:2">Dachdeckerbetriebe.</span>
+              </span>
+            </h1>
+          )
+        }
+
+        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:3">
+          Wir bauen Dachdeckerbetrieben ein digitales System, das genau die Anfragen
+          bringt, die sich rechnen: Sanierung, Neueindeckung, Flachdach. Im eigenen
+          Einzugsgebiet. Mit nachvollziehbarer Herkunft jeder Anfrage.
+        </p>
+
+        <div class="steig mt-10 flex flex-col gap-3 sm:flex-row sm:items-center" style="--i:4">
+          <a href="/kontakt" class="btn w-full sm:w-auto">
+            {cta.primaer}
+            <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8"></path>
+            </svg>
+          </a>
+          <a href="/demo" class="btn btn-linie w-full sm:w-auto">{cta.sekundaer}</a>
+        </div>
+
+        <p class="steig measure-wide mt-6 text-[0.82rem] leading-relaxed text-zink" style="--i:5">
+          {cta.mikro}
+        </p>
+      </div>
+
+      <!-- Bemaßung: der Winkel wird benannt, nicht nur gezeichnet -->
+      <div class="hidden lg:col-span-2 lg:col-start-11 lg:flex lg:items-end xl:col-start-11">
+        <div class="steig w-full" style="--i:6">
+          <div class="bemassung">
+            <span>Neigung</span>
+            <span class="bemassung-linie"></span>
+            <span class="zahlen">38°</span>
+          </div>
+          <p class="mt-4 text-[0.78rem] leading-relaxed text-zink">
+            Die Regeldachneigung eines Ziegeldachs. Jeder Winkel dieser Seite folgt ihr.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

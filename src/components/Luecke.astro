@@ -1,0 +1,19 @@
+---
+/**
+ * Sichtbare Leerstelle für Pflichtangaben, die noch nicht vorliegen.
+ * Bewusst auffällig: Eine Lücke, die man übersieht, geht irgendwann live.
+ * Es wird nichts erfunden und nichts durch einen echt aussehenden
+ * Platzhalter ersetzt.
+ */
+interface Props {
+  was: string;
+}
+const { was } = Astro.props;
+---
+
+<span
+  class="inline-flex items-center gap-2 border border-dashed border-rotstift-hell/60 bg-rotstift/10 px-2 py-0.5 font-mono text-[0.66rem] tracking-[0.1em] text-rotstift-hell uppercase"
+>
+  <span aria-hidden="true">◇</span>
+  {was} — vor Livegang ergänzen
+</span>

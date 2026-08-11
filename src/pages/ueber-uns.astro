@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SeitenKopf from '../components/SeitenKopf.astro';
+import Gruender from '../components/Gruender.astro';
+import Spezialisierung from '../components/Spezialisierung.astro';
+import AntiVersprechen from '../components/AntiVersprechen.astro';
+import Passung from '../components/Passung.astro';
+import AbschlussCTA from '../components/AbschlussCTA.astro';
+import Marke from '../components/Marke.astro';
+import { site } from '../config/site';
+
+const grundsaetze = [
+  {
+    titel: 'Ein Betrieb je Einzugsgebiet',
+    text: 'Wir arbeiten nicht mit zwei Dachdeckerbetrieben, die um dieselben Kunden konkurrieren. Das ist keine Verknappungsmasche, sondern die Voraussetzung dafür, dass wir für Sie überhaupt sinnvoll bieten können.',
+  },
+  {
+    titel: 'Alles läuft auf Ihren Namen',
+    text: 'Domain, Website, Google- und Meta-Konto, Tracking. Wir bekommen Zugriff, aber nicht das Eigentum. Wenn die Zusammenarbeit endet, bleibt das System bei Ihnen.',
+  },
+  {
+    titel: 'Werbebudget bleibt getrennt',
+    text: 'Sie zahlen Google und Meta direkt. Wir verdienen nicht am Mediabudget mit — sonst hätten wir einen Anreiz, es zu erhöhen, statt es besser einzusetzen.',
+  },
+  {
+    titel: 'Keine Zahl ohne Messung',
+    text: 'Wir veröffentlichen keine Ergebnisse, die wir nicht belegen können, und geben keine Prognosen ab, die wir nicht halten können. Das gilt auch dann, wenn es uns im Verkaufsgespräch schadet.',
+  },
+  {
+    titel: 'Wir sagen ab, wenn es nicht passt',
+    text: 'Ein Betrieb ohne freie Kapazität hat von zusätzlichen Anfragen nichts außer Ärger. In dem Fall sagen wir das im Erstgespräch statt danach.',
+  },
+  {
+    titel: 'Sie sprechen mit mir',
+    text: `Kein Vertriebsteam, kein Account-Wechsel nach dem Abschluss. Wer das Erstgespräch führt, betreut auch das Projekt.`,
+  },
+];
+---
+
+<BaseLayout
+  title="Über S&S Leadcraft"
+  description="S&S Leadcraft ist eine auf Dachdeckerbetriebe spezialisierte Agentur für digitale Kundengewinnung, gegründet von Sinthusan Sinnathurai in Sprockhövel."
+  path="/ueber-uns"
+>
+  <SeitenKopf
+    marke="Über uns"
+    titel="Eine Agentur, die genau eine Branche"
+    akzent="wirklich versteht."
+    text={`${site.name} wurde 2026 von ${site.gruender} in ${site.ort} gegründet — mit einer bewussten Verengung auf Dachdeckerbetriebe statt einer möglichst breiten Kundenliste.`}
+  />
+
+  <Gruender nr="01" ausfuehrlich={true} />
+
+  <!-- Grundsätze -->
+  <section class="abschnitt border-t border-linie bg-schiefer" aria-labelledby="grundsaetze-titel">
+    <div class="shell">
+      <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-3">
+          <Marke nr="02" label="Grundsätze" />
+        </div>
+
+        <div class="lg:col-span-9 xl:col-span-8">
+          <h2 id="grundsaetze-titel" class="steig text-display">
+            Sechs Regeln, an denen Sie uns <span class="text-schnur-hell">messen</span> können.
+          </h2>
+          <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+            Diese Punkte stehen hier, weil sie überprüfbar sind. Wenn wir einen davon
+            brechen, können Sie darauf zeigen.
+          </p>
+
+          <div class="mt-12 grid gap-px bg-linie sm:grid-cols-2">
+            {
+              grundsaetze.map((g, i) => (
+                <div class="steig bg-schiefer p-6 lg:p-8" style={`--i:${Math.min(i, 4)}`}>
+                  <span class="font-mono text-[0.62rem] tracking-[0.14em] text-schnur-hell">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3 class="mt-3 text-[1.08rem] font-semibold tracking-[-0.015em]">
+                    {g.titel}
+                  </h3>
+                  <p class="mt-3 text-klein text-zink">{g.text}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Spezialisierung nr="03" />
+  <AntiVersprechen nr="04" />
+  <Passung nr="05" />
+  <AbschlussCTA
+    titel="Lernen wir uns kennen."
+    text="Vierzig Minuten am Telefon reichen, um herauszufinden, ob eine Zusammenarbeit für Ihren Betrieb überhaupt sinnvoll ist."
+  />
+</BaseLayout>

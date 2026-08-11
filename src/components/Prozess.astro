@@ -1,0 +1,73 @@
+---
+import Marke from './Marke.astro';
+import { prozess } from '../data/inhalte';
+
+interface Props {
+  nr?: string;
+}
+const { nr = '06' } = Astro.props;
+---
+
+<section class="abschnitt border-t border-linie bg-blei" aria-labelledby="prozess-titel">
+  <div class="shell">
+    <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+      <div class="lg:col-span-3">
+        <Marke nr={nr} label="Prozess" />
+      </div>
+
+      <div class="lg:col-span-9 xl:col-span-8">
+        <h2 id="prozess-titel" class="steig text-display">
+          Was wann passiert — und was <span class="text-schnur-hell">Sie</span> dabei tun müssen.
+        </h2>
+        <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+          Die häufigste Sorge im Erstgespräch ist nicht der Preis, sondern der Aufwand.
+          Deshalb steht in der rechten Spalte, was jeweils bei Ihnen liegt. Es ist wenig —
+          bis auf einen Punkt, und der ist der wichtigste.
+        </p>
+      </div>
+    </div>
+
+    <!-- Zeitachse als Bemaßungslinie -->
+    <ol class="mt-16 lg:mt-20">
+      {
+        prozess.map((schritt, i) => (
+          <li
+            class="steig relative grid gap-x-8 gap-y-3 border-t border-linie py-7 md:grid-cols-12 lg:py-9"
+            style={`--i:${i}`}
+          >
+            <div class="flex items-baseline gap-4 md:col-span-3">
+              <span class="marke-num zahlen font-mono text-[1.15rem] text-schnur">
+                {schritt.nr}
+              </span>
+              <div>
+                <h3 class="text-[1.15rem] font-semibold tracking-[-0.015em]">
+                  {schritt.name}
+                </h3>
+                <p class="mt-1 font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
+                  {schritt.zeit}
+                </p>
+              </div>
+            </div>
+
+            <p class="text-klein text-zink-hell md:col-span-6">{schritt.text}</p>
+
+            <div class="md:col-span-3">
+              <p class="font-mono text-[0.6rem] tracking-[0.14em] text-zink uppercase">
+                Ihr Aufwand
+              </p>
+              <p class="mt-1.5 text-[0.9rem] text-kalk">{schritt.ihrAufwand}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="steig mt-10 border-l-2 border-schnur pl-6">
+      <p class="measure-wide text-klein text-zink-hell">
+        Der letzte Punkt ist keine Höflichkeitsfloskel: Ihre kurze Rückmeldung, ob eine
+        Anfrage brauchbar war, ist die wichtigste Steuerungsgröße im laufenden Betrieb.
+        Ohne sie optimieren wir auf Klicks statt auf Aufträge.
+      </p>
+    </div>
+  </div>
+</section>

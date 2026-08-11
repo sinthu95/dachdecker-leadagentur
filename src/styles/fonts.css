@@ -1,0 +1,30 @@
+/* Schriften werden selbst ausgeliefert: kein Drittanbieter-Request beim
+   Seitenaufruf. Das ist schneller und vermeidet die Übermittlung von
+   Besucher-IPs an Google, die in Deutschland ohne Einwilligung problematisch
+   wäre — für eine Agentur, die Datenschutz als Argument führt, ist das
+   Grundvoraussetzung.
+   Zeichensatz auf Latin reduziert; ä, ö, ü und ß sind darin enthalten. */
+
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/instrumentsans.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plex Mono';
+  src: url('/fonts/plexmono400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plex Mono';
+  src: url('/fonts/plexmono500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}

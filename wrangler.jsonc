@@ -1,0 +1,45 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Astro baut mit dem Cloudflare-Adapter: statische Seiten unter dist/ und
+  // einen schlanken Worker, der ausschließlich POST /api/anfrage bedient.
+  // Alles andere wird direkt als statisches Asset ausgeliefert.
+  "name": "ss-leadcraft",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2026-08-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Ohne diese Einstellung antwortet /leistungen mit 307 auf /leistungen/ —
+    // eine zusaetzliche Rundreise bei jedem internen Klick.
+    "html_handling": "drop-trailing-slash",
+    // Unbekannte Adressen sollen die gestaltete Fehlerseite bekommen,
+    // nicht die nackte Standardmeldung.
+    "not_found_handling": "404-page",
+    // Wichtig: Mit "404-page" beansprucht die Asset-Schicht jeden Pfad und
+    // beantwortet ein POST auf /api/anfrage mit 405, ohne den Worker je zu
+    // fragen. Diese Pfade muessen deshalb zuerst an den Worker gehen.
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+
+  // --------------------------------------------------------------------
+  // Vor dem Livegang zu setzen (siehe README, Abschnitt „Vor dem Launch"):
+  //
+  //   PUBLIC_SITE_URL   die endgültige Domain, z. B. https://ss-leadcraft.de
+  //                     Ohne diesen Wert baut die Seite bewusst mit noindex
+  //                     und ohne Sitemap.
+  //
+  //   LEAD_NOTIFY_EMAIL Zieladresse für Formularanfragen
+  //   RESEND_API_KEY    als Secret setzen: wrangler secret put RESEND_API_KEY
+  //
+  // Solange keine Zustellung konfiguriert ist, legt der Endpunkt jede Anfrage
+  // in der KV-Namensraum-Bindung LEADS ab, damit nichts verloren geht.
+  // Namensraum anlegen und die ID hier eintragen:
+  //   wrangler kv namespace create LEADS
+  // --------------------------------------------------------------------
+  "vars": {
+    "PUBLIC_SITE_URL": ""
+  }
+  // "kv_namespaces": [{ "binding": "LEADS", "id": "<hier eintragen>" }]
+}

@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Orientierung from '../components/Orientierung.astro';
+import ConceptCase from '../components/ConceptCase.astro';
+import System from '../components/System.astro';
+import Anfrage from '../components/Anfrage.astro';
+import Marke from '../components/Marke.astro';
+import { wettbewerb } from '../data/inhalte';
+
+/**
+ * Landingpage für bezahlten Traffic. Reduzierte Kopfzeile, kein Menü,
+ * ein Ziel. Hero-Variante C: Wer hier ankommt, hat bereits gesucht — er
+ * braucht Bestätigung, keine Spannung.
+ */
+---
+
+<BaseLayout
+  title="Kundengewinnung für Dachdeckerbetriebe"
+  description="Mehr qualifizierte Anfragen für Dachsanierung, Neueindeckung und Flachdach. Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe — ein Betrieb je Einzugsgebiet."
+  path="/dachdecker"
+  fokus={true}
+  transparenterHeader={true}
+>
+  <Hero variante="c" />
+  <Orientierung />
+
+  <!-- Der schärfste Einwand zuerst: geteilte Portal-Leads -->
+  <section class="abschnitt bg-schiefer" aria-labelledby="portale-titel">
+    <div class="shell">
+      <div class="grid gap-y-12 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-3">
+          <Marke nr="01" label="Der Unterschied" />
+        </div>
+
+        <div class="lg:col-span-9 xl:col-span-8">
+          <h2 id="portale-titel" class="steig text-display">
+            Ihre Anfragen. Nicht der <span class="text-schnur-hell">vierte Anruf</span> beim
+            selben Kunden.
+          </h2>
+          <p class="steig measure-wide mt-8 text-lead text-zink-hell" style="--i:1">
+            Wer Anfragen über Portale kauft, kauft sie geteilt: Derselbe Interessent hat
+            in der Regel schon mit drei weiteren Betrieben gesprochen, bevor Sie ihn
+            erreichen. Das Gespräch dreht sich dann nur noch um den Preis. Eine Anfrage
+            über Ihre eigene Seite kommt nur bei Ihnen an.
+          </p>
+
+          <div class="mt-14 border-t border-linie">
+            {
+              wettbewerb.map((zeile, i) => (
+                <div
+                  class="steig grid gap-3 border-b border-linie py-6 md:grid-cols-12 md:gap-8"
+                  style={`--i:${i}`}
+                >
+                  <div class="md:col-span-3">
+                    <p class="font-semibold tracking-[-0.01em]">{zeile.was}</p>
+                    {zeile.zusatz && (
+                      <p class="mt-1 font-mono text-[0.62rem] tracking-[0.12em] text-zink uppercase">
+                        {zeile.zusatz}
+                      </p>
+                    )}
+                  </div>
+                  <p class="text-klein text-zink italic md:col-span-4">„{zeile.denkt}"</p>
+                  <p class="text-klein text-kalk md:col-span-5">{zeile.antwort}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ConceptCase nr="02" />
+  <System nr="03" />
+  <Anfrage nr="04" />
+</BaseLayout>

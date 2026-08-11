@@ -1,0 +1,26 @@
+---
+import { orientierung } from '../data/inhalte';
+
+/** Schmale Leiste direkt unter dem Hero: bestätigt in einem Blick,
+ *  dass der Besucher richtig ist. Kostet 40 Pixel, verhindert Absprünge. */
+---
+
+<section class="border-y border-linie bg-blei" aria-label="Einordnung">
+  <div class="shell">
+    <dl class="grid divide-y divide-linie sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      {
+        orientierung.map((eintrag, i) => (
+          <div
+            class="steig flex items-baseline gap-3 py-5 sm:block sm:py-7 sm:first:pr-8 sm:not-first:pl-8"
+            style={`--i:${i}`}
+          >
+            <dt class="font-mono text-[0.62rem] font-medium tracking-[0.18em] text-schnur-hell uppercase sm:mb-2">
+              {eintrag.k}
+            </dt>
+            <dd class="text-[0.95rem] text-kalk sm:text-[1.05rem]">{eintrag.v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
