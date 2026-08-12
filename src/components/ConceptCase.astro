@@ -22,7 +22,11 @@ const demoHost = new URL(site.demoUrl).host;
 const zeigeRundgang = !kompakt;
 ---
 
-<section class="dunkel relative overflow-hidden" aria-labelledby="case-titel">
+{/* Kein overflow-hidden an diesem Abschnitt: Es würde den position:sticky-Bezug
+    des gepinnten Rundgangs kappen — der Rahmen scrollte dann als gewöhnliches
+    Element nach oben weg und ließe rund 4000 px leere dunkle Fläche zurück.
+    Waagerecht läuft hier nichts über; das wurde bei 1024–1920 px gemessen. */}
+<section class="dunkel relative" aria-labelledby="case-titel">
   <div class="schiene pt-[clamp(5rem,12vw,11.5rem)]">
     <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
       <div class="lg:col-span-7">

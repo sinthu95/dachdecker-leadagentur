@@ -107,10 +107,31 @@ tools/                  Aufnahme- und Prüfskripte (nicht Teil des Auslieferungs
 ## Benötigte Fotografie
 
 Für dieses Projekt liegt noch keine eigene Fotografie vor. Es wurde **keine erfunden**:
-weder Stockmotive noch bildgenerierte Aufnahmen. Stattdessen steht an jeder Bildstelle
-ein gestaltetes Bildfeld (`src/components/Bildfeld.astro`) mit Motiv, Ausschnitt und
-Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins zu eins —
-Platz, Format und Anschnitt stehen bereits fest.
+keine bildgenerierten Aufnahmen, keine Stock-Menschen als „unser Team". Stattdessen
+steht an jeder Bildstelle ein gestaltetes Bildfeld (`src/components/Bildfeld.astro`)
+mit Motiv, Ausschnitt und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie
+das Feld eins zu eins — Platz, Format und Anschnitt stehen bereits fest.
+
+Für B-01, B-02 und B-04 sind **lizenzierte Übergangsaufnahmen** freigegeben
+(Material und Architektur, keine Personen; Registratur mit Quellenangabe in
+`src/config/motive.ts`). So kommen sie auf die Seite:
+
+1. Die drei freigegebenen Aufnahmen in Originalgröße herunterladen:
+   - B-01: [Ziegeldächer mit Gauben, Meran](https://unsplash.com/photos/old-european-building-with-tiled-roofs-and-dormer-windows-QkYoC6HL7sc)
+   - B-02: [Schieferdeckung im Wiederholungsmuster](https://unsplash.com/photos/dark-slate-roof-tiles-in-a-repeating-pattern-AX_KnhLSM3w)
+   - B-04: [Giebeldach im Sonnenlicht](https://unsplash.com/photos/the-gable-roof-of-a-house-basks-in-sunlight-mzkx33pU2go)
+
+   Beim Herunterladen die Lizenz auf der Seite prüfen (Unsplash-Lizenz, nicht
+   Unsplash+) und den Fotografennamen mit `quelle` in `src/config/motive.ts`
+   abgleichen.
+2. Ablegen als `bilder-quelle/motive/dachlandschaft.jpg`, `material.jpg`,
+   `objekt.jpg` (außerhalb der Versionierung).
+3. `node tools/motive.mjs` erzeugt die WebP-Fassungen; der nächste Build nimmt
+   sie automatisch auf. Fehlen sie, zeigt die Seite weiter die Bildfelder.
+
+B-03 (Hände am Werkstück) bleibt bewusst Bildfeld: Fremde Hände als eigene
+Baustelle auszugeben wäre die Erfindung, die diese Seite nicht macht. Diese
+Stelle füllt das eigene Shooting.
 
 | Nr. | Ort | Motiv | Format (Desktop / Mobil) |
 | --- | --- | --- | --- |

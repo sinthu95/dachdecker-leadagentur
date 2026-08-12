@@ -1,6 +1,6 @@
 ---
 import Linie from './Linie.astro';
-import Bildfeld from './Bildfeld.astro';
+import Motiv from './Motiv.astro';
 import { site, cta } from '../config/site';
 
 interface Props {
@@ -41,8 +41,10 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
         }
       </h1>
 
-      <!-- Die Signaturgeometrie als Schnittzeichnung, nicht als Hintergrundwäsche -->
-      <div class="hidden lg:col-span-3 lg:block" aria-hidden="true">
+      <!-- Die Signaturgeometrie als Schnittzeichnung, nicht als Hintergrundwäsche.
+           Sie zeichnet sich als Letztes: erst die Zeilen, dann der Vorspann,
+           dann die Konstruktion — Text zuerst, Zeichnung danach. -->
+      <div class="hidden lg:col-span-3 lg:block" aria-hidden="true" style="--start:0.55s">
         <Linie art="dach" class="h-40 w-full text-schiefer opacity-45 xl:h-52" />
       </div>
     </div>
@@ -50,12 +52,14 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
     <!-- Vorspann und Handlung, links; rechts bleibt Weißraum stehen -->
     <div class="mt-12 grid gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-8">
       <div class="lg:col-span-6 xl:col-span-5">
-        <p class="steig vorspann max-w-[38ch]" style="--i:1">
+        {/* Die Staffel setzt hinter den vier Titelzeilen an (--i:0–3), damit
+            die Ladefolge eine Richtung hat: Zeilen, Vorspann, Handlung. */}
+        <p class="steig vorspann max-w-[38ch]" style="--i:3">
           {site.name} entwickelt Websites, Kampagnen und digitale Kundengewinnung
           speziell für Dachdeckerbetriebe.
         </p>
 
-        <div class="steig mt-9 flex flex-col gap-3 sm:flex-row sm:items-center" style="--i:2">
+        <div class="steig mt-9 flex flex-col gap-3 sm:flex-row sm:items-center" style="--i:4">
           <a href="/kontakt" class="knopf w-full sm:w-auto">
             {cta.primaer}
             <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
@@ -65,14 +69,14 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
           <a href="/leistungen" class="knopf knopf-linie w-full sm:w-auto">System ansehen</a>
         </div>
 
-        <p class="steig mt-6 max-w-[46ch] text-klein text-graphit" style="--i:3">
+        <p class="steig mt-6 max-w-[46ch] text-klein text-graphit" style="--i:5">
           {cta.mikro}
         </p>
       </div>
 
       <!-- Bemaßung: der Winkel wird benannt, nicht nur gezeichnet -->
       <div class="hidden lg:col-span-3 lg:col-start-10 lg:block">
-        <div class="steig" style="--i:4">
+        <div class="steig" style="--i:6">
           <div class="flex items-center gap-3">
             <span class="h-px flex-1 bg-linie-stark"></span>
             <span class="font-mono text-[0.62rem] tracking-[0.16em] text-graphit uppercase zahlen"
@@ -91,21 +95,20 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
   <div class="schiene relative mt-14 lg:mt-20">
     <div class="grid gap-4 lg:grid-cols-12 lg:gap-6">
       <div class="bildmaske lg:col-span-8">
-        <Bildfeld
+        <Motiv
+          name="dachlandschaft"
           nummer="B-01"
           motiv="Moderne Dachlandschaft aus erhöhter Position — Firstlinien gegen offenen Himmel, ruhige Geometrie, kühles Tageslicht."
           ausschnitt="Querformat, Blick über mehrere Dachflächen"
-          format="16/9"
-          formatMobil="4/5"
           class="w-full"
         />
       </div>
       <div class="bildmaske versatz hidden lg:col-span-4 lg:block" data-versatz="16" style="--i:1">
-        <Bildfeld
+        <Motiv
+          name="material"
           nummer="B-02"
           motiv="Detail einer Doppelstehfalz-Deckung in Titanzink — Kante, Schattenkante, Materialoberfläche."
           ausschnitt="Hochformat, Nahaufnahme"
-          format="3/4"
           class="h-full w-full"
         />
       </div>

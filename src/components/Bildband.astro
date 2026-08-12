@@ -1,28 +1,33 @@
 ---
-import Bildfeld from './Bildfeld.astro';
+import Motiv from './Motiv.astro';
+import { motivDaten, motivVorhanden } from '../config/motive';
 
 /**
  * Vollbreite Zäsur: eine einzige große Bildfläche, randlos, mit Bemaßung
  * darunter. Sie unterbricht die Textstrecke, ohne etwas zu behaupten —
  * und ist die Stelle, an der später die stärkste Aufnahme steht.
+ *
+ * Die Bemaßungszeile sagt die Wahrheit über den Zustand: Solange die Aufnahme
+ * fehlt, steht dort „Aufnahme folgt" — liegt sie vor, steht dort die Quelle.
  */
+const vorhanden = motivVorhanden('objekt');
+const quelle = motivDaten('objekt')?.quelle ?? '';
 ---
 
 <section class="relative bg-papier" aria-label="Bildstrecke">
   <div class="bildmaske versatz" data-versatz="10">
-    <Bildfeld
+    <Motiv
+      name="objekt"
       nummer="B-04"
       motiv="Modernes Wohnhaus in der Totalen — klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar. Frontal oder leicht seitlich, kein Weitwinkelverzug."
       ausschnitt="Panorama, Gesamtansicht bei bedecktem Himmel"
-      format="21/9"
-      formatMobil="4/5"
       class="w-full"
     />
   </div>
 
   <div class="schiene">
     <div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t border-linie py-3">
-      <span class="marke">Aufnahme folgt — Motiv steht fest</span>
+      <span class="marke">{vorhanden ? quelle : 'Aufnahme folgt — Motiv steht fest'}</span>
       <span class="marke zahlen">38°</span>
     </div>
   </div>

@@ -55,7 +55,12 @@ Redaktion, nicht Software-Startup.
   erzeugt mit `tools/schriften.mjs`.
 - **Fotografie wird nicht erfunden.** Fehlende Aufnahmen stehen als `<Bildfeld>` mit
   Motiv, Ausschnitt und Format. Die vollständige Liste steht im README unter
-  „Benötigte Fotografie". Keine Stockmotive, keine bildgenerierten Aufnahmen.
+  „Benötigte Fotografie". Keine bildgenerierten Aufnahmen. Lizenzierte
+  Material- und Architekturaufnahmen sind als dokumentierter Übergang erlaubt
+  (Registratur in `src/config/motive.ts`, Quelle sichtbar in der Bemaßung) —
+  **keine Stock-Menschen bei der Arbeit**: Fremde Hände als „unsere Baustelle"
+  auszugeben wäre genau die Erfindung, die diese Seite nicht macht. B-03 bleibt
+  Bildfeld, bis ein eigenes Shooting es füllt.
 - **Schemata erklären, sie behaupten nicht.** `SchemaAnfrageweg` und `SchemaGebiet`
   zeigen den Ablauf als Konstruktionszeichnung — keine nachgebauten Bildschirmfotos
   eines Werbekontos, keine Volumina, keine Rankings. Wo Beispielwerte nötig sind

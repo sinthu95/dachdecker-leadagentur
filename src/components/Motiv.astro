@@ -1,0 +1,88 @@
+---
+import Bildfeld from './Bildfeld.astro';
+import { MOTIV_PFAD, motivDaten, motivVorhanden } from '../config/motive';
+
+/**
+ * Ein Übergangsmotiv aus der Registratur in `src/config/motive.ts`.
+ *
+ * Liegt die Aufnahme vor, steht sie hier als <picture> mit eigener mobiler
+ * Fassung. Liegt sie nicht vor, steht weiter das gestaltete Bildfeld mit
+ * unverändertem Motivtext — dieselbe Rückfalllogik wie am Gründerporträt.
+ * Der Wechsel passiert allein über die Dateien; am Markup ändert sich nichts.
+ */
+interface Props {
+  name: string;
+  /** Durchgereicht an das Bildfeld, falls die Aufnahme fehlt. */
+  nummer: string;
+  motiv: string;
+  ausschnitt: string;
+  class?: string;
+  /** Unterhalb der Falte (Standard). Nur das Hero-Band lädt eager. */
+  laden?: 'lazy' | 'eager';
+}
+const { name, nummer, motiv, ausschnitt, class: klasse = '', laden = 'lazy' } = Astro.props;
+
+const daten = motivDaten(name);
+if (!daten) throw new Error(`Unbekanntes Motiv „${name}" — bitte in src/config/motive.ts eintragen.`);
+
+const vorhanden = motivVorhanden(name);
+
+const satz = (breiten: number[], mobil = false) =>
+  breiten
+    .map((b) => `${MOTIV_PFAD}/motiv-${name}${mobil ? '-mobil' : ''}-${b}.webp ${b}w`)
+    .join(', ');
+
+/* Bruch '16/9' → Zahlenpaar für width/height, damit die Fläche vor dem Laden
+   reserviert ist und nichts nachrutscht. */
+const verh = (bruch: string) => {
+  const [z, n] = bruch.split('/').map(Number);
+  return z / n;
+};
+const basisBreite = daten.breitenMobil?.[0] ?? daten.breiten[0];
+const basisFormat = daten.formatMobil ?? daten.format;
+---
+
+{
+  vorhanden ? (
+    <figure class:list={['relative', klasse]}>
+      <picture>
+        <source
+          media="(min-width: 1024px)"
+          type="image/webp"
+          srcset={satz(daten.breiten)}
+          sizes={daten.sizes}
+        />
+        {daten.breitenMobil && (
+          <source type="image/webp" srcset={satz(daten.breitenMobil, true)} sizes="100vw" />
+        )}
+        <img
+          src={`${MOTIV_PFAD}/motiv-${name}${daten.breitenMobil ? '-mobil' : ''}-${basisBreite}.webp`}
+          width={basisBreite}
+          height={Math.round(basisBreite / verh(basisFormat))}
+          alt={daten.alt}
+          class="block h-full w-full object-cover"
+          loading={laden}
+          decoding="async"
+        />
+      </picture>
+      {/* Dieselbe Vermessungsmarke wie an den Bildfeldern — die Aufnahme wird
+          Teil der Zeichnung, keine eingeklebte Fotografie. */}
+      <span
+        class="pointer-events-none absolute top-4 left-4 h-3 w-3 text-papier/70"
+        aria-hidden="true"
+      >
+        <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-current" />
+        <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-current" />
+      </span>
+    </figure>
+  ) : (
+    <Bildfeld
+      nummer={nummer}
+      motiv={motiv}
+      ausschnitt={ausschnitt}
+      format={daten.format}
+      formatMobil={daten.formatMobil}
+      class={klasse}
+    />
+  )
+}

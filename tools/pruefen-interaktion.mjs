@@ -204,7 +204,14 @@ console.log('\nConcept-Case-Rundgang');
         const aktiv = [...document.querySelectorAll('[data-case-notiz]')].findIndex((n) =>
           n.classList.contains('opacity-100'),
         );
-        return { transform: getComputedStyle(bild).transform, aktiv };
+        /* Der Rahmen muss während des gesamten gepinnten Wegs im Sichtfeld
+           stehen. Dass das Bild scrubbt, beweist das nicht: Der Handgriff
+           läuft auch, wenn ein overflow-hidden an einem Vorfahren den
+           sticky-Bezug gekappt hat und der Rahmen längst oben hinausgescrollt
+           ist. Genau so stand es unbemerkt im Auslieferungsstand. */
+        const rk = document.querySelector('[data-case-rahmen]').getBoundingClientRect();
+        const rahmenSichtbar = rk.bottom > 0 && rk.top < window.innerHeight;
+        return { transform: getComputedStyle(bild).transform, aktiv, rahmenSichtbar };
       });
     };
     const a = await messen(0.02);
@@ -214,6 +221,11 @@ console.log('\nConcept-Case-Rundgang');
     y(b.transform) < y(a.transform) && y(c.transform) < y(b.transform)
       ? ok(`Bild läuft mit (${Math.round(y(a.transform))} → ${Math.round(y(c.transform))} px)`)
       : fehler(`Bild bewegt sich nicht: ${a.transform} / ${c.transform}`);
+    a.rahmenSichtbar && b.rahmenSichtbar && c.rahmenSichtbar
+      ? ok('Rahmen bleibt über den ganzen Weg im Sichtfeld')
+      : fehler(
+          `Rahmen verlässt das Sichtfeld (Anfang ${a.rahmenSichtbar}, Mitte ${b.rahmenSichtbar}, Ende ${c.rahmenSichtbar})`,
+        );
     a.aktiv === 0 && c.aktiv > a.aktiv
       ? ok(`Anmerkung wechselt (Station ${a.aktiv + 1} → ${c.aktiv + 1})`)
       : fehler(`Anmerkung wechselt nicht (${a.aktiv} → ${c.aktiv})`);
