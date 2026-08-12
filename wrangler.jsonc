@@ -35,22 +35,39 @@
   "observability": { "enabled": true },
 
   // --------------------------------------------------------------------
-  // Vor dem Livegang zu setzen (siehe README, Abschnitt „Vor dem Launch"):
+  // Ablage der Anfragen. Ohne diese Bindung gibt es keinen dauerhaften
+  // Speicher: Der Endpunkt legt jede geprüfte Anfrage zuerst hier ab, noch
+  // bevor eine Benachrichtigung versucht wird. Fehlte sie, bliebe als letzter
+  // Ausweg nur das Worker-Protokoll, und das ist kein Speicher — es wird nach
+  // wenigen Tagen verworfen.
   //
-  //   PUBLIC_SITE_URL   die endgültige Domain, z. B. https://ss-leadcraft.de
-  //                     Ohne diesen Wert baut die Seite bewusst mit noindex
-  //                     und ohne Sitemap.
+  // Die Bindung muss hier stehen, nicht nur in der Cloudflare-Oberfläche:
+  // Beim Deploy ist diese Datei maßgeblich, und was hier fehlt, wird am Worker
+  // entfernt. Die ID ist kein Geheimnis, sie benennt nur den Namensraum.
+  // --------------------------------------------------------------------
+  "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }],
+
+  // --------------------------------------------------------------------
+  // OFFEN 1 — Benachrichtigung per E-Mail. Alle drei Werte sind nötig;
+  // fehlt einer, versendet der Endpunkt nichts. Als Secret setzen, nicht als
+  // Variable: Der „vars"-Block unten ist beim Deploy maßgeblich und würde im
+  // Dashboard gesetzte Klartextvariablen wieder entfernen. Secrets bleiben.
   //
-  //   LEAD_NOTIFY_EMAIL Zieladresse für Formularanfragen
-  //   RESEND_API_KEY    als Secret setzen: wrangler secret put RESEND_API_KEY
+  //   npx wrangler secret put RESEND_API_KEY      Zugang zu Resend
+  //   npx wrangler secret put LEAD_NOTIFY_EMAIL   Ihr Posteingang
+  //   npx wrangler secret put LEAD_FROM_EMAIL     Absender, verifizierte Domain
   //
-  // Solange keine Zustellung konfiguriert ist, legt der Endpunkt jede Anfrage
-  // in der KV-Namensraum-Bindung LEADS ab, damit nichts verloren geht.
-  // Namensraum anlegen und die ID hier eintragen:
-  //   wrangler kv namespace create LEADS
+  // Die Anfrage ist auch ohne diesen Schritt sicher abgelegt — sie kommt dann
+  // nur nicht von selbst zu Ihnen.
+  // --------------------------------------------------------------------
+
+  // --------------------------------------------------------------------
+  // OFFEN 2 — Domain. PUBLIC_SITE_URL wird beim Bauen gelesen, nicht zur
+  // Laufzeit: Der Wert muss in den Build-Variablen der Cloudflare-Oberfläche
+  // stehen, damit robots.txt, Sitemap und kanonische URLs aktiv werden.
+  // Ohne ihn baut die Seite bewusst mit noindex.
   // --------------------------------------------------------------------
   "vars": {
     "PUBLIC_SITE_URL": ""
   }
-  // "kv_namespaces": [{ "binding": "LEADS", "id": "<hier eintragen>" }]
 }

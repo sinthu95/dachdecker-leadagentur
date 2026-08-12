@@ -164,14 +164,38 @@ absendbar; mit JavaScript wird daraus eine dreistufige Strecke. Spamschutz über
 Honigtopf und Zeitprüfung — **kein Captcha**, weil das Besucherdaten an Dritte
 überträgt.
 
-`POST /api/anfrage` stellt in dieser Reihenfolge zu:
+`POST /api/anfrage` verarbeitet in dieser Reihenfolge:
 
-1. **E-Mail**, wenn `RESEND_API_KEY`, `LEAD_NOTIFY_EMAIL` und `LEAD_FROM_EMAIL` gesetzt sind
-2. **Cloudflare KV**, wenn die Bindung `LEADS` existiert
-3. **Worker-Protokoll** als letzte Auffangstufe
+1. **Ablage in Cloudflare KV** (Bindung `LEADS`) — zuerst und immer, unabhängig
+   davon, ob danach eine E-Mail hinausgeht. Das Postfach ist eine
+   Benachrichtigung, kein Speicher: Ein Spamfilter oder ein versehentliches
+   Löschen darf keine Anfrage kosten.
+2. **E-Mail** über Resend, wenn `RESEND_API_KEY`, `LEAD_NOTIFY_EMAIL` und
+   `LEAD_FROM_EMAIL` gesetzt sind. Alle drei — fehlt einer, wird nichts versendet.
+3. **Worker-Protokoll** nur, wenn beides fehlschlägt. Dann steht die Anfrage
+   dort im Klartext, weil das Protokoll der einzige verbliebene Ort ist. Im
+   Regelfall enthält das Protokoll ausschließlich Kennung und Schlüssel.
 
-Damit geht keine Anfrage verloren, auch bevor ein Postfach existiert. Astros
-CSRF-Schutz ist aktiv: POSTs ohne passenden `Origin`-Header werden mit 403 abgewiesen.
+Der Spamschutz verwirft nichts: Honigtopf und Zeitprüfung führen dazu, dass ein
+Fall unter `verdacht:` statt `anfrage:` abgelegt und **nicht** versendet wird.
+Ein falsch erkannter Mensch kostet damit keine Anfrage. Beide Prüfungen laufen
+erst nach der Pflichtfeldprüfung — vorher bekam ein Mensch, der zu schnell
+absendete, die Dankeseite statt seiner Fehlermeldung, und die Anfrage war weg.
+
+Astros CSRF-Schutz ist aktiv: POSTs ohne passenden `Origin`-Header werden mit 403
+abgewiesen. Das gilt nur für den gebauten Worker — der Entwicklungsserver prüft
+den Ursprung nicht. Wer das nachstellen will, braucht `wrangler dev`.
+
+```bash
+npm run check:lead     # prüft die ganze Strecke am echten Worker
+```
+
+`tools/pruefen-lead.mjs` startet `wrangler dev --local` mit eigener
+Konfiguration, legt Anfragen ab, liest sie zurück und weist nach: gültige
+Anfrage gespeichert, lange Ausfülldauer unschädlich, Mailausfall ohne
+Datenverlust, Spamschutz wirksam, keine Klardaten im Protokoll. Es versendet
+keine E-Mail — der hinterlegte Schlüssel ist erfunden, die Zieladresse liegt auf
+`.invalid`.
 
 Weist der Server eine Anfrage zurück, kommt der Besucher über eine Umleitung auf einer
 frisch geladenen Seite an — die Eingaben wären weg. Deshalb legt das Skript sie vor dem
@@ -207,9 +231,15 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
    wenn die Pflichtangaben vollständig sind.
 4. **Zustellung** einrichten:
    ```bash
-   wrangler kv namespace create LEADS      # ID in wrangler.jsonc eintragen
-   wrangler secret put RESEND_API_KEY
-   ```
+   npx wrangler kv namespace create LEADS    # ID in wrangler.jsonc eintragen
+   npx wrangler secret put RESEND_API_KEY    # alle drei als Secret, nicht als
+   npx wrangler secret put LEAD_NOTIFY_EMAIL # Variable: Der vars-Block ist beim
+   npx wrangler secret put LEAD_FROM_EMAIL   # Deploy maßgeblich und überschreibt
+   ```                                       # Klartextvariablen aus der Oberfläche.
+
+   Die KV-Bindung ist der wichtigere Teil: Ohne sie gibt es keinen dauerhaften
+   Speicher. `LEAD_FROM_EMAIL` muss zu einer bei Resend verifizierten Domain
+   gehören, sonst nimmt Resend die Nachricht nicht an.
 5. **Datenschutzerklärung rechtlich prüfen** lassen. Der vorhandene Text beschreibt den
    tatsächlichen technischen Stand, ersetzt aber keine Prüfung.
 6. Prüfläufe und Messung erneut ausführen, dann `npm run deploy`.

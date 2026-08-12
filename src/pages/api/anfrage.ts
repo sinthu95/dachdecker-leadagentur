@@ -6,13 +6,20 @@ export const prerender = false;
 /**
  * Nimmt das Qualifizierungsformular entgegen.
  *
- * Zustellung ist bewusst mehrstufig abgesichert, weil Domain und Postfach noch
- * fehlen: Ein Formular, das nichts zustellt, wäre schlimmer als keines.
- *   1. Wenn RESEND_API_KEY und LEAD_NOTIFY_EMAIL gesetzt sind → E-Mail.
- *   2. Sonst, wenn die KV-Bindung LEADS existiert → dort ablegen.
- *   3. Sonst → in das Worker-Protokoll schreiben.
- * Die Anfrage geht in keinem Fall verloren, und der Nutzer bekommt immer die
- * Telefonnummer als zweiten Weg genannt.
+ * Reihenfolge der Zustellung — und diese Reihenfolge ist der Kern:
+ *   1. Ablage in der KV-Bindung LEADS. Zuerst, immer, unabhängig davon, ob
+ *      danach eine E-Mail hinausgeht. Das Postfach ist eine Benachrichtigung,
+ *      kein Speicher: Ein Spamfilter oder ein versehentliches Löschen darf
+ *      keine Anfrage kosten.
+ *   2. E-Mail über Resend, wenn RESEND_API_KEY, LEAD_NOTIFY_EMAIL und
+ *      LEAD_FROM_EMAIL gesetzt sind.
+ *   3. Schlägt beides fehl, bleibt nur das Worker-Protokoll. Nur an dieser
+ *      einen Stelle steht die Anfrage im Klartext im Protokoll — dann ist es
+ *      der letzte Ort, an dem sie überhaupt noch existiert.
+ *
+ * Verdachtsfälle aus dem Spamschutz werden nicht verworfen, sondern unter
+ * eigenem Schlüssel abgelegt und nicht versendet. Ein falsch erkannter Mensch
+ * kostet damit keine Anfrage mehr, ein Bot bekommt trotzdem keine Rückmeldung.
  */
 
 interface Umgebung {
@@ -21,6 +28,18 @@ interface Umgebung {
   LEAD_FROM_EMAIL?: string;
   LEADS?: { put(schluessel: string, wert: string): Promise<void> };
 }
+
+/**
+ * Untergrenze für die Ausfülldauer. Wer elf Felder in weniger als anderthalb
+ * Sekunden ausfüllt, ist kein Mensch.
+ *
+ * Der Wert lag bei 3000 ms und die Prüfung lief vor der Pflichtfeldprüfung.
+ * Das kostete echte Anfragen: Nach einer serverseitigen Ablehnung steht der
+ * Besucher auf einer frisch geladenen Seite mit wiederhergestellten Eingaben
+ * und muss nur noch die Einwilligung setzen. Gemessen 627 ms bis zum zweiten
+ * Absenden — die Anfrage landete auf der Dankeseite und im Nichts.
+ */
+const MINDESTDAUER_MS = 1500;
 
 /**
  * Pflichtangaben. Dieselben, die im Formular ein Sternchen tragen — sonst
@@ -75,18 +94,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return umleiten('/kontakt?fehler=format#potenzialanalyse');
   }
 
-  // --- Spamschutz ohne Captcha -------------------------------------------
+  // --- Spamverdacht: erheben, aber noch nicht entscheiden -----------------
+  // Beide Prüfungen liefen früher vor der Validierung und beendeten die
+  // Anfrage sofort. Damit bekam ein Mensch, der in die Zeitfalle geriet, die
+  // Dankeseite statt seiner Fehlermeldung — und seine Anfrage war weg.
+  // Jetzt wird der Verdacht nur vermerkt; entschieden wird nach der Prüfung.
+
   // Honigtopf: für Menschen unsichtbar, für einfache Bots verlockend.
-  if (saeubern(daten.get('firmenzusatz'))) {
-    // Bots bekommen dieselbe Antwort wie Menschen — kein Hinweis auf die Falle.
-    return umleiten('/danke');
-  }
-  // Zeitfalle: unter drei Sekunden hat niemand elf Felder ausgefüllt.
-  // Ohne JavaScript ist das Feld leer; dann wird die Prüfung übersprungen.
+  const honigtopf = Boolean(saeubern(daten.get('firmenzusatz')));
+
+  // Ohne JavaScript bleibt das Feld leer; dann wird die Dauer nicht bewertet.
   const geladen = Number.parseInt(saeubern(daten.get('geladen'), 20), 10);
-  if (Number.isFinite(geladen) && Date.now() - geladen < 3000) {
-    return umleiten('/danke');
-  }
+  const zuSchnell = Number.isFinite(geladen) && Date.now() - geladen < MINDESTDAUER_MS;
+
+  const verdacht = honigtopf || zuSchnell;
 
   // --- Validierung --------------------------------------------------------
   const feld = {
@@ -116,6 +137,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     !istEmail(feld.email) ||
     feld.einwilligung !== 'ja'
   ) {
+    // Auch ein Verdachtsfall bekommt hier die Fehlermeldung: Wer eine Angabe
+    // vergessen hat, soll sie nachtragen können, statt auf einer Dankeseite zu
+    // landen, hinter der nichts passiert. Ein Bot lernt daraus nichts, was er
+    // nicht ohnehin durch Ausprobieren erführe.
     return umleiten('/kontakt?fehler=pflichtfelder#potenzialanalyse');
   }
 
@@ -128,8 +153,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
   }
 
+  const eingegangen = new Date().toISOString();
+  /* Kurzkennung für das Protokoll. Sie steht auch im KV-Schlüssel, damit sich
+     eine Protokollzeile einem Datensatz zuordnen lässt, ohne dass im Protokoll
+     ein Name, eine Telefonnummer oder eine Adresse auftaucht. */
+  const kennung = crypto.randomUUID();
+  const schluessel = `${verdacht ? 'verdacht' : 'anfrage'}:${eingegangen}:${kennung}`;
+
   const anfrage = {
-    eingegangen: new Date().toISOString(),
+    eingegangen,
+    kennung,
+    ...(verdacht ? { verdacht: { honigtopf, zuSchnell } } : {}),
     ...feld,
     herkunft,
   };
@@ -155,13 +189,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
     `Anmerkung:      ${feld.nachricht || '—'}`,
     ``,
     `Herkunft:       ${Object.keys(herkunft).length ? JSON.stringify(herkunft) : 'direkt'}`,
-    `Eingegangen:    ${anfrage.eingegangen}`,
+    `Eingegangen:    ${eingegangen}`,
   ].join('\n');
 
-  // --- Zustellung ---------------------------------------------------------
-  let zugestellt = false;
+  // --- 1. Ablage: zuerst und unabhängig von der E-Mail --------------------
+  let abgelegt = false;
+  if (env.LEADS) {
+    try {
+      await env.LEADS.put(schluessel, JSON.stringify(anfrage));
+      abgelegt = true;
+    } catch (fehler) {
+      // Ohne Klardaten: nur die Kennung und der Grund.
+      console.error(`Ablage im KV fehlgeschlagen [${kennung}]`, fehler);
+    }
+  }
 
-  if (env.RESEND_API_KEY && env.LEAD_NOTIFY_EMAIL && env.LEAD_FROM_EMAIL) {
+  // --- 2. Benachrichtigung ------------------------------------------------
+  // Verdachtsfälle werden abgelegt, aber nicht versendet: Sonst wäre das
+  // Postfach das Ziel jedes Bots. Nachsehen lässt sich der Datensatz trotzdem.
+  let versendet = false;
+  const mailMoeglich = Boolean(
+    env.RESEND_API_KEY && env.LEAD_NOTIFY_EMAIL && env.LEAD_FROM_EMAIL,
+  );
+
+  if (mailMoeglich && !verdacht) {
     try {
       const antwort = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -177,28 +228,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
           text,
         }),
       });
-      zugestellt = antwort.ok;
-      if (!antwort.ok) console.error('Mailversand fehlgeschlagen', antwort.status);
+      versendet = antwort.ok;
+      if (!antwort.ok) console.error(`Mailversand fehlgeschlagen [${kennung}] HTTP ${antwort.status}`);
     } catch (fehler) {
-      console.error('Mailversand fehlgeschlagen', fehler);
+      console.error(`Mailversand fehlgeschlagen [${kennung}]`, fehler);
     }
   }
 
-  if (!zugestellt && env.LEADS) {
-    try {
-      await env.LEADS.put(
-        `anfrage:${anfrage.eingegangen}:${crypto.randomUUID()}`,
-        JSON.stringify(anfrage),
-      );
-      zugestellt = true;
-    } catch (fehler) {
-      console.error('Ablage im KV fehlgeschlagen', fehler);
-    }
-  }
-
-  if (!zugestellt) {
-    // Letzte Stufe: mindestens im Protokoll sichtbar, damit nichts still verschwindet.
-    console.warn('Anfrage ohne konfigurierte Zustellung:\n' + text);
+  // --- 3. Protokoll -------------------------------------------------------
+  if (abgelegt) {
+    // Der Regelfall. Kein Name, keine Nummer, keine Adresse — der Datensatz
+    // liegt im KV, das Protokoll sagt nur, dass und unter welchem Schlüssel.
+    console.log(
+      `Anfrage abgelegt [${kennung}] schluessel=${schluessel} mail=${
+        verdacht ? 'unterdrueckt (Verdacht)' : versendet ? 'ok' : mailMoeglich ? 'fehlgeschlagen' : 'nicht eingerichtet'
+      }`,
+    );
+  } else if (versendet) {
+    console.warn(`Keine Ablage vorhanden, nur per Mail zugestellt [${kennung}]`);
+  } else {
+    /* Letzte Stufe. Hier steht die Anfrage im Klartext im Protokoll — nicht aus
+       Nachlässigkeit, sondern weil das Protokoll dann der einzige Ort ist, an
+       dem sie überhaupt noch existiert. Sobald die KV-Bindung steht, wird
+       dieser Zweig nicht mehr erreicht. */
+    console.error(
+      `Anfrage konnte weder abgelegt noch versendet werden [${kennung}] — ` +
+        'Notfallausgabe, damit sie nicht verlorengeht:\n' +
+        text,
+    );
   }
 
   return umleiten('/danke');
