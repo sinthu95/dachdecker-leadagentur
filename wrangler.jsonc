@@ -45,7 +45,7 @@
   // Beim Deploy ist diese Datei maßgeblich, und was hier fehlt, wird am Worker
   // entfernt. Die ID ist kein Geheimnis, sie benennt nur den Namensraum.
   // --------------------------------------------------------------------
-  "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }],
+  "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }]
 
   // --------------------------------------------------------------------
   // OFFEN 1 — Benachrichtigung per E-Mail. Alle drei Werte sind nötig;
@@ -62,12 +62,21 @@
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
-  // OFFEN 2 — Domain. PUBLIC_SITE_URL wird beim Bauen gelesen, nicht zur
-  // Laufzeit: Der Wert muss in den Build-Variablen der Cloudflare-Oberfläche
-  // stehen, damit robots.txt, Sitemap und kanonische URLs aktiv werden.
-  // Ohne ihn baut die Seite bewusst mit noindex.
+  // OFFEN 2 — Domain. PUBLIC_SITE_URL steht bewusst NICHT hier.
+  //
+  // Der Wert wird beim Bauen gelesen (src/config/site.ts liest process.env),
+  // nicht zur Laufzeit. Ein Eintrag unter "vars" wäre eine Laufzeitbindung:
+  // Er käme am Bauvorgang nie an, die Seite bliebe still auf noindex, und
+  // die Ursache wäre schwer zu finden — dieselbe Falle, die schon die
+  // LEAD_-Variablen gekostet hat.
+  //
+  // Richtig ist die Build-Variable in der Cloudflare-Oberfläche:
+  //   Workers & Pages → dachdecker-leadagentur → Settings → Build
+  //   → Build variables →  PUBLIC_SITE_URL = https://ssleadcraft.de
+  //
+  // Sobald sie gesetzt ist, baut der nächste Deploy mit kanonischen URLs,
+  // Sitemap und ohne noindex. Es gibt keinen Zwischenzustand: Die Domain
+  // ist der Schalter. Vorher muss ssleadcraft.de als Custom Domain auf
+  // diesen Worker zeigen, sonst verweisen die kanonischen URLs ins Leere.
   // --------------------------------------------------------------------
-  "vars": {
-    "PUBLIC_SITE_URL": ""
-  }
 }

@@ -245,8 +245,10 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
    verlangt einen elektronischen Weg zur schnellen Kontaktaufnahme, die
    Telefonnummer allein genügt dafür nicht. Ohne sie bleiben Impressum und
    Datenschutz auf `noindex`.
-3. **Domain** als `PUBLIC_SITE_URL` setzen (in `wrangler.jsonc` unter `vars` oder als
-   Umgebungsvariable im Build). Damit werden `robots.txt`, Sitemap, kanonische URLs
+3. **Domain** als `PUBLIC_SITE_URL` setzen — als **Build-Variable** in der
+   Cloudflare-Oberfläche (Settings → Build → Build variables), nicht unter
+   `vars` in `wrangler.jsonc`: Der Wert wird beim Bauen gelesen, eine
+   Laufzeitbindung käme dort nie an. Damit werden `robots.txt`, Sitemap, kanonische URLs
    und Open Graph automatisch aktiv. Die Sitemap führt nur indexierbare Seiten:
    `/danke` bleibt dauerhaft draußen, Impressum und Datenschutz kommen erst dazu,
    wenn die Pflichtangaben vollständig sind.
