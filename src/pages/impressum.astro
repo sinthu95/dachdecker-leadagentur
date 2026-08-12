@@ -123,12 +123,32 @@ const hinweise = [
                 }
               </dd>
             </div>
-            <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
-              <dt class="marke sm:pt-[0.35em]">Register</dt>
-              <dd class="sm:col-span-2">
-                {impressum.register ?? <Luecke was="Registereintrag, falls zutreffend" />}
-              </dd>
-            </div>
+            {/* Register und Aufsichtsbehörde treffen nicht auf jeden Betrieb zu.
+                Solange die Seite nicht öffentlich ist, steht die offene Stelle
+                trotzdem da, damit sie nicht vergessen wird; danach entfällt die
+                Zeile, wenn es nichts einzutragen gibt. */}
+            {
+              (impressum.register || !impressumVollstaendig) && (
+                <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+                  <dt class="marke sm:pt-[0.35em]">Register</dt>
+                  <dd class="sm:col-span-2">
+                    {impressum.register ?? <Luecke was="Registereintrag, falls zutreffend" />}
+                  </dd>
+                </div>
+              )
+            }
+            {
+              (impressum.aufsichtsbehoerde || !impressumVollstaendig) && (
+                <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
+                  <dt class="marke sm:pt-[0.35em]">Aufsichtsbehörde</dt>
+                  <dd class="sm:col-span-2">
+                    {impressum.aufsichtsbehoerde ?? (
+                      <Luecke was="Aufsichtsbehörde, falls zulassungspflichtig" />
+                    )}
+                  </dd>
+                </div>
+              )
+            }
             <div class="grid gap-x-8 gap-y-1 border-b border-linie-stark py-4 sm:grid-cols-3">
               <dt class="marke sm:pt-[0.35em]">Verantwortlich für den Inhalt</dt>
               <dd class="sm:col-span-2">

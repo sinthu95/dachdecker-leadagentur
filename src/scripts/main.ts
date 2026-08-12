@@ -236,6 +236,58 @@ function ereignisse() {
    Ohne JavaScript sind alle drei Abschnitte sichtbar und absendbar. Mit
    JavaScript wird daraus eine geführte Strecke — kein Inhalt geht verloren.
    --------------------------------------------------------------------------- */
+
+/**
+ * Elf Felder auszufüllen kostet Mühe. Weist der Server die Anfrage ab, kommt
+ * der Besucher über eine Umleitung auf einer frisch geladenen Seite an — die
+ * Eingaben wären weg. Deshalb legen wir sie vor dem Absenden ab und stellen
+ * sie nur dann wieder her, wenn die Adresse einen Fehler meldet.
+ *
+ * Bewusst `sessionStorage`: Die Angaben überleben den Tab nicht und gehen
+ * nirgendwohin. Der Honigtopf und die Zeitmarke bleiben außen vor.
+ */
+const ENTWURF = 'ssl:anfrage-entwurf';
+const NICHT_SICHERN = new Set(['firmenzusatz', 'geladen', 'einwilligung']);
+
+function eingabenSichern(form: HTMLFormElement) {
+  try {
+    const werte: Record<string, string[]> = {};
+    for (const el of Array.from(form.elements)) {
+      const f = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+      if (!f.name || NICHT_SICHERN.has(f.name) || f.name.startsWith('herkunft_')) continue;
+      if (f instanceof HTMLInputElement && (f.type === 'checkbox' || f.type === 'radio')) {
+        if (!f.checked) continue;
+      }
+      (werte[f.name] ??= []).push(f.value);
+    }
+    sessionStorage.setItem(ENTWURF, JSON.stringify(werte));
+  } catch {
+    /* Privater Modus ohne Speicher: dann eben ohne Wiederherstellung. */
+  }
+}
+
+function eingabenHerstellen(form: HTMLFormElement) {
+  if (!new URLSearchParams(window.location.search).has('fehler')) return;
+  let werte: Record<string, string[]> | null = null;
+  try {
+    werte = JSON.parse(sessionStorage.getItem(ENTWURF) ?? 'null');
+    sessionStorage.removeItem(ENTWURF);
+  } catch {
+    return;
+  }
+  if (!werte) return;
+
+  for (const el of Array.from(form.elements)) {
+    const f = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const gesichert = f.name ? werte[f.name] : undefined;
+    if (!gesichert) continue;
+    if (f instanceof HTMLInputElement && (f.type === 'checkbox' || f.type === 'radio')) {
+      f.checked = gesichert.includes(f.value);
+    } else {
+      f.value = gesichert[0] ?? '';
+    }
+  }
+}
 function formular() {
   const form = document.querySelector<HTMLFormElement>('[data-anfrage]');
   if (!form) return;
@@ -262,21 +314,34 @@ function formular() {
     senden.hidden = aktiv !== schritte.length - 1;
   };
 
-  /** Nur die Felder des sichtbaren Schrittes prüfen. */
-  const schrittGueltig = () => {
-    // Erst die Auswahlgruppen: dafür gibt es eine eigene sichtbare Meldung.
-    // Die native Sprechblase des Browsers kann an einem flächig überlagerten
-    // Bedienelement nicht sinnvoll ankern, deshalb übernehmen wir das selbst.
-    const gruppen = schritte[aktiv].querySelectorAll<HTMLElement>('[data-pflichtgruppe]');
+  /**
+   * Auswahlgruppen prüfen. Die native Sprechblase des Browsers kann an einem
+   * flächig überlagerten Bedienelement nicht sinnvoll ankern, deshalb steht
+   * die Meldung im Formular selbst.
+   *
+   * Der Index sagt, in welchem Abschnitt die erste Lücke sitzt — beim Absenden
+   * muss die Strecke dorthin zurückspringen können.
+   */
+  const ersteLueckeInGruppen = (bereich: ParentNode) => {
+    const gruppen = bereich.querySelectorAll<HTMLElement>('[data-pflichtgruppe]');
     for (const gruppe of gruppen) {
       const gewaehlt = gruppe.querySelectorAll<HTMLInputElement>('input:checked').length;
       const hinweis = gruppe.querySelector<HTMLElement>('[data-gruppenfehler]');
       if (gewaehlt === 0) {
         if (hinweis) hinweis.textContent = 'Bitte wählen Sie mindestens eine Angabe.';
-        (gruppe.querySelector('input') as HTMLInputElement | null)?.focus();
-        return false;
+        return gruppe;
       }
       if (hinweis) hinweis.textContent = '';
+    }
+    return null;
+  };
+
+  /** Nur die Felder des sichtbaren Schrittes prüfen. */
+  const schrittGueltig = () => {
+    const luecke = ersteLueckeInGruppen(schritte[aktiv]);
+    if (luecke) {
+      (luecke.querySelector('input') as HTMLInputElement | null)?.focus();
+      return false;
     }
 
     // Danach die übrigen Felder über die eingebaute Prüfung.
@@ -319,6 +384,21 @@ function formular() {
   });
 
   form.addEventListener('submit', (e) => {
+    // Die Auswahlgruppen zuerst, und über alle Abschnitte hinweg: Wer einen
+    // Haken nachträglich wieder entfernt, käme sonst an der Prüfung vorbei.
+    const luecke = ersteLueckeInGruppen(form);
+    if (luecke) {
+      e.preventDefault();
+      const index = schritte.findIndex((s) => s.contains(luecke));
+      if (index >= 0) {
+        aktiv = index;
+        zeichnen();
+      }
+      (luecke.querySelector('input') as HTMLInputElement | null)?.focus();
+      luecke.scrollIntoView({ block: 'center', behavior: sanft ? 'smooth' : 'auto' });
+      return;
+    }
+
     if (!form.checkValidity()) {
       // Zum ersten fehlerhaften Schritt zurückspringen, statt still zu scheitern
       const index = schritte.findIndex((s) => !s.checkValidity());
@@ -330,11 +410,13 @@ function formular() {
         return;
       }
     }
+    eingabenSichern(form);
     ereignis('lead_submit');
     senden.disabled = true;
     senden.textContent = 'Wird gesendet …';
   });
 
+  eingabenHerstellen(form);
   zeichnen();
 }
 

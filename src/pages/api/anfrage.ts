@@ -22,7 +22,13 @@ interface Umgebung {
   LEADS?: { put(schluessel: string, wert: string): Promise<void> };
 }
 
+/**
+ * Pflichtangaben. Dieselben, die im Formular ein Sternchen tragen — sonst
+ * hielte die Kennzeichnung nur so lange, wie JavaScript läuft.
+ */
 const PFLICHT = ['betrieb', 'ort', 'kapazitaet', 'name', 'telefon', 'email'] as const;
+/** Mehrfachauswahl: mindestens ein Haken. */
+const PFLICHT_MEHRFACH = ['leistungen'] as const;
 
 const istEmail = (wert: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(wert);
 
@@ -101,7 +107,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
   };
 
   const fehlend = PFLICHT.filter((f) => !(feld as Record<string, unknown>)[f]);
-  if (fehlend.length > 0 || !istEmail(feld.email) || feld.einwilligung !== 'ja') {
+  const fehlendeAuswahl = PFLICHT_MEHRFACH.filter(
+    (f) => ((feld as Record<string, unknown>)[f] as string[]).length === 0,
+  );
+  if (
+    fehlend.length > 0 ||
+    fehlendeAuswahl.length > 0 ||
+    !istEmail(feld.email) ||
+    feld.einwilligung !== 'ja'
+  ) {
     return umleiten('/kontakt?fehler=pflichtfelder#potenzialanalyse');
   }
 

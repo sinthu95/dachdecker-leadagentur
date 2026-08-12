@@ -50,7 +50,7 @@ const aktuell = Astro.url.pathname.replace(/\/$/, '') || '/';
       <a
         href={`tel:${site.telefon}`}
         data-ereignis="call_click"
-        class="hidden font-mono text-[0.68rem] font-medium tracking-[0.1em] text-graphit transition-colors duration-500 hover:text-schiefer md:inline"
+        class="tipp hidden font-mono text-[0.68rem] font-medium tracking-[0.1em] text-graphit transition-colors duration-500 hover:text-schiefer md:inline-block"
         >{site.telefonAnzeige}</a
       >
       <!-- Der Wortlaut bleibt überall identisch — auch auf der Werbeseite. -->
@@ -112,7 +112,7 @@ const aktuell = Astro.url.pathname.replace(/\/$/, '') || '/';
                   class="flex items-baseline justify-between gap-4 py-5 text-[1.75rem] font-medium tracking-[-0.03em]"
                 >
                   {eintrag.label}
-                  <span class="font-mono text-[0.6rem] font-normal tracking-[0.14em] text-kies zahlen">
+                  <span class="font-mono text-[0.6rem] font-normal tracking-[0.14em] text-graphit zahlen">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 </a>

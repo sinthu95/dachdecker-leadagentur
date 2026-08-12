@@ -1,6 +1,16 @@
 ---
 import { site } from '../config/site';
 
+interface Props {
+  /**
+   * Auf der Danke-Seite ist die Anfrage bereits gestellt. Dort dieselbe
+   * Aufforderung noch einmal anzubieten, lädt zur doppelten Einsendung ein —
+   * dort bleibt nur der Anruf stehen.
+   */
+  nurTelefon?: boolean;
+}
+const { nurTelefon = false } = Astro.props;
+
 /**
  * Feste Leiste am unteren Rand — nur auf Telefonen. Handwerksinhaber rufen an;
  * die Nummer darf nie mehr als einen Daumen entfernt sein.
@@ -10,14 +20,21 @@ import { site } from '../config/site';
 
 <div
   data-mobil-cta
-  class="fixed inset-x-0 bottom-0 z-[90] grid grid-cols-2 border-t border-linie bg-papier/95 backdrop-blur-sm transition-transform duration-700 [transition-timing-function:var(--ease-linie)] md:hidden"
+  class:list={[
+    'fixed inset-x-0 bottom-0 z-[90] grid border-t border-linie bg-papier/95 backdrop-blur-sm transition-transform duration-700 [transition-timing-function:var(--ease-linie)] md:hidden',
+    nurTelefon ? 'grid-cols-1' : 'grid-cols-2',
+  ]}
 >
-  <a
-    href="/kontakt"
-    class="flex items-center justify-center border-r border-linie px-3 py-4 font-mono text-[0.66rem] font-medium tracking-[0.13em] text-schiefer uppercase"
-  >
-    Potenzialanalyse
-  </a>
+  {
+    !nurTelefon && (
+      <a
+        href="/kontakt"
+        class="flex items-center justify-center border-r border-linie px-3 py-4 font-mono text-[0.66rem] font-medium tracking-[0.13em] text-schiefer uppercase"
+      >
+        Potenzialanalyse
+      </a>
+    )
+  }
   <a
     href={`tel:${site.telefon}`}
     data-ereignis="call_click"

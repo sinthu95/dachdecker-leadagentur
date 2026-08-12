@@ -61,9 +61,8 @@ export const cta = {
 } as const;
 
 /**
- * Pflichtangaben, die vor dem Livegang ergänzt werden müssen.
- * `null` heißt: liegt noch nicht vor. Die Impressumsseite macht jede Lücke
- * sichtbar, statt sie zu erfinden.
+ * Angaben für das Impressum. `null` heißt: liegt noch nicht vor. Die
+ * Impressumsseite macht jede Lücke sichtbar, statt sie zu erfinden.
  */
 export const impressum = {
   anbieter: site.gruender,
@@ -72,10 +71,34 @@ export const impressum = {
   plzOrt: null as string | null,
   umsatzsteuerId: null as string | null,
   kleinunternehmer: null as boolean | null,
+  /** Nur bei Eintragung. Sonst als kurze Feststellung eintragen. */
   register: null as string | null,
+  /** Nur bei zulassungspflichtiger Tätigkeit. */
   aufsichtsbehoerde: null as string | null,
 } as const;
 
-export const impressumVollstaendig = Object.values(impressum).every(
-  (wert) => wert !== null,
-);
+/**
+ * Was § 5 DDG in jedem Fall verlangt: Name, Rechtsform, ladungsfähige
+ * Anschrift und ein elektronischer Weg zur schnellen Kontaktaufnahme.
+ */
+const IMPRESSUM_PFLICHT = ['rechtsform', 'strasse', 'plzOrt'] as const;
+
+/**
+ * Zur Umsatzsteuer muss eine Aussage getroffen sein — entweder eine
+ * USt-IdNr. oder der Hinweis auf die Kleinunternehmerregelung. Beides zu
+ * verlangen wäre widersprüchlich: Wer Kleinunternehmer ist, hat keine.
+ */
+export const umsatzsteuerGeklaert =
+  impressum.umsatzsteuerId !== null || impressum.kleinunternehmer !== null;
+
+/**
+ * Registereintrag und Aufsichtsbehörde gehen bewusst nicht in die Prüfung
+ * ein: Ein nicht eingetragenes Einzelunternehmen hat keinen Registereintrag,
+ * und eine Aufsichtsbehörde gibt es nur bei zulassungspflichtiger Tätigkeit.
+ * Sie hier zu verlangen hieße, den Livegang an eine erfundene Angabe zu
+ * knüpfen — genau das soll nicht passieren.
+ */
+export const impressumVollstaendig =
+  IMPRESSUM_PFLICHT.every((feld) => impressum[feld] !== null) &&
+  umsatzsteuerGeklaert &&
+  site.contactEmail !== null;

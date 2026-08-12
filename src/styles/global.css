@@ -14,10 +14,15 @@
   --color-papier: #f4f2ed; /* warmes gebrochenes Weiß, mineralisch */
   --color-kalkstein: #e9e5dd; /* abgesetzte helle Fläche */
   --color-beton: #d8d3c8; /* Steinton — Bildfelder, Zäsuren */
-  --color-kies: #b4aea2; /* mittlerer Steinton — nur Marken und Linien */
+  --color-kies: #b4aea2; /* mittlerer Steinton — ausschließlich Linien und
+     Schraffuren. Für Text zu schwach: 2,0:1 auf papier. */
 
   /* --- Schrift und Tiefe -------------------------------------------------- */
-  --color-graphit: #6b6862; /* Sekundärtext auf hell */
+  /* Sekundärtext auf hell. Der Wert ist so gewählt, dass er auf beiden hellen
+     Flächen trägt: 5,6:1 auf papier und 5,0:1 auf kalkstein. Ein helleres Grau
+     fiel auf kalkstein unter 4,5:1 und war damit auf jeder Steinfläche der
+     Seite zu schwach. */
+  --color-graphit: #636058;
   --color-schiefer: #2c2e2b; /* Primärtext, warmes Dunkelgrau */
   --color-anthrazit: #1c1e1b; /* dunkle Abschnitte */
   --color-tinte: #121412; /* tiefste Fläche, sehr sparsam */
@@ -123,6 +128,11 @@
   :focus-visible {
     outline: 2px solid var(--color-signal);
     outline-offset: 3px;
+    /* Der Rahmen darf nicht einblenden. Navigation und Knöpfe tragen einen
+       halbsekündigen Farbübergang, der auch outline-color erfasst — wer mit
+       der Tastatur arbeitet, sähe den Fokus dann erst nach einer halben
+       Sekunde und in der Zwischenfarbe. */
+    transition-property: none;
   }
   .dunkel :focus-visible,
   .dunkel:focus-visible {
@@ -418,11 +428,20 @@
     transition: border-color 0.45s var(--ease-linie);
   }
   .feld::placeholder {
-    color: var(--color-kies);
+    color: var(--color-graphit);
   }
   .feld:focus {
+    /* Beim Klick genügt die wechselnde Linie — sie ist die Gestaltung des
+       Feldes. */
     outline: none;
     border-bottom-color: var(--color-signal);
+  }
+  .feld:focus-visible {
+    /* Für die Tastatur reicht eine 1 px starke Linie nicht: Sie ist der
+       einzige Hinweis darauf, wo man gerade steht, und ein Farbwechsel auf
+       einer Haarlinie ist dafür zu wenig. */
+    outline: 2px solid var(--color-signal);
+    outline-offset: 3px;
   }
   .feld:user-invalid {
     border-bottom-color: var(--color-zinnober);
@@ -583,23 +602,27 @@
   }
 
   /* Bildfläche wird von unten freigelegt und beruhigt sich aus leichter
-     Vergrößerung — der einzige Skalierungseffekt der Seite. */
+     Vergrößerung — der einzige Skalierungseffekt der Seite.
+
+     Der Beschnitt liegt auf dem Inhalt, nicht auf dem beobachteten Kasten.
+     Grund: Ein per clip-path auf null Höhe gesetztes Element hat für den
+     IntersectionObserver die Fläche null. Es meldet nie ein Erscheinen und
+     bliebe damit für immer unsichtbar — die Enthüllung würde sich selbst
+     blockieren. Der Rahmen steht deshalb sofort, der Inhalt fährt hoch. */
   .bildmaske {
     position: relative;
     overflow: hidden;
-    clip-path: inset(100% 0 0 0);
-    transition: clip-path 1.5s var(--ease-linie);
-    transition-delay: calc(var(--i, 0) * 110ms);
   }
   .bildmaske > * {
+    clip-path: inset(100% 0 0 0);
     transform: scale(1.06);
-    transition: transform 2s var(--ease-linie);
+    transition:
+      clip-path 1.5s var(--ease-linie),
+      transform 2s var(--ease-linie);
     transition-delay: calc(var(--i, 0) * 110ms);
   }
-  .bildmaske.sichtbar {
-    clip-path: inset(0 0 0 0);
-  }
   .bildmaske.sichtbar > * {
+    clip-path: inset(0 0 0 0);
     transform: scale(1);
   }
 
@@ -636,11 +659,8 @@
     transform: none !important;
     transition: none !important;
   }
-  .bildmaske {
-    clip-path: none !important;
-    transition: none !important;
-  }
   .bildmaske > * {
+    clip-path: none !important;
     transform: none !important;
     transition: none !important;
   }

@@ -98,11 +98,22 @@ mindestens 24 px hoch (`.tipp`); Links im Fließtext sind davon ausgenommen.
 
 ```bash
 npm run check:build
-node tools/pruefen.mjs             http://127.0.0.1:4321
-node tools/pruefen-interaktion.mjs http://127.0.0.1:4321
+npm run check:pruefungen
 ```
 
-Beide Prüfläufe müssen ohne Befund durchlaufen.
+Alle sieben Prüfläufe müssen ohne Befund durchlaufen. Sie brauchen einen laufenden
+Entwicklungsserver auf `127.0.0.1:4321`.
+
+- `pruefen.mjs` — Struktur, interne Ziele, Titel- und Beschreibungslängen
+- `pruefen-interaktion.mjs` — Menü, Formularstrecke, Rundgang, Bewegungsreduktion
+- `pruefen-audit.mjs` — Semantik, ARIA, waagerechter Überlauf, Bilder, Tippziele
+  und Wege zur Anfrage; sechs Breiten von 320 bis 1920 px
+- `pruefen-enthuellung.mjs` — ob die Bildmasken und Zeilen tatsächlich aufgehen.
+  Die übrigen Werkzeuge setzen `.sichtbar` selbst und würden einen Stillstand
+  nie bemerken
+- `pruefen-tastatur.mjs` — Sprungmarke, Fokusrahmen, Fokusfalle im Menü
+- `pruefen-formular.mjs` — serverseitige Ablehnung und Wiederherstellung der Eingaben
+- `pruefen-kontrast.mjs` — gemessener Kontrast gegen die tatsächliche Fläche
 
 `npm run build` allein baut nur — ohne Typprüfung, damit die Auslieferung auf
 Cloudflare nicht an einer interaktiven Rückfrage hängenbleibt. Vor einem Commit
