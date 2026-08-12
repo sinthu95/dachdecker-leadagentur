@@ -35,10 +35,19 @@ const {
   />
 
   <div class="schiene relative pt-24 lg:pt-32">
-    <h2 id="abschluss-titel" class="zeilen max-w-[17ch] text-gross">
+    {/* Dieselbe Treppe wie im Hero — Titelblatt und Schlussblatt rahmen die
+        Seite mit derselben Setzgeste. */}
+    <h2 id="abschluss-titel" class="zeilen text-gross">
       {
         zeilen.map((z, i) => (
-          <span class="zeile">
+          <span
+            class:list={[
+              'zeile',
+              i === 1 && 'lg:ml-[8.333%]',
+              i === 2 && 'lg:ml-[16.666%]',
+              i === 3 && 'lg:ml-[25%]',
+            ]}
+          >
             <span style={`--i:${i}`}>{z}</span>
           </span>
         ))

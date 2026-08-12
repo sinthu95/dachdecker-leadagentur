@@ -14,7 +14,12 @@ const vorhanden = motivVorhanden('objekt');
 const quelle = motivDaten('objekt')?.quelle ?? '';
 ---
 
-<section class="relative bg-papier" aria-label="Bildstrecke">
+{/* Kein eigener Hintergrund: Das Band ragt über `.rag-hinein` in das folgende
+    Kapitel hinein — die Kalksteinfläche steigt hinter Bild und Bemaßung auf,
+    die Naht zwischen den Abschnitten wird Teil der Komposition. Das folgende
+    Kapitel trägt `.kapitel-ueberlappt` und macht den Platz frei; verschieben
+    kann sich dabei nichts, der Überhang ist fest bemessen. */}
+<section class="rag-hinein relative" aria-label="Bildstrecke">
   <div class="bildmaske versatz" data-versatz="10">
     <Motiv
       name="objekt"
@@ -25,10 +30,19 @@ const quelle = motivDaten('objekt')?.quelle ?? '';
     />
   </div>
 
+  {/* Die Bemaßung liegt bereits auf der dunklen Fläche des folgenden Kapitels.
+      Der eigene anthrazitfarbene Grund ist unsichtbar, weil er dem Untergrund
+      gleicht — aber er macht die Zeile unabhängig davon, wie weit das Bild
+      hineinragt, und die Kontrastprüfung kann sie gegen eine echte Fläche
+      messen statt gegen einen durchsichtigen Stapel. */}
   <div class="schiene">
-    <div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t border-linie py-3">
-      <span class="marke">{vorhanden ? quelle : 'Aufnahme folgt — Motiv steht fest'}</span>
-      <span class="marke zahlen">38°</span>
+    <div
+      class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t border-linie-dunkel bg-anthrazit py-3"
+    >
+      <span class="marke text-graphit-hell">
+        {vorhanden ? quelle : 'Aufnahme folgt — Motiv steht fest'}
+      </span>
+      <span class="marke zahlen text-graphit-hell">38°</span>
     </div>
   </div>
 </section>

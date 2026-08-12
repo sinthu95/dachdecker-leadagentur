@@ -8,7 +8,10 @@ import { prozess } from '../data/inhalte';
  */
 ---
 
-<section class="kapitel schnitt dunkel" aria-labelledby="prozess-titel">
+{/* `.kapitel-ueberlappt` statt `.schnitt`: Das Bildband davor ragt in dieses
+    Kapitel hinein — die dunkle Fläche beginnt hinter dem Bild, der Inhalt erst
+    mit Abstand darunter. Eine Schnittlinie an der Oberkante läge verdeckt. */}
+<section class="kapitel kapitel-ueberlappt dunkel" aria-labelledby="prozess-titel">
   <div class="schiene">
     <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
       <div class="lg:col-span-7">

@@ -26,31 +26,27 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
       <span class="zahlen">{site.ort} · {site.gebiet}</span>
     </div>
 
-    <!-- Titel und Konstruktionszeichnung nebeneinander -->
-    <div class="mt-10 grid items-end gap-8 lg:mt-14 lg:grid-cols-12">
+    <!-- Der Titel über die volle Breite, die Zeilen treppen nach rechts:
+         Die Setzung selbst zeichnet die Dachschräge nach, bevor irgendein
+         Bild geladen ist. Unter 1024 px stehen die Zeilen bündig — auf der
+         schmalen Fläche trägt die Größe allein. -->
+    <div class="mt-10 lg:mt-14">
       <h1
-        class="zeilen max-w-[19ch] text-titel font-medium text-schiefer lg:col-span-9"
+        class="zeilen text-titel font-medium text-schiefer"
         style="font-family:var(--font-grotesk)"
       >
         {
           zeilen.map((z, i) => (
-            <span class="zeile">
+            <span class:list={['zeile', i === 1 && 'lg:ml-[8.333%]', i === 2 && 'lg:ml-[16.666%]', i === 3 && 'lg:ml-[25%]']}>
               <span style={`--i:${i}`}>{z}</span>
             </span>
           ))
         }
       </h1>
-
-      <!-- Die Signaturgeometrie als Schnittzeichnung, nicht als Hintergrundwäsche.
-           Sie zeichnet sich als Letztes: erst die Zeilen, dann der Vorspann,
-           dann die Konstruktion — Text zuerst, Zeichnung danach. -->
-      <div class="hidden lg:col-span-3 lg:block" aria-hidden="true" style="--start:0.55s">
-        <Linie art="dach" class="h-40 w-full text-schiefer opacity-45 xl:h-52" />
-      </div>
     </div>
 
-    <!-- Vorspann und Handlung, links; rechts bleibt Weißraum stehen -->
-    <div class="mt-12 grid gap-y-10 lg:mt-16 lg:grid-cols-12 lg:gap-8">
+    <!-- Vorspann und Handlung links; rechts die Konstruktion als Gegengewicht -->
+    <div class="mt-12 grid gap-y-10 lg:mt-20 lg:grid-cols-12 lg:gap-8">
       <div class="lg:col-span-6 xl:col-span-5">
         {/* Die Staffel setzt hinter den vier Titelzeilen an (--i:0–3), damit
             die Ladefolge eine Richtung hat: Zeilen, Vorspann, Handlung. */}
@@ -74,9 +70,14 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
         </p>
       </div>
 
-      <!-- Bemaßung: der Winkel wird benannt, nicht nur gezeichnet -->
-      <div class="hidden lg:col-span-3 lg:col-start-10 lg:block">
-        <div class="steig" style="--i:6">
+      <!-- Die Konstruktion als Gegengewicht zum Text: Zeichnung und Bemaßung
+           in einem Block. Sie zeichnet sich als Letztes — erst die Zeilen,
+           dann der Vorspann, dann die Konstruktion. -->
+      <div class="hidden lg:col-span-4 lg:col-start-9 lg:block lg:self-end">
+        <div aria-hidden="true" style="--start:0.55s">
+          <Linie art="dach" class="h-36 w-full text-schiefer opacity-45 xl:h-44" />
+        </div>
+        <div class="steig mt-5" style="--i:6">
           <div class="flex items-center gap-3">
             <span class="h-px flex-1 bg-linie-stark"></span>
             <span class="font-mono text-[0.62rem] tracking-[0.16em] text-graphit uppercase zahlen"

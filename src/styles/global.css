@@ -52,13 +52,20 @@
   --font-mono: 'SSL Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   /* --- Typoskala: wenige Größen, große Sprünge ---------------------------- */
-  --text-titel: clamp(2.6rem, 6.6vw, 7rem);
-  --text-titel--line-height: 0.93;
-  --text-titel--letter-spacing: -0.045em;
+  /* Neukomposition: Der Maßstab trägt die Seite. Die Titelstufe füllt die
+     Zeile fast aus, die Kapitelstufe rückt deutlich davon ab — dazwischen
+     bleibt bewusst nichts: Entweder eine Zeile ist ein Ereignis, oder sie
+     ist Text. */
+  /* Untergrenze so bemessen, dass die längste gesetzte Titelzeile
+     („guten Dachdeckern") auf 390 px ohne Umbruch steht — die Zeilenumbrüche
+     sind gesetzt und dürfen auf keinem Gerät zerfallen. */
+  --text-titel: clamp(2.5rem, 8vw, 8.6rem);
+  --text-titel--line-height: 0.91;
+  --text-titel--letter-spacing: -0.05em;
 
-  --text-gross: clamp(2rem, 4.6vw, 4.4rem);
-  --text-gross--line-height: 1;
-  --text-gross--letter-spacing: -0.035em;
+  --text-gross: clamp(2.2rem, 5.2vw, 5.2rem);
+  --text-gross--line-height: 0.97;
+  --text-gross--letter-spacing: -0.04em;
 
   --text-mittel: clamp(1.45rem, 2.4vw, 2.3rem);
   --text-mittel--line-height: 1.16;
@@ -221,6 +228,21 @@
   /* Harte horizontale Trennlinie — das Gliederungsmittel statt Boxen. */
   .schnitt {
     border-top: 1px solid var(--color-linie);
+  }
+  /* Überlappung: Eine Bildfläche ragt in das folgende Kapitel hinein, statt an
+     der Kapitelkante zu enden — die Naht zwischen zwei Abschnitten wird zur
+     Komposition. Layoutstabil, weil der Platz über den negativen Rand fest
+     vergeben ist: nichts verschiebt sich beim Laden. Das Folgekapitel braucht
+     `.kapitel-ueberlappt`, damit sein Inhalt unter der Bildkante beginnt. */
+  .rag-hinein {
+    position: relative;
+    z-index: 10;
+    /* Untergrenze 5rem: Auch auf dem Telefon muss die Bemaßungszeile unter dem
+       Bild vollständig auf der dunklen Fläche des Folgekapitels liegen. */
+    margin-bottom: clamp(-8rem, -9vw, -5rem);
+  }
+  .kapitel-ueberlappt {
+    padding-top: clamp(8rem, 16vw, 15rem);
   }
   .dunkel .schnitt,
   .schnitt-dunkel {
