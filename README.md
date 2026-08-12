@@ -3,7 +3,7 @@
 Website der Agentur **S&S Leadcraft** — digitale Kundengewinnung ausschließlich für
 Dachdeckerbetriebe in Deutschland.
 
-Astro 5 (statisch) · Tailwind 4 · Cloudflare Workers · unter 6 KB JavaScript.
+Astro 5 (statisch) · Tailwind 4 · Cloudflare Workers · 7,6 KB JavaScript.
 
 ---
 
@@ -42,22 +42,33 @@ automatischen Auslieferung liegen. Für die eigene Kontrolle ist
 ### Prüfläufe
 
 ```bash
-node tools/pruefen.mjs             http://127.0.0.1:4321   # Struktur, Links, SEO, Tippziele
-node tools/pruefen-interaktion.mjs http://127.0.0.1:4321   # Menü, Formular, Rundgang, reduced-motion
+npm run check:pruefungen                                   # alle sechs Läufe nacheinander
 node tools/messen.mjs              http://127.0.0.1:8788   # Datenmengen, LCP, CLS
+```
+
+Einzeln:
+
+```bash
+node tools/pruefen.mjs             # Struktur, Links, SEO, Tippziele
+node tools/pruefen-interaktion.mjs # Menü, Formularstrecke, Rundgang, reduced-motion
+node tools/pruefen-audit.mjs       # Semantik, ARIA, Überlauf, Bilder — sechs Breiten von 320 bis 1920
+node tools/pruefen-tastatur.mjs    # Sprungmarke, Fokusrahmen, Menüfalle, Formular ohne Maus
+node tools/pruefen-formular.mjs    # Ablehnung durch den Server, Wiederherstellung der Eingaben
+node tools/pruefen-kontrast.mjs    # gemessener Kontrast jedes Textelements gegen seine Fläche
 ```
 
 Gemessen am 11.08.2026 gegen den Produktionsbuild, mobil, 4× CPU-Drosselung, ~1,6 Mbit/s:
 
 | Seite         | Übertragen | LCP    | CLS |
 | ------------- | ---------- | ------ | --- |
-| `/`           | 181 KB     | 0,95 s | 0   |
-| `/leistungen` | 145 KB     | 0,73 s | 0   |
-| `/dachdecker` | 156 KB     | 0,87 s | 0   |
-| `/demo`       | 315 KB     | 0,71 s | 0   |
-| `/kontakt`    | 134 KB     | 0,83 s | 0   |
+| `/`           | 254 KB     | 1,26 s | 0   |
+| `/leistungen` | 175 KB     | 0,94 s | 0   |
+| `/dachdecker` | 177 KB     | 1,05 s | 0   |
+| `/demo`       | 270 KB     | 0,84 s | 0   |
+| `/kontakt`    | 152 KB     | 0,95 s | 0   |
 
-JavaScript gesamt: 5,9 KB unkomprimiert, ein einziges Modul.
+JavaScript gesamt: 7,6 KB unkomprimiert, ein einziges Modul. Budget: LCP unter
+1,8 s, CLS unter 0,02, JavaScript unter 20 KB.
 
 ### Vorschau ohne Server
 
@@ -108,7 +119,33 @@ Platz, Format und Anschnitt stehen bereits fest.
 | B-03 | Startseite, „Das Problem" | Dachdecker bei der präzisen Arbeit am Falz: Hände, Werkzeug, Materialkante — Konzentration statt Pose | 3:2 / 4:5 |
 | B-04 | Startseite, Bildband vor „Prozess" (randlos) | Modernes Wohnhaus in der Totalen: klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar, kein Weitwinkelverzug | 21:9 / 4:5 |
 | B-05 | Startseite und `/ueber-uns`, „Spezialisierung" | Schiefer, Zink und Ziegel nebeneinander als Materialprobe im Streiflicht, Oberflächen und Kanten deutlich | 4:5 |
-| B-06 | Startseite und `/ueber-uns`, Gründerabschnitt | Porträt Sinthusan Sinnathurai, halbnah, ruhiger Hintergrund, natürliches Seitenlicht — kein Anzug vor Glasfassade | 4:5 |
+| B-06 | Startseite und `/ueber-uns`, „Der Kopf dahinter“ | Porträt Sinthusan Sinnathurai. **Aufnahme liegt vor** — siehe „Das Gründerporträt“ unten | 4:5 / 6:7 |
+
+### Das Gründerporträt
+
+Die Aufnahme liegt vor und ist vom Abgebildeten freigegeben. Sie wird nicht im
+Original ausgeliefert, sondern in zwei bewusst verschiedenen Ausschnitten:
+
+```bash
+node tools/portraet.mjs bilder-quelle/portraet-original.jpg
+```
+
+Das erzeugt `portraet-hoch-{640,960,1280}.webp` (4:5, ab 1024 px) und
+`portraet-mobil-{480,780}.webp` (6:7, darunter) in `public/images/portraet/`.
+Der mobile Ausschnitt ist flacher, weil das Bild dort die volle Breite einnimmt:
+Ein Hochformat belegte sonst den halben Bildschirm. Gekürzt ist nur unten —
+Gesicht und Oberkörper stehen in beiden Fassungen gleich.
+
+Sitzt das Gesicht in der Vorlage anders, verschieben `--fokus-x` und `--fokus-y`
+den Ausschnitt; die Vorgaben passen zur vorliegenden Aufnahme. Ändert sich das
+mobile Verhältnis, muss `MOBIL_VERHAELTNIS` in `Portraet.astro` mitwandern —
+daraus stehen `width` und `height` des Bildes und damit die reservierte Fläche.
+
+Das Original liegt in `bilder-quelle/` — außerhalb von `public/`, damit es nicht
+unverkleinert mit ausgeliefert wird, und über `.gitignore` außerhalb des
+Repositories. Im Auslieferungsstand stehen nur die zugeschnittenen Fassungen. Solange sie fehlen,
+zeigt `Portraet.astro` weiter das gestaltete Bildfeld; es wird also nie ein
+leerer Rahmen ausgeliefert.
 
 **Was nicht infrage kommt:** Handwerker mit verschränkten Armen vor dem Firmenwagen,
 Daumen-hoch-Motive, Bilddatenbank-Baustellen ohne Bezug, sichtbar generierte Bilder.
@@ -136,6 +173,12 @@ Honigtopf und Zeitprüfung — **kein Captcha**, weil das Besucherdaten an Dritt
 Damit geht keine Anfrage verloren, auch bevor ein Postfach existiert. Astros
 CSRF-Schutz ist aktiv: POSTs ohne passenden `Origin`-Header werden mit 403 abgewiesen.
 
+Weist der Server eine Anfrage zurück, kommt der Besucher über eine Umleitung auf einer
+frisch geladenen Seite an — die Eingaben wären weg. Deshalb legt das Skript sie vor dem
+Absenden im `sessionStorage` ab und stellt sie nur dann wieder her, wenn die Adresse
+einen Fehler meldet. Einwilligung und Honigtopf bleiben dabei außen vor: Die
+Einwilligung muss aktiv gesetzt werden.
+
 ### Herkunft jeder Anfrage
 
 Beim ersten Seitenaufruf werden `utm_*`, `gclid`, `fbclid`, `msclkid`, Referrer und
@@ -146,14 +189,22 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
 
 ## Vor dem Launch
 
-1. **Impressumsangaben** in `src/config/site.ts` unter `impressum` eintragen
-   (Rechtsform, Anschrift, USt-IdNr. oder Kleinunternehmerhinweis, ggf. Register).
-   Sobald alle Felder gesetzt sind, verschwinden die Lückenmarkierungen und die
-   Rechtstexte werden indexierbar.
-2. **E-Mail-Adresse** als `contactEmail` eintragen.
+1. **Impressumsangaben** in `src/config/site.ts` unter `impressum` eintragen.
+   Zwingend sind `rechtsform`, `strasse`, `plzOrt` sowie eine Aussage zur
+   Umsatzsteuer — entweder `umsatzsteuerId` oder `kleinunternehmer: true`.
+   `register` und `aufsichtsbehoerde` gehen nicht in die Prüfung ein: Beide
+   treffen nur auf manche Betriebe zu, und den Livegang an eine erfundene Angabe
+   zu knüpfen wäre das Gegenteil dessen, was dieses Projekt tut. Solange die
+   Seite nicht öffentlich ist, stehen sie trotzdem als markierte Lücke da.
+2. **E-Mail-Adresse** als `contactEmail` eintragen. Sie ist Pflicht: § 5 DDG
+   verlangt einen elektronischen Weg zur schnellen Kontaktaufnahme, die
+   Telefonnummer allein genügt dafür nicht. Ohne sie bleiben Impressum und
+   Datenschutz auf `noindex`.
 3. **Domain** als `PUBLIC_SITE_URL` setzen (in `wrangler.jsonc` unter `vars` oder als
    Umgebungsvariable im Build). Damit werden `robots.txt`, Sitemap, kanonische URLs
-   und Open Graph automatisch aktiv.
+   und Open Graph automatisch aktiv. Die Sitemap führt nur indexierbare Seiten:
+   `/danke` bleibt dauerhaft draußen, Impressum und Datenschutz kommen erst dazu,
+   wenn die Pflichtangaben vollständig sind.
 4. **Zustellung** einrichten:
    ```bash
    wrangler kv namespace create LEADS      # ID in wrangler.jsonc eintragen

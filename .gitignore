@@ -1,3 +1,7 @@
+# Originalaufnahmen: liegen außerhalb von public/, damit sie nicht in den
+# Auslieferungsstand wandern, und außerhalb der Versionierung.
+bilder-quelle/
+
 # build
 dist/
 vorschau.html

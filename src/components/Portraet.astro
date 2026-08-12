@@ -1,0 +1,104 @@
+---
+import Bildfeld from './Bildfeld.astro';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+/**
+ * Das Gründerporträt.
+ *
+ * Zwei bewusst verschiedene Ausschnitte statt eines skalierten Bildes: am
+ * Rechner ein 4:5-Hochformat neben dem Text, auf dem Telefon ein flacherer
+ * 6:7-Ausschnitt, weil die Fläche dort die volle Breite einnimmt und ein
+ * hohes Format sonst den halben Bildschirm belegte. Gekürzt ist dabei nur
+ * unten — Gesicht und Oberkörper stehen in beiden Fassungen gleich.
+ * Erzeugt werden beide mit `tools/portraet.mjs`.
+ *
+ * Solange die Dateien nicht vorliegen, steht hier weiter das gestaltete
+ * Bildfeld. Damit gibt es keinen Zustand, in dem ein leerer Rahmen oder ein
+ * kaputtes Bild ausgeliefert wird — und keinen, in dem ein Platzhalter für
+ * eine echte Aufnahme gehalten werden könnte.
+ */
+interface Props {
+  class?: string;
+}
+const { class: klasse = '' } = Astro.props;
+
+const PFAD = '/images/portraet';
+const HOCH = [640, 960, 1280];
+const MOBIL = [480, 780];
+/* Muss mit `tools/portraet.mjs` übereinstimmen: Daraus werden Breite und Höhe
+   des Rückfall-Bildes gerechnet, damit die Fläche vor dem Laden schon steht
+   und nichts nachrutscht. */
+const MOBIL_VERHAELTNIS = 6 / 7;
+
+/* Zur Bauzeit geprüft: `public/` wird unverändert ausgeliefert.
+   Der Pfad geht vom Projektstamm aus. Über `import.meta.url` ginge es nicht:
+   Beim Bauen liegt diese Komponente kompiliert an einer anderen Stelle, die
+   Prüfung liefe ins Leere und die Seite zeigte weiter den Platzhalter. Die
+   npm-Skripte laufen immer aus dem Projektstamm. */
+const vorhanden = existsSync(
+  join(process.cwd(), 'public', 'images', 'portraet', `portraet-hoch-${HOCH[0]}.webp`),
+);
+
+const satz = (name: string, breiten: number[]) =>
+  breiten.map((b) => `${PFAD}/portraet-${name}-${b}.webp ${b}w`).join(', ');
+---
+
+{
+  vorhanden ? (
+    <figure class:list={['relative', klasse]}>
+      <picture>
+        {/* Ab hier steht das Bild in einer Spalte neben dem Text. */}
+        <source
+          media="(min-width: 1024px)"
+          type="image/webp"
+          srcset={satz('hoch', HOCH)}
+          sizes="(min-width: 1680px) 39rem, 36vw"
+        />
+        <source
+          type="image/webp"
+          srcset={satz('mobil', MOBIL)}
+          sizes="(min-width: 640px) 26rem, 100vw"
+        />
+        <img
+          src={`${PFAD}/portraet-mobil-${MOBIL[0]}.webp`}
+          width={MOBIL[0]}
+          height={Math.round(MOBIL[0] / MOBIL_VERHAELTNIS)}
+          alt="Porträt von Sinthusan Sinnathurai, Gründer von S&S Leadcraft"
+          class="block h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+
+      {/* Vermessungsmarke wie an den Bildfeldern — das Porträt bleibt Teil
+          derselben Zeichnung und wird nicht zur Personenkachel. */}
+      <span
+        class="pointer-events-none absolute top-4 left-4 h-3 w-3 text-papier/70"
+        aria-hidden="true"
+      >
+        <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-current" />
+        <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-current" />
+      </span>
+
+      {/* Die Beschriftung steht unter dem Bild, nicht darin. Über einer
+          Fotografie ist kein Textkontrast zugesichert: Gemessen trägt der
+          Untergrund hier im Mittel 5,8:1, an der hellsten Stelle aber nur
+          1,0:1 — und welche Stelle das ist, hängt vom Zuschnitt ab. Auf
+          Papier ist die Zeile immer lesbar, und sie folgt derselben
+          Bemaßungssprache wie die übrigen Bildunterschriften. */}
+      <figcaption class="marke mt-3 border-t border-linie pt-3">
+        Sinthusan Sinnathurai · Gründer
+      </figcaption>
+    </figure>
+  ) : (
+    <Bildfeld
+      nummer="B-06"
+      motiv="Porträt Sinthusan Sinnathurai — halbnah, ruhiger Hintergrund, natürliches Seitenlicht. Kein Anzug vor Glasfassade."
+      ausschnitt="Hochformat, Blick zur Kamera"
+      format="4/5"
+      formatMobil="6/7"
+      class={`h-full w-full ${klasse}`}
+    />
+  )
+}

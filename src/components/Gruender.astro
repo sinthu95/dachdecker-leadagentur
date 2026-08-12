@@ -1,12 +1,22 @@
 ---
 import Marke from './Marke.astro';
-import Bildfeld from './Bildfeld.astro';
+import Portraet from './Portraet.astro';
 import { site } from '../config/site';
 
 interface Props {
   ausfuehrlich?: boolean;
 }
 const { ausfuehrlich = false } = Astro.props;
+
+/**
+ * Der Abschnitt steht bewusst hier: nach „Was wir Ihnen nicht versprechen"
+ * und vor „Nicht jeder Betrieb ist passend". An dieser Stelle hat der Leser
+ * die Argumente gehört und die Grenzen gelesen — was jetzt fehlt, ist die
+ * Person, die dafür geradesteht. Direkt danach folgt die Passung und dann das
+ * Formular; der Weg zur Anfrage wird also nicht unterbrochen, sondern
+ * unmittelbar davor mit dem einzigen Vertrauensanker versehen, den dieses
+ * Projekt ehrlich anbieten kann: einem Namen und einem Gesicht.
+ */
 ---
 
 <section class="kapitel schnitt bg-papier" aria-labelledby="gruender-titel">
@@ -14,28 +24,23 @@ const { ausfuehrlich = false } = Astro.props;
     <div class="grid gap-x-8 gap-y-12 lg:grid-cols-12">
       <!-- Das Porträt trägt den Abschnitt. Kein Stockfoto, keine Platzhalterperson. -->
       <div class="bildmaske versatz lg:col-span-5" data-versatz="14">
-        <Bildfeld
-          nummer="B-06"
-          motiv="Porträt Sinthusan Sinnathurai — halbnah, ruhiger Hintergrund, natürliches Seitenlicht. Kein Anzug vor Glasfassade."
-          ausschnitt="Hochformat, Blick zur Kamera"
-          format="4/5"
-          class="h-full w-full"
-        />
+        <Portraet />
       </div>
 
       <div class="lg:col-span-6 lg:col-start-7">
-        <Marke label="Wer dahintersteht" />
+        <Marke label="Der Kopf dahinter" />
 
         <h2 id="gruender-titel" class="mt-8 text-gross lg:mt-10">
-          {site.gruender}
+          {site.gruender}.
         </h2>
         <p class="steig marke mt-4" style="--i:1">Gründer · {site.ort}</p>
 
         <div class="mt-10 space-y-6">
           <p class="steig vorspann max-w-[44ch]" style="--i:2">
-            Es gibt sehr viele Handwerksbetriebe, die ihre Arbeit ausgezeichnet machen und
-            trotzdem online kaum stattfinden — während Portale und größere Anbieter genau
-            die Anfragen abgreifen, die diesen Betrieben zustehen würden.
+            {site.name} entstand aus einer einfachen Überzeugung: Ein guter
+            Dachdeckerbetrieb sollte nicht davon abhängig sein, ob gerade eine Empfehlung
+            kommt oder ein Portal den nächsten Lead verkauft. Deshalb bauen wir digitale
+            Systeme, die aus regionaler Sichtbarkeit eigene, direkte Anfragen machen.
           </p>
           <p class="steig fliess max-w-[48ch]" style="--i:3">
             Statt das für zwanzig Branchen halb zu lösen, habe ich mich für eine
