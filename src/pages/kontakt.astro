@@ -61,8 +61,17 @@ import { site } from '../config/site';
               style="--i:1"
             >
               <dt class="marke sm:pt-[0.35em]">E-Mail</dt>
-              {/* Keine erfundene Adresse — der Hinweis nennt den Weg, der wirklich geht. */}
-              <dd class="fliess text-klein sm:col-span-2">{site.emailHinweis}</dd>
+              <dd class="fliess text-klein sm:col-span-2">
+                {
+                  site.contactEmail ? (
+                    <a href={`mailto:${site.contactEmail}`} class="verweis text-schiefer">
+                      {site.contactEmail}
+                    </a>
+                  ) : (
+                    site.emailHinweis
+                  )
+                }
+              </dd>
             </div>
 
             <div

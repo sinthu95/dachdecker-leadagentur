@@ -74,7 +74,16 @@ const {
           </a>
         </div>
         <p class="steig mt-6 max-w-[42ch] text-klein text-graphit-hell" style="--i:2">
-          {site.erreichbarkeit} · {site.emailHinweis}
+          {site.erreichbarkeit} ·{' '}
+          {
+            site.contactEmail ? (
+              <a href={`mailto:${site.contactEmail}`} class="text-papier underline-offset-4 hover:underline">
+                {site.contactEmail}
+              </a>
+            ) : (
+              site.emailHinweis
+            )
+          }
         </p>
       </div>
     </div>

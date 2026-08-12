@@ -318,7 +318,16 @@ const { knapp = false } = Astro.props;
           <p class="fliess mt-3 max-w-[52ch] text-[0.82rem]">
             Lieber direkt sprechen? <a href={`tel:${site.telefon}`} data-ereignis="call_click"
               >{site.telefonAnzeige}</a
-            > · {site.erreichbarkeit}. {site.emailHinweis}
+            > · {site.erreichbarkeit}.{' '}
+            {
+              site.contactEmail ? (
+                <>
+                  Oder per E-Mail: <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
+                </>
+              ) : (
+                site.emailHinweis
+              )
+            }
           </p>
         </form>
       </div>

@@ -40,13 +40,27 @@ const jahr = new Date().getFullYear();
               >{site.telefonAnzeige}</a
             >
           </li>
+          {
+            site.contactEmail && (
+              <li>
+                <a
+                  href={`mailto:${site.contactEmail}`}
+                  class="tipp text-papier transition-opacity duration-500 hover:opacity-60"
+                >
+                  {site.contactEmail}
+                </a>
+              </li>
+            )
+          }
           <li>{site.erreichbarkeit}</li>
         </ul>
-        {/* Keine erfundene Adresse: solange keine existiert, steht hier der Weg,
-            der tatsächlich funktioniert. */}
-        <p class="mt-4 max-w-[30ch] text-[0.8rem] leading-relaxed text-graphit-hell">
-          {site.emailHinweis}
-        </p>
+        {
+          !site.contactEmail && (
+            <p class="mt-4 max-w-[30ch] text-[0.8rem] leading-relaxed text-graphit-hell">
+              {site.emailHinweis}
+            </p>
+          )
+        }
       </div>
 
       {

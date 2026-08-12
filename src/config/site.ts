@@ -40,9 +40,9 @@ export const site = {
   telefon: '+491788162328',
   telefonAnzeige: '+49 178 8162328',
 
-  /** Noch nicht vorhanden. Nicht erfinden — siehe Dateikopf. */
-  contactEmail: null as string | null,
-  /** Text, der überall dort steht, wo sonst die E-Mail-Adresse stünde. */
+  /** Vom Inhaber freigegeben (12.08.2026). Postfach besteht und wird gelesen. */
+  contactEmail: 'kontakt@ssleadcraft.de' as string | null,
+  /** Rückfalltext für den Fall, dass die Adresse je wieder entfällt. */
   emailHinweis: 'E-Mail-Adresse folgt. Bis dahin: Formular oder Telefon.',
 
   /** Fiktives Demonstrationsprojekt, kein Kunde. */
@@ -66,14 +66,14 @@ export const cta = {
  */
 export const impressum = {
   anbieter: site.gruender,
-  rechtsform: null as string | null,
-  strasse: null as string | null,
-  plzOrt: null as string | null,
+  rechtsform: 'Einzelunternehmen' as string | null,
+  strasse: 'Heidestrasse 36' as string | null,
+  plzOrt: '45549 Sprockhövel' as string | null,
   umsatzsteuerId: null as string | null,
-  kleinunternehmer: null as boolean | null,
-  /** Nur bei Eintragung. Sonst als kurze Feststellung eintragen. */
-  register: null as string | null,
-  /** Nur bei zulassungspflichtiger Tätigkeit. */
+  /** Vom Inhaber bestätigt (12.08.2026): Kleinunternehmerregelung, § 19 UStG. */
+  kleinunternehmer: true as boolean | null,
+  register: 'Nicht im Handelsregister eingetragen' as string | null,
+  /** Nur bei zulassungspflichtiger Tätigkeit — trifft hier nicht zu. */
   aufsichtsbehoerde: null as string | null,
 } as const;
 
