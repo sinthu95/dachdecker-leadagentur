@@ -305,6 +305,29 @@ Asset-Schicht, gültige Anfrage im KV vollständig lesbar, abgelehnte Anfrage
 nicht abgelegt. Der Prüfdatensatz wird danach wieder gelöscht — `LEADS` ist der
 echte Anfragenspeicher, kein Spielplatz.
 
+### Auslieferung über GitHub Actions
+
+`.github/workflows/pages-testlauf.yml` führt dieselben drei Befehle bei jedem
+Push auf den Testzweig aus. Der Grund ist der Token: Er braucht einen Ort, an
+dem er verschlüsselt liegt und nach dem Speichern nicht mehr lesbar ist. Ein
+Feld für Umgebungsvariablen ist das nicht — ein Actions-Secret schon, und
+GitHub maskiert den Wert zusätzlich in jeder Ausgabe.
+
+Zwei Secrets unter **Settings → Secrets and variables → Actions**:
+
+| Name | Inhalt |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Token mit *Cloudflare Pages → Bearbeiten* und *Workers KV Storage → Bearbeiten* |
+| `CLOUDFLARE_ACCOUNT_ID` | Konto-ID |
+
+Die Konto-ID ist kein Zugangsschlüssel, liegt hier aber trotzdem als Secret:
+Dieses Repository ist öffentlich, die Ablaufprotokolle also für jeden
+einsehbar, und die ID taucht in jedem API-Pfad auf, den eine Fehlermeldung
+nennt. Als Secret wird sie dort automatisch geschwärzt.
+
+`main` löst den Ablauf nicht aus. Fehlt eines der Secrets, endet der Lauf im
+ersten Schritt mit einem Hinweis, statt mitten in der Auslieferung.
+
 ### Was dabei ausdrücklich nicht passiert
 
 - Der Worker `ss-leadcraft` und `wrangler.jsonc` werden nicht angefasst.

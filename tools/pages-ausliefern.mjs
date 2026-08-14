@@ -98,4 +98,14 @@ const adressen = [ausspielung.url, ...(ausspielung.aliases ?? [])].filter(Boolea
 console.log('\nAdressen');
 for (const adresse of adressen) console.log(`  ${adresse}`);
 
+// In GitHub Actions die Adresse an den nächsten Schritt durchreichen, damit
+// der Prüflauf nicht raten muss. Außerhalb von Actions passiert hier nichts.
+if (process.env.GITHUB_OUTPUT) {
+  const { appendFileSync } = await import('node:fs');
+  appendFileSync(
+    process.env.GITHUB_OUTPUT,
+    `url=${ausspielung.url}\nadressen=${adressen.join(' ')}\n`,
+  );
+}
+
 console.log(`\nWeiter mit: npm run pruefen:pages ${ausspielung.url}\n`);
