@@ -24,9 +24,10 @@ const ZIEL = 'public/images/motive';
 
 /** Muss mit src/config/motive.ts übereinstimmen. */
 const MOTIVE = [
-  { name: 'dachlandschaft', format: 16 / 9, formatMobil: 4 / 5, breiten: [960, 1440, 1920], breitenMobil: [480, 780] },
+  { name: 'beratung', format: 16 / 9, formatMobil: 4 / 5, breiten: [960, 1440, 1672], breitenMobil: [480, 780] },
+  { name: 'dacharbeit-flaeche', format: 3 / 2, formatMobil: 4 / 5, breiten: [780, 1200, 1672], breitenMobil: [480, 780] },
   { name: 'material', format: 3 / 4, breiten: [640, 1040] },
-  { name: 'objekt', format: 21 / 9, formatMobil: 4 / 5, breiten: [1200, 1920, 2560], breitenMobil: [480, 780] },
+  { name: 'dacharbeit-detail', format: 21 / 9, formatMobil: 4 / 5, breiten: [1200, 1672], breitenMobil: [480, 780] },
 ];
 
 const ENDUNGEN = ['jpg', 'jpeg', 'png', 'webp'];

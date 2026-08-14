@@ -19,8 +19,22 @@ interface Props {
   class?: string;
   /** Unterhalb der Falte (Standard). Nur das Hero-Band lädt eager. */
   laden?: 'lazy' | 'eager';
+  /**
+   * Nachweiszeile unter dem Bild. Standard an — abschaltbar nur dort, wo die
+   * Umgebung die Quelle bereits selbst setzt (Bildband). Sie ganz wegzulassen
+   * ist keine Option: siehe Kopf von src/config/motive.ts.
+   */
+  nachweis?: boolean;
 }
-const { name, nummer, motiv, ausschnitt, class: klasse = '', laden = 'lazy' } = Astro.props;
+const {
+  name,
+  nummer,
+  motiv,
+  ausschnitt,
+  class: klasse = '',
+  laden = 'lazy',
+  nachweis = true,
+} = Astro.props;
 
 const daten = motivDaten(name);
 if (!daten) throw new Error(`Unbekanntes Motiv „${name}" — bitte in src/config/motive.ts eintragen.`);
@@ -44,7 +58,11 @@ const basisFormat = daten.formatMobil ?? daten.format;
 
 {
   vorhanden ? (
-    <figure class:list={['relative', klasse]}>
+    <figure class:list={[klasse]}>
+      {/* Eigene Ebene für Bild und Vermessungsmarke: Die Marke sitzt absolut
+          im Bild, die Nachweiszeile darunter darf davon nicht erfasst
+          werden. */}
+      <div class="relative">
       <picture>
         <source
           media="(min-width: 1024px)"
@@ -55,25 +73,42 @@ const basisFormat = daten.formatMobil ?? daten.format;
         {daten.breitenMobil && (
           <source type="image/webp" srcset={satz(daten.breitenMobil, true)} sizes="100vw" />
         )}
+        {/* Die Fläche wird über `.bildfeld` reserviert, nicht über width/height.
+            Die Attribute nennen die mobile Fassung — auf dem Desktop lädt aber
+            das 16/9-Bild, und der Browser hielte bis zum Laden die mobile
+            Höhe frei. Gemessen: Die Startseite schrumpfte beim Nachladen um
+            über 2000 px, Tabstopps rutschten aus dem Bild und das CLS-Budget
+            wäre dahin. `--verh` und `--verh-mobil` reservieren je Breite das
+            richtige Verhältnis — dieselbe Mechanik wie am Bildfeld, damit
+            beide Zustände exakt gleich viel Platz einnehmen. */}
         <img
           src={`${MOTIV_PFAD}/motiv-${name}${daten.breitenMobil ? '-mobil' : ''}-${basisBreite}.webp`}
           width={basisBreite}
           height={Math.round(basisBreite / verh(basisFormat))}
           alt={daten.alt}
-          class="block h-full w-full object-cover"
+          class="bildfeld block w-full object-cover"
+          style={`--verh:${daten.format};--verh-mobil:${daten.formatMobil ?? daten.format}`}
           loading={laden}
           decoding="async"
         />
       </picture>
-      {/* Dieselbe Vermessungsmarke wie an den Bildfeldern — die Aufnahme wird
-          Teil der Zeichnung, keine eingeklebte Fotografie. */}
-      <span
-        class="pointer-events-none absolute top-4 left-4 h-3 w-3 text-papier/70"
-        aria-hidden="true"
-      >
-        <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-current" />
-        <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-current" />
-      </span>
+        {/* Dieselbe Vermessungsmarke wie an den Bildfeldern — die Aufnahme wird
+            Teil der Zeichnung, keine eingeklebte Fotografie. */}
+        <span
+          class="pointer-events-none absolute top-4 left-4 h-3 w-3 text-papier/70"
+          aria-hidden="true"
+        >
+          <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-current" />
+          <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-current" />
+        </span>
+      </div>
+      {/* Der Nachweis. Steht sichtbar unter dem Bild, nicht im Alternativtext:
+          Er richtet sich an alle, die das Bild sehen. */}
+      {nachweis && (
+        <figcaption class="marke mt-3 border-t border-linie pt-2 text-graphit">
+          {daten.quelle}
+        </figcaption>
+      )}
     </figure>
   ) : (
     <Bildfeld
