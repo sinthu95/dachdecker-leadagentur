@@ -40,6 +40,25 @@ export default defineConfig({
   // Astro liefert eine eigene Vite-Kopie mit; die Plugin-Typen der beiden
   // Installationen sind nominal verschieden, zur Laufzeit aber identisch.
   vite: { plugins: [tailwind() as never] },
-  build: { inlineStylesheets: 'auto' },
+  /**
+   * `format: 'file'` erzeugt `kontakt.html` statt `kontakt/index.html`.
+   *
+   * Das ist keine Geschmacksfrage, sondern die einzige Stelle, an der sich
+   * die kanonische Adressform bei Cloudflare Pages steuern lässt. Pages
+   * kennt `html_handling` des Workers nicht und entscheidet nach der
+   * Dateiablage: Aus `kontakt/index.html` folgt `/kontakt/` als kanonische
+   * Form, und `/kontakt` wird mit 308 dorthin umgeleitet. Da alle internen
+   * Verweise wegen `trailingSlash: 'never'` ohne Schrägstrich stehen, kostete
+   * das jeden internen Klick eine zusätzliche Rundreise — gemessen am
+   * Testlauf vom 14.08.2026 auf acht von neun Seiten.
+   *
+   * Mit `file` liegt `kontakt.html` flach, Pages liefert `/kontakt` direkt
+   * aus und leitet `/kontakt/` dorthin um. Beide Auslieferungswege sind damit
+   * einheitlich ohne Schrägstrich: Der Worker kommt über
+   * `html_handling: "drop-trailing-slash"` zum selben Ergebnis, das er auch
+   * vorher schon lieferte — die ausgelieferten Adressen ändern sich für ihn
+   * nicht, nur die Namen der Dateien darunter.
+   */
+  build: { format: 'file', inlineStylesheets: 'auto' },
   devToolbar: { enabled: false },
 });

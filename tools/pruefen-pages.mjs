@@ -134,14 +134,24 @@ async function erreichbarWarten(sekunden = 180) {
 // --- 1. Seiten -------------------------------------------------------------
 // Die Liste kommt aus dem Buildergebnis, nicht aus einer gepflegten Aufzählung:
 // Eine neue Seite ist damit automatisch mitgeprüft.
+// Beide Ablagen werden erkannt: `kontakt.html` (build.format: 'file', der
+// aktuelle Stand) und `kontakt/index.html` (build.format: 'directory').
+// Sonst fände dieses Werkzeug nach einem Wechsel der Einstellung keine
+// einzige Seite mehr und meldete trotzdem „0 Befunde".
 function seitenAusBuild() {
   if (!existsSync('dist')) return ['/'];
-  const gefunden = ['/'];
+  const gefunden = new Set(['/']);
   for (const eintrag of readdirSync('dist', { withFileTypes: true })) {
-    if (!eintrag.isDirectory() || eintrag.name.startsWith('_')) continue;
-    if (existsSync(`dist/${eintrag.name}/index.html`)) gefunden.push(`/${eintrag.name}`);
+    if (eintrag.name.startsWith('_')) continue;
+    if (eintrag.isDirectory()) {
+      if (existsSync(`dist/${eintrag.name}/index.html`)) gefunden.add(`/${eintrag.name}`);
+    } else if (eintrag.name.endsWith('.html')) {
+      // `index.html` ist bereits „/", `404.html` wird eigens geprüft.
+      if (eintrag.name === 'index.html' || eintrag.name === '404.html') continue;
+      gefunden.add(`/${eintrag.name.replace(/\.html$/, '')}`);
+    }
   }
-  return gefunden;
+  return [...gefunden];
 }
 
 const versuche = await erreichbarWarten();
