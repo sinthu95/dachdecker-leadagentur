@@ -203,6 +203,31 @@ export async function kvLoeschen(schluessel) {
 
 // ---------------------------------------------------------------------------
 
+/**
+ * Prüft den Token selbst, unabhängig von seinen Berechtigungen.
+ *
+ * Cloudflare beantwortet beides mit demselben Code 10000 — einen kaputten
+ * Token und einen gültigen ohne die nötige Berechtigung. Dieser Endpunkt
+ * trennt die Fälle: Er antwortet auf jeden aktiven Token, ganz gleich, was
+ * dieser darf. Schlägt er fehl, liegt es am Token-Wert; kommt er durch, liegt
+ * es an den Berechtigungen.
+ */
+export async function tokenPruefen() {
+  return await api('/user/tokens/verify');
+}
+
+/**
+ * Konten, die dieser Token sehen darf. Beste Bemühung: Manche Token dürfen
+ * die Liste nicht lesen, ohne dass etwas falsch wäre — dann `null`.
+ */
+export async function kontenLesen() {
+  try {
+    return await api('/accounts?per_page=50');
+  } catch {
+    return null;
+  }
+}
+
 /** Projektangaben oder `null`, wenn es das Projekt noch nicht gibt. */
 export async function projektLesen() {
   try {
