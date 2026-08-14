@@ -1,7 +1,0 @@
-# Wird von Astro nach dist/ kopiert und dort von Wrangler ausgewertet.
-#
-# Ohne diesen Eintrag lädt Wrangler das Verzeichnis dist/_worker.js/ als
-# statisches Asset hoch und der serverseitige Code läge öffentlich im Netz.
-# Der Worker selbst wird davon nicht berührt: er wird über "main" in
-# wrangler.jsonc gebündelt, nicht über die Asset-Auslieferung.
-_worker.js

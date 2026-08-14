@@ -1,13 +1,13 @@
 /**
- * Prüft die Lead-Strecke am echten Worker, nicht am Entwicklungsserver.
+ * Prüft die Lead-Strecke an der echten Pages-Laufzeit, nicht am Entwicklungsserver.
  *
  *   node tools/pruefen-lead.mjs
  *
  * Der Entwicklungsserver verhält sich an entscheidenden Stellen anders — der
  * Herkunftsschutz greift dort zum Beispiel gar nicht. Deshalb startet dieses
- * Werkzeug `wrangler dev --local`, also dieselbe Laufzeit, die auch bei
- * Cloudflare läuft, mit einer eigenen Konfiguration. `wrangler.jsonc` wird
- * dabei nicht angefasst.
+ * Werkzeug `wrangler pages dev`, also dieselbe Laufzeit, die auch bei
+ * Cloudflare Pages läuft. Bindungen kommen über Schalter herein;
+ * `wrangler.jsonc` wird dabei nicht angefasst.
  *
  * Nachgewiesen wird:
  *   1. Eine gültige Anfrage liegt danach im KV.
@@ -19,13 +19,13 @@
  * Es wird keine echte E-Mail versendet: Der hinterlegte Schlüssel ist erfunden
  * und die Zieladresse liegt auf `.invalid`.
  */
-import { spawn, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { readFileSync, readdirSync, existsSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { setTimeout as warten } from 'node:timers/promises';
 
 const HAFEN = Number(process.argv[2] ?? 8791);
 const BASIS = `http://127.0.0.1:${HAFEN}`;
-const KONFIG = 'wrangler.pruefen-lead.jsonc';
 const ZUSTAND = '.wrangler/pruefen-lead';
 
 /* Erfundene Zugangsdaten. Sie sollen fehlschlagen — genau das ist Fall 3. */
@@ -51,13 +51,17 @@ const nok = (text) => {
 };
 const pruefe = (bedingung, text) => (bedingung ? ok(text) : nok(text));
 
-function konfigSchreiben(mitKv, mitMail) {
-  const roh = readFileSync('wrangler.jsonc', 'utf8').replace(/^\s*\/\/.*$/gm, '');
-  const cfg = JSON.parse(roh);
-  cfg.vars = { ...(cfg.vars ?? {}), ...(mitMail ? MAIL_VARS : {}) };
-  if (mitKv) cfg.kv_namespaces = [{ binding: 'LEADS', id: 'pruefen-lead-lokal' }];
-  else delete cfg.kv_namespaces;
-  writeFileSync(KONFIG, JSON.stringify(cfg, null, 2));
+/**
+ * Bindungen kommen als Schalter, nicht über eine Ersatzkonfiguration.
+ * `wrangler pages dev` nimmt `--kv` und `--binding` direkt entgegen; damit
+ * bleibt wrangler.jsonc unangetastet und die Prüfung kann beide Zustände
+ * herstellen — mit Ablage und ohne.
+ */
+function bindungen(mitKv, mitMail) {
+  const s = [];
+  if (mitKv) s.push('--kv', 'LEADS');
+  if (mitMail) for (const [k, v] of Object.entries(MAIL_VARS)) s.push('--binding', `${k}=${v}`);
+  return s;
 }
 
 /**
@@ -66,17 +70,17 @@ function konfigSchreiben(mitKv, mitMail) {
  * zweite Durchgang deshalb noch den Worker des ersten, und die Prüfung misst
  * die falsche Konfiguration. Genau das ist hier einmal passiert.
  */
-async function workerStarten(hafen) {
+async function workerStarten(hafen, schalter = []) {
   const basis = `http://127.0.0.1:${hafen}`;
   const kind = spawn(
     'npx',
     [
-      'wrangler', 'dev', '--local',
+      'wrangler', 'pages', 'dev',
       '--port', String(hafen),
       '--inspector-port', String(hafen + 1000),
-      '-c', KONFIG,
       '--persist-to', ZUSTAND,
       '--log-level', 'log',
+      ...schalter,
     ],
     { stdio: ['ignore', 'pipe', 'pipe'], detached: true },
   );
@@ -137,41 +141,31 @@ const vollstaendig = (zusatz = {}) => ({
 });
 
 /**
- * Alle Schlüssel aus der lokalen KV-Ablage — über Wranglers eigenen Zugriff.
- * Direkt in die SQLite-Dateien zu sehen wäre unzuverlässig: Nach dem Beenden
- * des Workers steht ein Teil der Einträge noch im WAL und nicht in der
- * Hauptdatei.
+ * Die abgelegten Datensätze aus der lokalen Ablage.
+ *
+ * `wrangler pages dev --kv LEADS` legt die Werte als einzelne JSON-Dateien
+ * unter <zustand>/v3/kv/LEADS/blobs/ ab. Sie direkt zu lesen ist zuverlässiger
+ * als der Umweg über `wrangler kv key get`: Dieser bräuchte eine
+ * Konfigurationsdatei, um die Bindung aufzulösen — und die gibt es hier
+ * bewusst nicht mehr, damit wrangler.jsonc unangetastet bleibt.
+ *
+ * Der Schlüssel steht im Datensatz selbst: aus `kennung` und dem Vorhandensein
+ * von `verdacht` ergibt er sich eindeutig.
  */
-function kvLesen(unterbefehl) {
-  const ergebnis = spawnSync(
-    'npx',
-    ['wrangler', 'kv', ...unterbefehl, '--binding', 'LEADS', '--local',
-     '--persist-to', ZUSTAND, '-c', KONFIG],
-    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
-  );
-  return ergebnis.stdout ?? '';
-}
-
-function kvSchluessel() {
-  const roh = kvLesen(['key', 'list']);
-  const anfang = roh.indexOf('[');
-  if (anfang < 0) return [];
-  try {
-    return JSON.parse(roh.slice(anfang)).map((e) => e.name);
-  } catch {
-    return [];
+function kvDatensaetze() {
+  const wurzel = join(ZUSTAND, 'v3', 'kv', 'LEADS', 'blobs');
+  if (!existsSync(wurzel)) return [];
+  const saetze = [];
+  for (const name of readdirSync(wurzel)) {
+    try {
+      const roh = readFileSync(join(wurzel, name), 'utf8');
+      if (!roh.startsWith('{')) continue;
+      saetze.push(JSON.parse(roh));
+    } catch {
+      /* keine JSON-Ablage — überspringen */
+    }
   }
-}
-
-function kvDatensatz(schluessel) {
-  const roh = kvLesen(['key', 'get', schluessel]);
-  const anfang = roh.indexOf('{');
-  if (anfang < 0) return null;
-  try {
-    return JSON.parse(roh.slice(anfang));
-  } catch {
-    return null;
-  }
+  return saetze;
 }
 
 // ---------------------------------------------------------------------------
@@ -182,8 +176,7 @@ let gesamtProtokoll = '';
 try {
   // === Durchgang A: KV vorhanden, Mailversand konfiguriert und fehlschlagend =
   console.log('\nMit KV-Ablage, Mailversand schlägt fehl');
-  konfigSchreiben(true, true);
-  let worker = await workerStarten(HAFEN);
+  let worker = await workerStarten(HAFEN, bindungen(true, true));
   const b = worker.basis;
 
   const a1 = await senden(b, vollstaendig());
@@ -237,9 +230,9 @@ try {
   gesamtProtokoll += worker.protokoll();
   await worker.beenden();
 
-  const schluessel = kvSchluessel();
-  const echte = schluessel.filter((s) => s.startsWith('anfrage:'));
-  const verdaechtige = schluessel.filter((s) => s.startsWith('verdacht:'));
+  const saetze = kvDatensaetze();
+  const echte = saetze.filter((s) => !s.verdacht);
+  const verdaechtige = saetze.filter((s) => s.verdacht);
 
   console.log('\nAblage');
   pruefe(echte.length === 3, `drei gültige Anfragen abgelegt (gefunden: ${echte.length})`);
@@ -250,15 +243,18 @@ try {
 
   // Der Datensatz muss vollständig lesbar zurückkommen — eine Ablage, aus der
   // sich die Anfrage nicht rekonstruieren lässt, wäre keine.
-  const satz = echte.length ? kvDatensatz(echte[0]) : null;
+  const satz = echte[0];
   pruefe(
     Boolean(satz && satz.name && satz.telefon && satz.email && satz.leistungen?.length),
     'abgelegter Datensatz ist vollständig lesbar',
   );
-  const verdachtssatz = verdaechtige.length ? kvDatensatz(verdaechtige[0]) : null;
   pruefe(
-    Boolean(verdachtssatz?.verdacht),
+    Boolean(verdaechtige[0]?.verdacht),
     'Verdachtsfall trägt den Grund im Datensatz',
+  );
+  pruefe(
+    /schluessel=anfrage:/.test(gesamtProtokoll) && /schluessel=verdacht:/.test(gesamtProtokoll),
+    'Schlüssel trennen echte Anfragen von Verdachtsfällen',
   );
   pruefe(
     /mail=fehlgeschlagen/.test(gesamtProtokoll),
@@ -282,8 +278,7 @@ try {
   // Der Notfallzweig. Hier sollen Klardaten im Protokoll stehen: Es ist dann
   // der einzige Ort, an dem die Anfrage noch existiert.
   console.log('\nOhne KV und ohne Mailversand: Notfallausgabe');
-  konfigSchreiben(false, false);
-  worker = await workerStarten(HAFEN + 2);
+  worker = await workerStarten(HAFEN + 2, bindungen(false, false));
   const b1 = await senden(worker.basis, vollstaendig({ betrieb: 'Notfall GmbH' }));
   pruefe(b1.status === 303 && /\/danke$/.test(b1.ziel ?? ''), 'Anfrage wird angenommen');
   await warten(1200);
@@ -294,7 +289,6 @@ try {
     'Notfallausgabe enthält die vollständige Anfrage — sonst wäre sie verloren',
   );
 } finally {
-  rmSync(KONFIG, { force: true });
   rmSync(ZUSTAND, { recursive: true, force: true });
 }
 

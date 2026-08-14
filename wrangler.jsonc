@@ -1,82 +1,78 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Astro baut mit dem Cloudflare-Adapter: statische Seiten unter dist/ und
-  // einen schlanken Worker, der ausschließlich POST /api/anfrage bedient.
-  // Alles andere wird direkt als statisches Asset ausgeliefert.
-  "name": "ss-leadcraft",
-  "main": "./dist/_worker.js/index.js",
+
+  // ====================================================================
+  // Cloudflare Pages.
+  //
+  // Warum Pages und nicht Workers: Eine Custom Domain am Worker setzt
+  // voraus, dass die Zone bei Cloudflare liegt — also ein Umzug der
+  // Nameserver. Die DNS von ssleadcraft.de bleibt bei STRATO, damit die
+  // Postfächer unberührt bleiben. Pages nimmt dagegen auch Domains an,
+  // deren DNS anderswo liegt: Ein CNAME von www auf die Pages-Adresse
+  // genügt, das Zertifikat stellt Cloudflare selbst aus.
+  //
+  // Der Astro-Adapter erzeugt bereits genau die Form, die Pages erwartet:
+  // dist/_worker.js/ als Funktion, dist/_routes.json als Wegweiser. Am
+  // Anwendungscode war deshalb nichts zu ändern.
+  // ====================================================================
+  "name": "dachdecker-leadagentur",
+  "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-08-11",
   "compatibility_flags": ["nodejs_compat"],
 
-  // dist/ liegt nicht im Repository — es ist ein Build-Ergebnis. Ohne diesen
-  // Schritt läuft "wrangler deploy" in einer frisch ausgecheckten Umgebung ins
-  // Leere und meldet: The entry-point file at "dist/_worker.js/index.js" was
-  // not found. Wrangler führt diesen Befehl vor jedem deploy und dev selbst
-  // aus, unabhängig davon, was in der Cloudflare-Oberfläche als Build-Befehl
-  // hinterlegt ist.
-  "build": {
-    "command": "npm run build"
-  },
-
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    // Ohne diese Einstellung antwortet /leistungen mit 307 auf /leistungen/ —
-    // eine zusaetzliche Rundreise bei jedem internen Klick.
-    "html_handling": "drop-trailing-slash",
-    // Unbekannte Adressen sollen die gestaltete Fehlerseite bekommen,
-    // nicht die nackte Standardmeldung.
-    "not_found_handling": "404-page",
-    // Wichtig: Mit "404-page" beansprucht die Asset-Schicht jeden Pfad und
-    // beantwortet ein POST auf /api/anfrage mit 405, ohne den Worker je zu
-    // fragen. Diese Pfade muessen deshalb zuerst an den Worker gehen.
-    "run_worker_first": ["/api/*"]
-  },
-  "observability": { "enabled": true },
-
   // --------------------------------------------------------------------
-  // Ablage der Anfragen. Ohne diese Bindung gibt es keinen dauerhaften
-  // Speicher: Der Endpunkt legt jede geprüfte Anfrage zuerst hier ab, noch
-  // bevor eine Benachrichtigung versucht wird. Fehlte sie, bliebe als letzter
-  // Ausweg nur das Worker-Protokoll, und das ist kein Speicher — es wird nach
-  // wenigen Tagen verworfen.
+  // Ablage der Anfragen — derselbe Namensraum wie bisher, unverändert
+  // weiterverwendet. Die Anfragen, die dort bereits liegen, bleiben
+  // erhalten; ein Namensraum gehört dem Konto, nicht dem Projekt.
   //
-  // Die Bindung muss hier stehen, nicht nur in der Cloudflare-Oberfläche:
-  // Beim Deploy ist diese Datei maßgeblich, und was hier fehlt, wird am Worker
-  // entfernt. Die ID ist kein Geheimnis, sie benennt nur den Namensraum.
+  // Für Pages werden die Bindungen je Umgebung gesetzt. Die Vorschau
+  // bekommt denselben Namensraum: Eine Testanfrage aus einem
+  // Vorschau-Deployment soll nicht ins Leere laufen, und sie ist am
+  // Schlüssel ohnehin von echten Anfragen zu unterscheiden.
   // --------------------------------------------------------------------
-  "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }]
+  "env": {
+    "production": {
+      "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }]
+    },
+    "preview": {
+      "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }]
+    }
+  }
 
   // --------------------------------------------------------------------
   // OFFEN 1 — Benachrichtigung per E-Mail. Alle drei Werte sind nötig;
-  // fehlt einer, versendet der Endpunkt nichts. Als Secret setzen, nicht als
-  // Variable: Der „vars"-Block unten ist beim Deploy maßgeblich und würde im
-  // Dashboard gesetzte Klartextvariablen wieder entfernen. Secrets bleiben.
+  // fehlt einer, versendet der Endpunkt nichts. Sie gehören NICHT in
+  // diese Datei, sondern als verschlüsselte Werte in die Projekt-
+  // einstellungen von Pages:
   //
-  //   npx wrangler secret put RESEND_API_KEY      Zugang zu Resend
-  //   npx wrangler secret put LEAD_NOTIFY_EMAIL   Ihr Posteingang
-  //   npx wrangler secret put LEAD_FROM_EMAIL     Absender, verifizierte Domain
+  //   Pages → dachdecker-leadagentur → Settings → Variables and Secrets
+  //   → Type: Secret, für Production UND Preview:
+  //       RESEND_API_KEY      Zugang zu Resend
+  //       LEAD_NOTIFY_EMAIL   kontakt@ssleadcraft.de
+  //       LEAD_FROM_EMAIL     leads@ssleadcraft.de
   //
-  // Die Anfrage ist auch ohne diesen Schritt sicher abgelegt — sie kommt dann
-  // nur nicht von selbst zu Ihnen.
+  // Secrets aus dem bisherigen Worker wandern nicht mit — sie müssen im
+  // Pages-Projekt neu gesetzt werden. Die Anfrage ist auch ohne diesen
+  // Schritt sicher abgelegt; sie kommt dann nur nicht von selbst zu Ihnen.
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
   // OFFEN 2 — Domain. PUBLIC_SITE_URL steht bewusst NICHT hier.
   //
-  // Der Wert wird beim Bauen gelesen (src/config/site.ts liest process.env),
-  // nicht zur Laufzeit. Ein Eintrag unter "vars" wäre eine Laufzeitbindung:
-  // Er käme am Bauvorgang nie an, die Seite bliebe still auf noindex, und
-  // die Ursache wäre schwer zu finden — dieselbe Falle, die schon die
-  // LEAD_-Variablen gekostet hat.
+  // Der Wert wird beim Bauen gelesen (src/config/site.ts greift auf
+  // process.env zu), nicht zur Laufzeit. Eine Laufzeitbindung käme am
+  // Bauvorgang nie an, die Seite bliebe still auf noindex, und die
+  // Ursache wäre schwer zu finden.
   //
-  // Richtig ist die Build-Variable in der Cloudflare-Oberfläche:
-  //   Workers & Pages → dachdecker-leadagentur → Settings → Build
-  //   → Build variables →  PUBLIC_SITE_URL = https://ssleadcraft.de
+  // Richtig ist die Build-Variable in den Pages-Einstellungen:
+  //   Settings → Variables and Secrets → Type: Plaintext
+  //   → PUBLIC_SITE_URL = https://www.ssleadcraft.de
   //
-  // Sobald sie gesetzt ist, baut der nächste Deploy mit kanonischen URLs,
-  // Sitemap und ohne noindex. Es gibt keinen Zwischenzustand: Die Domain
-  // ist der Schalter. Vorher muss ssleadcraft.de als Custom Domain auf
-  // diesen Worker zeigen, sonst verweisen die kanonischen URLs ins Leere.
+  // Mit www, denn dorthin zeigt der CNAME bei STRATO; die nackte Domain
+  // leitet dorthin weiter. Kanonische URLs, Sitemap und Open Graph müssen
+  // auf die Adresse zeigen, unter der die Seite tatsächlich antwortet.
+  //
+  // Sobald die Variable gesetzt ist, baut der nächste Deploy ohne noindex.
+  // Es gibt keinen Zwischenzustand: Die Domain ist der Schalter.
   // --------------------------------------------------------------------
 }

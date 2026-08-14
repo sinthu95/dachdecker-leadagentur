@@ -1,7 +1,7 @@
 # Arbeitsregeln für dieses Repository
 
 S&S Leadcraft — Agenturwebsite für digitale Kundengewinnung, ausschließlich für
-Dachdeckerbetriebe. Astro 5 statisch, Tailwind 4, Cloudflare Workers.
+Dachdeckerbetriebe. Astro 5 statisch, Tailwind 4, Cloudflare Pages.
 
 ## Harte Grenzen
 

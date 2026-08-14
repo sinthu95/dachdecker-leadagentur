@@ -40,6 +40,17 @@ export default defineConfig({
   // Astro liefert eine eigene Vite-Kopie mit; die Plugin-Typen der beiden
   // Installationen sind nominal verschieden, zur Laufzeit aber identisch.
   vite: { plugins: [tailwind() as never] },
-  build: { inlineStylesheets: 'auto' },
+  /* `format: 'file'` erzeugt leistungen.html statt leistungen/index.html.
+     Das ist die Form, die Cloudflare Pages zu trailingSlash: 'never' passend
+     ausliefert: /leistungen antwortet direkt mit 200, /leistungen/ wird auf
+     die Adresse ohne Schrägstrich umgeleitet.
+
+     Mit Verzeichnisform war es umgekehrt — Pages leitete /leistungen per 308
+     auf /leistungen/ um. Das kostete bei jedem internen Klick eine zusätzliche
+     Rundreise und stellte die kanonischen URLs, die Sitemap und die
+     tatsächlich ausgelieferte Adresse gegeneinander. Auf Workers fiel das
+     nicht auf, weil dort html_handling diese Arbeit übernahm; diese
+     Einstellung gibt es bei Pages nicht. */
+  build: { inlineStylesheets: 'auto', format: 'file' },
   devToolbar: { enabled: false },
 });

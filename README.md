@@ -3,7 +3,7 @@
 Website der Agentur **S&S Leadcraft** — digitale Kundengewinnung ausschließlich für
 Dachdeckerbetriebe in Deutschland.
 
-Astro 5 (statisch) · Tailwind 4 · Cloudflare Workers · 7,6 KB JavaScript.
+Astro 5 (statisch) · Tailwind 4 · Cloudflare Pages · 7,6 KB JavaScript.
 
 ---
 
@@ -31,7 +31,7 @@ npm run dev          # http://localhost:4321 — inklusive /api/anfrage
 npm run build        # Produktionsbau (astro build)
 npm run check        # Typprüfung (astro check)
 npm run check:build  # beides — die Kontrolle vor jedem Commit
-npx wrangler dev     # Produktionsbuild lokal, wie auf Cloudflare
+npx wrangler pages dev  # Produktionsbau lokal, wie auf Cloudflare Pages
 ```
 
 `build` enthält bewusst **keine** Typprüfung: `astro check` fordert
@@ -252,20 +252,26 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
    und Open Graph automatisch aktiv. Die Sitemap führt nur indexierbare Seiten:
    `/danke` bleibt dauerhaft draußen, Impressum und Datenschutz kommen erst dazu,
    wenn die Pflichtangaben vollständig sind.
-4. **Zustellung** einrichten:
-   ```bash
-   npx wrangler kv namespace create LEADS    # ID in wrangler.jsonc eintragen
-   npx wrangler secret put RESEND_API_KEY    # alle drei als Secret, nicht als
-   npx wrangler secret put LEAD_NOTIFY_EMAIL # Variable: Der vars-Block ist beim
-   npx wrangler secret put LEAD_FROM_EMAIL   # Deploy maßgeblich und überschreibt
-   ```                                       # Klartextvariablen aus der Oberfläche.
+4. **Zustellung** einrichten. Der KV-Namensraum besteht bereits und ist in
+   `wrangler.jsonc` gebunden; die drei Werte für den Mailversand kommen in die
+   Projekteinstellungen von Pages, als **Secret** und für **Production und
+   Preview** getrennt:
+
+   ```
+   Pages → dachdecker-leadagentur → Settings → Variables and Secrets
+     RESEND_API_KEY      Zugang zu Resend
+     LEAD_NOTIFY_EMAIL   kontakt@ssleadcraft.de
+     LEAD_FROM_EMAIL     leads@ssleadcraft.de   (verifizierte Domain)
+   ```
 
    Die KV-Bindung ist der wichtigere Teil: Ohne sie gibt es keinen dauerhaften
    Speicher. `LEAD_FROM_EMAIL` muss zu einer bei Resend verifizierten Domain
-   gehören, sonst nimmt Resend die Nachricht nicht an.
+   gehören, sonst nimmt Resend die Nachricht nicht an. Secrets eines früheren
+   Workers wandern nicht mit — sie gehören ins Pages-Projekt.
 5. **Datenschutzerklärung rechtlich prüfen** lassen. Der vorhandene Text beschreibt den
    tatsächlichen technischen Stand, ersetzt aber keine Prüfung.
-6. Prüfläufe und Messung erneut ausführen, dann `npm run deploy`.
+6. Prüfläufe und Messung erneut ausführen. Die Auslieferung übernimmt Pages
+   selbst beim Push auf `main`; `npm run deploy` ist nur der Handweg.
 
 Erst danach Werbekampagnen starten. Sobald Google oder Meta mit Pixel laufen, kommt
 eine Einwilligungslösung dazu — die Architektur sieht sie vor, sie ist bewusst nicht
