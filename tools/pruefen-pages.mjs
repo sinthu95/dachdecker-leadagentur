@@ -37,10 +37,21 @@ import {
 fehlerAbfangen();
 
 let fehler = 0;
+let hinweise = 0;
 const ok = (text) => console.log(`  ok    ${text}`);
 const nok = (text) => {
   console.log(`  FEHLER ${text}`);
   fehler += 1;
+};
+/**
+ * Etwas, das nicht kaputt ist, aber anders als beim Worker — und worüber
+ * entschieden werden muss. Es lässt den Lauf durchgehen, geht aber nicht
+ * unter: Ein Unterschied, den niemand sieht, wird später als Überraschung
+ * entdeckt.
+ */
+const hinweis = (text) => {
+  console.log(`  HINWEIS ${text}`);
+  hinweise += 1;
 };
 const pruefe = (bedingung, text) => (bedingung ? ok(text) : nok(text));
 
@@ -57,8 +68,68 @@ if (!basis) {
 basis = basis.replace(/\/$/, '');
 console.log(`\nGeprüft wird ${basis}`);
 
-const hole = (pfad, optionen = {}) =>
-  fetch(`${basis}${pfad}`, { redirect: 'manual', ...optionen });
+/**
+ * Ein Aufruf gegen die ausgelieferte Adresse.
+ *
+ * Mit Wiederholung, aber nur für lesende Aufrufe: Ein wiederholtes POST
+ * könnte eine zweite Anfrage ablegen, und dann prüfte dieses Werkzeug einen
+ * Zustand, den es selbst erzeugt hat.
+ */
+async function hole(pfad, optionen = {}, versuche = 3) {
+  let letzter;
+  for (let i = 0; i < versuche; i += 1) {
+    try {
+      return await fetch(`${basis}${pfad}`, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(15000),
+        ...optionen,
+      });
+    } catch (fehler) {
+      letzter = fehler;
+      if (optionen.method && optionen.method !== 'GET') break;
+      await warten(2000);
+    }
+  }
+  // `fetch failed` allein sagt nichts. Der Grund steht in `cause`.
+  throw new Error(
+    `${pfad}: ${letzter?.cause?.message ?? letzter?.message ?? 'Aufruf fehlgeschlagen'}`,
+  );
+}
+
+/**
+ * Wartet, bis die Adresse antwortet.
+ *
+ * Bei einem frisch angelegten Projekt liegen zwischen „Deployment complete"
+ * und der ersten beantwortbaren Anfrage einige Sekunden — der Name muss erst
+ * im DNS stehen. Ohne diese Schleife prüfte das Werkzeug gegen einen Namen,
+ * den es noch nicht gibt, und meldete „fetch failed" statt eines Befunds.
+ */
+async function erreichbarWarten(sekunden = 180) {
+  const bis = Date.now() + sekunden * 1000;
+  let letzter = 'keine Antwort';
+  let versuch = 0;
+  while (Date.now() < bis) {
+    versuch += 1;
+    try {
+      const antwort = await fetch(`${basis}/`, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(10000),
+      });
+      // Alles unterhalb 500 heißt: Es antwortet jemand. Ob richtig, prüfen
+      // die eigentlichen Befunde weiter unten.
+      if (antwort.status < 500) return versuch;
+      letzter = `HTTP ${antwort.status}`;
+    } catch (fehler) {
+      letzter = fehler?.cause?.message ?? fehler?.message ?? 'unbekannt';
+    }
+    await warten(3000);
+  }
+  throw new Error(
+    `${basis} antwortet nach ${sekunden} s nicht. Zuletzt: ${letzter}\n` +
+      '  Die Auslieferung selbst war erfolgreich — geprüft werden kann sie\n' +
+      '  aber erst, wenn der Name erreichbar ist.',
+  );
+}
 
 // --- 1. Seiten -------------------------------------------------------------
 // Die Liste kommt aus dem Buildergebnis, nicht aus einer gepflegten Aufzählung:
@@ -73,14 +144,33 @@ function seitenAusBuild() {
   return gefunden;
 }
 
+const versuche = await erreichbarWarten();
+console.log(
+  versuche === 1
+    ? '  ·     Adresse antwortet sofort'
+    : `  ·     Adresse antwortet ab Versuch ${versuche}`,
+);
+
+const UMLEITUNG = [301, 302, 307, 308];
+const pfadVon = (ort) => (ort?.startsWith('http') ? new URL(ort).pathname : ort || '');
+
 console.log('\nSeiten');
 for (const pfad of seitenAusBuild()) {
-  const antwort = await hole(pfad);
-  const text = antwort.ok ? await antwort.text() : '';
-  pruefe(
-    antwort.status === 200 && text.includes('<title>'),
-    `${pfad} → 200 (${antwort.status})`,
-  );
+  const erste = await hole(pfad);
+  if (UMLEITUNG.includes(erste.status)) {
+    // Erreichbar bleibt erreichbar, auch über eine Umleitung. Ob die
+    // Kanonisierung passt, ist eine eigene Frage — siehe unten.
+    const ziel = pfadVon(erste.headers.get('location'));
+    const zweite = await hole(ziel);
+    const text = zweite.status === 200 ? await zweite.text() : '';
+    pruefe(
+      zweite.status === 200 && text.includes('<title>'),
+      `${pfad} → ${erste.status} auf ${ziel} → 200 (${zweite.status})`,
+    );
+  } else {
+    const text = erste.status === 200 ? await erste.text() : '';
+    pruefe(erste.status === 200 && text.includes('<title>'), `${pfad} → 200 (${erste.status})`);
+  }
 }
 
 const robots = await hole('/robots.txt');
@@ -96,13 +186,31 @@ pruefe(
   'Startseite trägt noindex — die Testadresse gehört nicht in den Index',
 );
 
-// Schrägstrich am Ende: intern wird ohne verwiesen, Pages führt zusammen.
+// Welche Form ist die kanonische? Der Worker setzt über
+// `html_handling: "drop-trailing-slash"` die Form ohne Schrägstrich durch —
+// dieselbe, die `trailingSlash: 'never'` in allen internen Verweisen erzeugt.
+// Pages kennt diese Einstellung nicht und entscheidet nach der Dateiablage:
+// Aus `kontakt/index.html` folgt `/kontakt/` als kanonische Form.
+const ohneStrich = await hole('/kontakt');
 const mitStrich = await hole('/kontakt/');
-pruefe(
-  [301, 307, 308].includes(mitStrich.status) &&
-    (mitStrich.headers.get('location') ?? '').endsWith('/kontakt'),
-  `/kontakt/ → Umleitung auf /kontakt (${mitStrich.status})`,
-);
+
+if (ohneStrich.status === 200 && UMLEITUNG.includes(mitStrich.status)) {
+  ok('kanonisch ist /kontakt — interne Verweise treffen ohne Umweg');
+} else if (mitStrich.status === 200 && UMLEITUNG.includes(ohneStrich.status)) {
+  hinweis(
+    `Pages kanonisiert MIT Schrägstrich: /kontakt → ${ohneStrich.status} → /kontakt/.\n` +
+      '        Interne Verweise stehen ohne Schrägstrich; jeder interne Klick kostet\n' +
+      '        damit eine zusätzliche Rundreise. Der Worker vermeidet das über\n' +
+      '        html_handling. Zu beheben mit build.format: "file" in astro.config.ts —\n' +
+      '        das ändert aber auch den Buildstand des Workers und ist deshalb\n' +
+      '        eine Entscheidung, kein Nebenbei.',
+  );
+} else {
+  nok(
+    `/kontakt (${ohneStrich.status}) und /kontakt/ (${mitStrich.status}) ` +
+      'ergeben keine eindeutige kanonische Form',
+  );
+}
 
 // Unbekannte Adresse: die gestaltete Fehlerseite, nicht die nackte Meldung.
 const unbekannt = await hole('/gibt-es-nicht');
@@ -243,5 +351,33 @@ if (abgelehntGefunden) {
   ok('abgelehnte Anfrage wurde nicht abgelegt');
 }
 
-console.log(`\n${fehler} Befunde\n`);
+// --- Altlasten ------------------------------------------------------------
+// Ein abgebrochener Lauf hinterlässt seinen Prüfdatensatz. LEADS ist der echte
+// Anfragenspeicher — solche Reste gehören heraus, bevor jemand sie für eine
+// echte Anfrage hält. Erkennbar sind sie am Namen des Prüfbetriebs; nur diese
+// werden gelöscht, echte Anfragen niemals.
+console.log('\nAltlasten früherer Prüfläufe');
+const MARKE_PRAEFIX = 'Prüfbetrieb pruefung-';
+let entfernt = 0;
+let geprueft = 0;
+for (const schluessel of await kvSchluessel()) {
+  // Obergrenze, damit ein voller Anfragenspeicher diesen Schritt nicht in
+  // einen minutenlangen Lauf über fremde Datensätze verwandelt.
+  if (geprueft >= 500) break;
+  geprueft += 1;
+  const roh = await kvWert(schluessel);
+  if (!roh?.includes(MARKE_PRAEFIX)) continue;
+  try {
+    await kvLoeschen(schluessel);
+    entfernt += 1;
+    console.log(`  ·     entfernt: ${schluessel}`);
+  } catch (f) {
+    nok(`Altlast ${schluessel} nicht löschbar: ${f.message}`);
+  }
+}
+ok(entfernt === 0 ? 'keine Reste gefunden' : `${entfernt} Reste entfernt`);
+
+console.log(
+  `\n${fehler} Befunde, ${hinweise} Hinweis${hinweise === 1 ? '' : 'e'}\n`,
+);
 process.exit(fehler ? 1 : 0);

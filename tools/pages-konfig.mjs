@@ -140,7 +140,11 @@ export async function api(pfad, optionen = {}) {
  */
 export function fehlerAbfangen() {
   const zeigen = (fehler) => {
-    console.error(`\nFEHLER  ${fehler?.message ?? fehler}\n`);
+    // Netzwerkfehler von `fetch` melden nur „fetch failed"; der eigentliche
+    // Grund — Namensauflösung, Zeitüberschreitung, abgelehnte Verbindung —
+    // steht eine Ebene tiefer in `cause`.
+    const ursache = fehler?.cause?.message ? `\n  Ursache: ${fehler.cause.message}` : '';
+    console.error(`\nFEHLER  ${fehler?.message ?? fehler}${ursache}\n`);
     process.exit(1);
   };
   process.on('unhandledRejection', zeigen);
