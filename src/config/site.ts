@@ -79,7 +79,7 @@ export const cta = {
 export const impressum = {
   anbieter: site.gruender,
   rechtsform: 'Einzelunternehmen' as string | null,
-  strasse: 'Heidestrasse 36' as string | null,
+  strasse: 'Heidestraße 36' as string | null,
   plzOrt: '45549 Sprockhövel' as string | null,
   /** Kleinunternehmer nach § 19 UStG — deshalb keine USt-IdNr. */
   umsatzsteuerId: null as string | null,
