@@ -27,6 +27,14 @@ export const istVeroeffentlicht = siteUrl !== null;
  */
 export const bauBasis = siteUrl ?? 'https://ss-leadcraft.invalid';
 
+/**
+ * Die E-Mail-Adresse. Steht vor dem Objekt, weil `emailHinweis` sie braucht:
+ * Solange sie fehlte, stand überall ein Ersatztext; jetzt steht überall die
+ * Adresse. Ein zweiter Ort, an dem „E-Mail folgt" hängenbliebe, wäre genau
+ * die Art von Widerspruch, die auf einer Seite auffällt.
+ */
+const email: string | null = 'kontakt@ssleadcraft.de';
+
 export const site = {
   name: 'S&S Leadcraft',
   angebot: 'Dachdecker-Auftragssystem',
@@ -40,10 +48,14 @@ export const site = {
   telefon: '+491788162328',
   telefonAnzeige: '+49 178 8162328',
 
-  /** Noch nicht vorhanden. Nicht erfinden — siehe Dateikopf. */
-  contactEmail: null as string | null,
-  /** Text, der überall dort steht, wo sonst die E-Mail-Adresse stünde. */
-  emailHinweis: 'E-Mail-Adresse folgt. Bis dahin: Formular oder Telefon.',
+  contactEmail: email,
+  /**
+   * Steht dort, wo im Fließtext auf den E-Mail-Weg verwiesen wird. Ohne
+   * Adresse war das ein Ersatztext; mit Adresse nennt er sie.
+   */
+  emailHinweis: email
+    ? `E-Mail: ${email}`
+    : 'E-Mail-Adresse folgt. Bis dahin: Formular oder Telefon.',
 
   /** Fiktives Demonstrationsprojekt, kein Kunde. */
   demoUrl: 'https://dachdecker-premium-demo.sinthu-sinnathurai.workers.dev/',
@@ -66,13 +78,14 @@ export const cta = {
  */
 export const impressum = {
   anbieter: site.gruender,
-  rechtsform: null as string | null,
-  strasse: null as string | null,
-  plzOrt: null as string | null,
+  rechtsform: 'Einzelunternehmen' as string | null,
+  strasse: 'Heidestrasse 36' as string | null,
+  plzOrt: '45549 Sprockhövel' as string | null,
+  /** Kleinunternehmer nach § 19 UStG — deshalb keine USt-IdNr. */
   umsatzsteuerId: null as string | null,
-  kleinunternehmer: null as boolean | null,
+  kleinunternehmer: true as boolean | null,
   /** Nur bei Eintragung. Sonst als kurze Feststellung eintragen. */
-  register: null as string | null,
+  register: 'Nicht im Handelsregister eingetragen' as string | null,
   /** Nur bei zulassungspflichtiger Tätigkeit. */
   aufsichtsbehoerde: null as string | null,
 } as const;
