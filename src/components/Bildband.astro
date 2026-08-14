@@ -10,8 +10,8 @@ import { motivDaten, motivVorhanden } from '../config/motive';
  * Die Bemaßungszeile sagt die Wahrheit über den Zustand: Solange die Aufnahme
  * fehlt, steht dort „Aufnahme folgt" — liegt sie vor, steht dort die Quelle.
  */
-const vorhanden = motivVorhanden('objekt');
-const quelle = motivDaten('objekt')?.quelle ?? '';
+const vorhanden = motivVorhanden('dacharbeit-detail');
+const quelle = motivDaten('dacharbeit-detail')?.quelle ?? '';
 ---
 
 {/* Kein eigener Hintergrund: Das Band ragt über `.rag-hinein` in das folgende
@@ -22,11 +22,12 @@ const quelle = motivDaten('objekt')?.quelle ?? '';
 <section class="rag-hinein relative" aria-label="Bildstrecke">
   <div class="bildmaske versatz" data-versatz="10">
     <Motiv
-      name="objekt"
+      name="dacharbeit-detail"
       nummer="B-04"
-      motiv="Modernes Wohnhaus in der Totalen — klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar. Frontal oder leicht seitlich, kein Weitwinkelverzug."
-      ausschnitt="Panorama, Gesamtansicht bei bedecktem Himmel"
+      motiv="Ziegel wird gesetzt — Hände, Lattung, Materialkante im Gegenlicht."
+      ausschnitt="Panorama, Nahaufnahme quer über die Fläche"
       class="w-full"
+      nachweis={false}
     />
   </div>
 

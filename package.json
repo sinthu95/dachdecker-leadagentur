@@ -9,6 +9,9 @@
     "check:build": "astro check && astro build",
     "preview": "astro preview",
     "deploy": "wrangler deploy",
+    "pages:einrichten": "node tools/pages-einrichten.mjs",
+    "pages:ausliefern": "node tools/pages-ausliefern.mjs",
+    "pruefen:pages": "node tools/pruefen-pages.mjs",
     "check:pruefungen": "node tools/pruefen.mjs && node tools/pruefen-interaktion.mjs && node tools/pruefen-audit.mjs && node tools/pruefen-enthuellung.mjs && node tools/pruefen-tastatur.mjs && node tools/pruefen-formular.mjs && node tools/pruefen-kontrast.mjs",
     "check:lead": "node tools/pruefen-lead.mjs"
   },

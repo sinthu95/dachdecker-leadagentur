@@ -1,0 +1,116 @@
+# Testlauf der Cloudflare-Pages-Auslieferung.
+#
+# Warum überhaupt hier und nicht von Hand: Der Cloudflare-Token braucht einen
+# Ort, an dem er verschlüsselt liegt und nach dem Speichern nicht mehr lesbar
+# ist. Ein Feld für Umgebungsvariablen ist das nicht — ein
+# Actions-Secret schon. GitHub maskiert es zusätzlich in jeder Ausgabe.
+#
+# Dieses Repository ist öffentlich, die Ablaufprotokolle also für jeden
+# einsehbar. Deshalb liegt auch die Konto-ID als Secret: Sie ist zwar kein
+# Zugangsschlüssel, taucht aber in jedem API-Pfad auf, den eine Fehlermeldung
+# nennt — als Secret wird sie dort automatisch geschwärzt.
+#
+# Der Ablauf rührt weder `main` noch den bestehenden Worker `ss-leadcraft` an.
+
+name: Pages-Testlauf
+
+on:
+  # Nur der Testzweig. `main` löst hier bewusst nichts aus.
+  push:
+    branches: [claude/cloudflare-pages-migration-zfj110]
+  workflow_dispatch:
+
+# Zwei gleichzeitige Auslieferungen in dasselbe Projekt wären ein Rennen um
+# denselben Stand. Lieber nacheinander.
+concurrency:
+  group: pages-testlauf
+  cancel-in-progress: false
+
+# Der Ablauf liest nur den Quellstand. Er schreibt nichts ins Repository.
+permissions:
+  contents: read
+
+jobs:
+  ausliefern:
+    name: Einrichten, ausliefern, prüfen
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      # Zuerst und ohne Quellcode: Fehlt der Zugang, soll der Lauf hier enden
+      # und sagen warum — nicht zehn Minuten später mitten im Deploy.
+      - name: Zugangsdaten prüfen
+        run: |
+          fehlend=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ]  || fehlend="$fehlend CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || fehlend="$fehlend CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$fehlend" ]; then
+            {
+              echo "## Zugangsdaten fehlen"
+              echo
+              echo "Nicht gesetzt:$fehlend"
+              echo
+              echo "Anzulegen unter **Settings → Secrets and variables → Actions →"
+              echo "New repository secret**. Der Token braucht genau zwei"
+              echo "Berechtigungen: *Cloudflare Pages → Bearbeiten* und"
+              echo "*Workers KV Storage → Bearbeiten*."
+              echo
+              echo "Danach genügt ein erneuter Lauf — ein neuer Commit ist nicht nötig."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "Zugangsdaten fehlen:$fehlend"
+            exit 1
+          fi
+          echo "Zugangsdaten vorhanden."
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      # Legt das Projekt an, falls es fehlt, und hängt den bestehenden
+      # Namensraum LEADS an Produktion und Vorschau. Wiederholbar.
+      - name: Projekt einrichten und LEADS anbinden
+        run: npm run pages:einrichten
+
+      - name: Bauen und ausliefern
+        id: ausliefern
+        run: npm run pages:ausliefern
+
+      # Prüft die eben entstandene Adresse im Netz: Seiten, Fehlerseite,
+      # noindex, Serverteil nicht öffentlich, /api/anfrage, Ablage im KV.
+      # Der Prüfdatensatz wird danach wieder gelöscht.
+      # Die Adresse geht über die Umgebung in den Befehl, nicht per Einsetzung
+      # in die Befehlszeile: Ein eingesetzter Wert wäre Text, den die Shell
+      # auswertet, bevor er irgendwo ankommt.
+      - name: Ausgelieferte Adresse prüfen
+        env:
+          ADRESSE: ${{ steps.ausliefern.outputs.url }}
+        run: npm run pruefen:pages -- "$ADRESSE"
+
+      - name: Zusammenfassung
+        if: always() && steps.ausliefern.outputs.url != ''
+        env:
+          ADRESSE: ${{ steps.ausliefern.outputs.url }}
+          ADRESSEN: ${{ steps.ausliefern.outputs.adressen }}
+          ERGEBNIS: ${{ job.status }}
+        run: |
+          {
+            echo "## Pages-Testlauf"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Ergebnis | $ERGEBNIS |"
+            echo "| Adresse | $ADRESSE |"
+            echo
+            echo "Alle Adressen dieser Ausspielung:"
+            for adresse in $ADRESSEN; do
+              echo "- $adresse"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
