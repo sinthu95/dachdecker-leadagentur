@@ -232,6 +232,94 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
 
 ---
 
+## Auslieferung: Worker und Pages
+
+Es gibt zwei Wege ins Netz. Sie stehen nebeneinander, nicht nacheinander — der
+eine ersetzt den anderen nicht, solange nicht entschieden ist, welcher bleibt.
+
+| | Worker | Pages |
+|---|---|---|
+| Name | `ss-leadcraft` | `dachdecker-leadagentur-pages` |
+| Konfiguration | `wrangler.jsonc` | am Projekt bei Cloudflare, siehe unten |
+| Befehl | `npm run deploy` | `npm run pages:ausliefern` |
+| Adresse | `*.workers.dev` | `*.pages.dev` |
+
+Beide liefern denselben Buildstand und schreiben in **denselben** KV-Namensraum
+`LEADS`. Das ist Absicht: Anfragen sollen an einer Stelle liegen, gleich über
+welchen Weg sie hereinkamen.
+
+### Was Astro von sich aus für Pages erzeugt
+
+Am Anwendungscode war nichts zu ändern. Der Cloudflare-Adapter legt beim Bauen
+bereits beides an, was Pages auswertet:
+
+- `dist/_worker.js/` — der Serverteil im „advanced mode". Pages führt ihn aus
+  und liefert ihn nie als Datei aus.
+- `dist/_routes.json` — der Wegeplan. `include` listet `/api/*`, `exclude` jede
+  statische Seite.
+
+Damit entfällt der gesamte `assets`-Block aus `wrangler.jsonc`: `_routes.json`
+ist bei Pages die Entsprechung zu `run_worker_first`, das Zusammenführen des
+Schrägstrichs am Ende ist Standardverhalten, und `dist/404.html` nimmt Pages
+selbst als Fehlerseite.
+
+### Warum die Pages-Konfiguration in keiner Datei steht
+
+Der naheliegende Weg wäre eine zweite Wrangler-Datei neben `wrangler.jsonc`.
+Wrangler lehnt das ab:
+
+```
+✘ Pages does not support custom paths for the Wrangler configuration file
+```
+
+Es bliebe nur, `pages_build_output_dir` in `wrangler.jsonc` einzutragen — dann
+hielte Wrangler die Datei für ein Pages-Projekt und `wrangler deploy` für den
+bestehenden Worker wäre kaputt. Das ist ausgeschlossen.
+
+Deshalb trägt nicht die Auslieferung, sondern **das Projekt** die Bindungen,
+gesetzt über die REST-API in `deployment_configs`. `wrangler pages deploy`
+meldet dabei, dass es `wrangler.jsonc` gefunden hat und übergeht — genau das
+soll es tun. Was das Projekt ausmacht, steht in `tools/pages-konfig.mjs`, und
+nur dort.
+
+Produktion und Vorschau erben bei Pages nichts voneinander. Beide bekommen
+denselben Satz Bindungen; sonst liefe eine Vorschauauslieferung ohne `LEADS`
+und schriebe ins Leere.
+
+### Die drei Befehle
+
+Vorausgesetzt sind `CLOUDFLARE_API_TOKEN` (Berechtigungen: *Cloudflare Pages →
+Bearbeiten* und *Workers KV Storage → Bearbeiten*) und `CLOUDFLARE_ACCOUNT_ID`
+in der Umgebung.
+
+```bash
+npm run pages:einrichten   # Projekt anlegen, LEADS anbinden — wiederholbar
+npm run pages:ausliefern   # bauen und als Vorschau hochladen, nennt die Adresse
+npm run pruefen:pages      # die ausgelieferte Adresse prüfen
+```
+
+`tools/pruefen-pages.mjs` prüft an der echten Adresse im Netz: jede Seite
+erreichbar, gestaltete Fehlerseite, `noindex` auf der Testadresse, Serverteil
+nicht öffentlich, `/api/anfrage` vom Serverteil beantwortet statt von der
+Asset-Schicht, gültige Anfrage im KV vollständig lesbar, abgelehnte Anfrage
+nicht abgelegt. Der Prüfdatensatz wird danach wieder gelöscht — `LEADS` ist der
+echte Anfragenspeicher, kein Spielplatz.
+
+### Was dabei ausdrücklich nicht passiert
+
+- Der Worker `ss-leadcraft` und `wrangler.jsonc` werden nicht angefasst.
+- Keine eigene Domain, kein DNS-Eintrag.
+- Keine Git-Anbindung. Das Projekt wird per Direktupload beliefert; Cloudflare
+  baut nichts und beobachtet keinen Zweig. `production_branch` ist innerhalb
+  von Cloudflare eine reine Beschriftung — ein Push nach `main` löst nichts aus.
+- Der Namensraum `LEADS` wird referenziert, nicht angelegt und nicht geleert.
+
+Solange `PUBLIC_SITE_URL` nicht gesetzt ist, baut die Seite mit `noindex`. Für
+eine `*.pages.dev`-Testadresse ist genau das richtig: Sie soll später nicht mit
+der echten Domain um dieselben Suchbegriffe konkurrieren.
+
+---
+
 ## Vor dem Launch
 
 1. **Impressumsangaben** in `src/config/site.ts` unter `impressum` eintragen.

@@ -99,6 +99,24 @@ mindestens 24 px hoch (`.tipp`); Links im Fließtext sind davon ausgenommen.
   keine Karten-Einbettung, keine Analyseskripte ohne Einwilligung.
 - Budget: JavaScript unter 20 KB, LCP unter 1,8 s mobil, CLS unter 0,02.
 
+## Auslieferung
+
+Zwei Wege stehen nebeneinander, solange nicht entschieden ist, welcher bleibt.
+Ausführlich im README unter „Auslieferung: Worker und Pages".
+
+- **`wrangler.jsonc` gehört dem Worker `ss-leadcraft`.** Dort darf kein
+  `pages_build_output_dir` hinein — damit hielte Wrangler die Datei für ein
+  Pages-Projekt und `npm run deploy` wäre kaputt.
+- **Pages hat keine Konfigurationsdatei.** Wrangler verweigert eigene
+  Konfigurationspfade für Pages (`-c` wird abgelehnt). Die Bindungen hängen
+  deshalb am Projekt bei Cloudflare, gesetzt über die REST-API. Was das Projekt
+  ausmacht, steht ausschließlich in `tools/pages-konfig.mjs`.
+- **Ein KV-Namensraum für beide Wege.** `LEADS` wird referenziert, nie neu
+  angelegt: Anfragen liegen an einer Stelle, gleich über welchen Weg sie kamen.
+  Prüfdatensätze werden nach dem Prüflauf wieder gelöscht.
+- **Produktion und Vorschau erben bei Pages nichts voneinander.** Bindungen
+  immer in beiden Umgebungen setzen, sonst schreibt eine Vorschau ins Leere.
+
 ## Nach jeder Änderung
 
 ```bash
