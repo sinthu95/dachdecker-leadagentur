@@ -325,8 +325,27 @@ Dieses Repository ist öffentlich, die Ablaufprotokolle also für jeden
 einsehbar, und die ID taucht in jedem API-Pfad auf, den eine Fehlermeldung
 nennt. Als Secret wird sie dort automatisch geschwärzt.
 
-`main` löst den Ablauf nicht aus. Fehlt eines der Secrets, endet der Lauf im
-ersten Schritt mit einem Hinweis, statt mitten in der Auslieferung.
+Fehlt eines der Secrets, endet der Lauf im ersten Schritt mit einem Hinweis,
+statt mitten in der Auslieferung.
+
+**Welcher Zweig wohin liefert.** Der Zweigname entscheidet, nicht eine
+Einstellung:
+
+| Zweig | Ziel | Adresse |
+|---|---|---|
+| `main` | Produktion — hier hängt die eigene Domain | `dachdecker-leadagentur-pages.pages.dev` |
+| jeder andere | Vorschau, Produktion bleibt unberührt | eigene Adresse je Zweig |
+
+**Die Domain steht als Variable, nicht als Secret**: `PUBLIC_SITE_URL` unter
+*Settings → Secrets and variables → Actions → **Variables***. Sie wird beim
+Bauen gelesen, nicht zur Laufzeit — bei Direktupload wird im Ablauf gebaut,
+nicht bei Cloudflare, deshalb gehört der Wert dorthin und nicht in die
+Cloudflare-Oberfläche.
+
+Solange sie fehlt, baut die Seite mit `noindex` und ohne Sitemap. Der Prüflauf
+dreht seine Erwartung mit: ohne Domain besteht er auf `noindex`, mit Domain auf
+kanonischer Adresse und erreichbarer Sitemap. Eine Prüfung, die nach dem Setzen
+der Domain reihenweise Fehler meldet, würde abgeschaltet statt gelesen.
 
 ### Was dabei ausdrücklich nicht passiert
 

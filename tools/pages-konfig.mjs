@@ -27,8 +27,30 @@
 /** Name des Pages-Projekts. Nicht der Worker; der heißt `ss-leadcraft`. */
 export const PROJEKT = 'dachdecker-leadagentur-pages';
 
-/** Zweig, aus dem der Testlauf ausgeliefert wird. */
+/** Zweig, aus dem der Testlauf ausgeliefert wird, wenn nichts anderes gilt. */
 export const ZWEIG = 'claude/cloudflare-pages-migration-zfj110';
+
+/**
+ * Der Zweig, aus dem gerade ausgeliefert wird.
+ *
+ * In GitHub Actions steht er in GITHUB_REF_NAME. Er entscheidet alles Weitere:
+ * Stimmt er mit dem Produktionszweig des Projekts überein, ist es eine
+ * Produktionsauslieferung — und nur an der hängt eine eigene Domain. Jeder
+ * andere Name ergibt eine Vorschau unter eigener Adresse.
+ *
+ * Deshalb wird er gelesen und nicht gesetzt: Ein fest verdrahteter Zweigname
+ * hätte zur Folge, dass ein Push auf `main` eine Vorschau erzeugt und die
+ * Domain weiter auf einen alten Stand zeigt — ohne dass irgendetwas
+ * fehlschlägt.
+ */
+export function zweigJetzt() {
+  return process.env.GITHUB_REF_NAME || ZWEIG;
+}
+
+/** Ist das die Produktionsauslieferung? */
+export function istProduktion(zweig = zweigJetzt()) {
+  return zweig === PRODUKTIONSZWEIG;
+}
 
 /**
  * Produktionszweig des Pages-Projekts.

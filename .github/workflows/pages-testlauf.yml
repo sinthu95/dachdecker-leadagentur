@@ -15,9 +15,16 @@
 name: Pages-Testlauf
 
 on:
-  # Nur der Testzweig. `main` löst hier bewusst nichts aus.
+  # `main` liefert in Produktion aus — an dieser Auslieferung hängt später
+  # die eigene Domain. Der Testzweig liefert als Vorschau aus, unter eigener
+  # Adresse, ohne die Produktion anzufassen. Welcher von beidem es wird,
+  # entscheidet allein der Zweigname beim Deploy (siehe pages-ausliefern.mjs):
+  # Er muss dem Produktionszweig des Projekts entsprechen, sonst ist es eine
+  # Vorschau.
   push:
-    branches: [claude/cloudflare-pages-migration-zfj110]
+    branches:
+      - main
+      - claude/cloudflare-pages-migration-zfj110
   workflow_dispatch:
 
 # Zwei gleichzeitige Auslieferungen in dasselbe Projekt wären ein Rennen um
@@ -37,6 +44,15 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Die Domain. Wird beim Bauen gelesen, nicht zur Laufzeit — bei
+      # Direktupload wird hier gebaut, nicht bei Cloudflare, also gehört der
+      # Wert hierher und nicht in die Cloudflare-Oberfläche.
+      #
+      # Kein Secret, sondern eine Variable: Die Adresse steht später auf jeder
+      # Seite. Anzulegen unter Settings → Secrets and variables → Actions →
+      # Variables. Solange sie fehlt, baut die Seite bewusst mit noindex und
+      # ohne Sitemap — genau richtig, solange nur *.pages.dev erreichbar ist.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
 
     steps:
       # Zuerst und ohne Quellcode: Fehlt der Zugang, soll der Lauf hier enden
