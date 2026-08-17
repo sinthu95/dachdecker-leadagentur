@@ -1,0 +1,20 @@
+# Kopfzeilen, die Cloudflare Pages jeder Antwort mitgibt.
+#
+# Die Datei wird von Astro nach dist/ kopiert und dort von Pages ausgewertet.
+# Sie selbst wird nie ausgeliefert.
+
+/*
+  # HSTS: Nach dem ersten Besuch ruft der Browser diese Adresse ein Jahr lang
+  # nur noch über HTTPS auf — auch dann, wenn jemand „http://" eintippt oder
+  # ein Verweis darauf zeigt. Das schließt die eine ungeschützte Anfrage, die
+  # es sonst bis zur Umleitung braucht.
+  #
+  # `includeSubDomains` gilt hier für Unterdomänen von www.ssleadcraft.de,
+  # nicht für die Wurzel — die Adresse, unter der ausgeliefert wird, ist der
+  # Bezugspunkt. Die Resend-Einträge auf `send.ssleadcraft.de` sind davon
+  # also nicht betroffen.
+  #
+  # Bewusst ohne `preload`: Das trüge die Domain in eine Liste ein, die in
+  # Browsern ausgeliefert wird, und wieder herauszukommen dauert Monate. Ein
+  # Schritt, den man erst geht, wenn alles andere lange steht.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

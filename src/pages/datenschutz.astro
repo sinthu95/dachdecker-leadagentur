@@ -154,7 +154,15 @@ const abschnitte = [
                     Telefon: {site.telefonAnzeige}
                     <br />
                     {site.contactEmail ? (
-                      <>E-Mail: {site.contactEmail}</>
+                      <>
+                        {/* Verlinkt wie im Impressum. Wer sein Auskunftsrecht
+                            wahrnehmen will, soll die Adresse anklicken können
+                            und nicht abtippen müssen. */}
+                        E-Mail:{' '}
+                        <a href={`mailto:${site.contactEmail}`} class="verweis">
+                          {site.contactEmail}
+                        </a>
+                      </>
                     ) : (
                       <Luecke was="E-Mail-Adresse" />
                     )}

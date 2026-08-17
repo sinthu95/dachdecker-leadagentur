@@ -227,6 +227,25 @@ if (DOMAINS.length) {
       );
     }
   }
+
+  // --- Karteileichen ------------------------------------------------------
+  // Eine Domain, die weder in DOMAINS steht noch aktiv ist, hat keinen Zweck
+  // mehr: Sie war einmal eingetragen, der CNAME ist weg, Cloudflare kann sie
+  // nicht mehr bestätigen. Solche Reste werden entfernt.
+  //
+  // Eine **aktive** Domain wird niemals angefasst, auch wenn sie hier nicht
+  // steht — sie liefert gerade Verkehr aus. Sie wird nur gemeldet, damit die
+  // Entscheidung bei einem Menschen bleibt. Ein Werkzeug, das eine laufende
+  // Adresse stilllegt, weil eine Liste sie nicht kennt, wäre gefährlich.
+  for (const [name, eintrag] of bekannt) {
+    if (DOMAINS.includes(name)) continue;
+    if (eintrag.status === 'active') {
+      info(`${name} ist aktiv, steht aber nicht in DOMAINS — bleibt unangetastet`);
+      continue;
+    }
+    await api(kontoPfad(`/pages/projects/${PROJEKT}/domains/${name}`), { method: 'DELETE' });
+    ok(`${name} entfernt (Stand „${eintrag.status}", kein Verkehr)`);
+  }
 }
 
 console.log(

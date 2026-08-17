@@ -43,6 +43,7 @@ import {
   kvWert,
   kvLoeschen,
   fehlerAbfangen,
+  projektLesen,
 } from './pages-konfig.mjs';
 
 fehlerAbfangen();
@@ -197,6 +198,15 @@ for (const pfad of seitenAusBuild()) {
 const robots = await hole('/robots.txt');
 pruefe(robots.status === 200, `/robots.txt → 200 (${robots.status})`);
 
+// HSTS kommt aus `public/_headers`. Die Datei ist leicht zu übersehen und
+// verschwindet lautlos, wenn jemand sie verschiebt — dann fällt niemandem
+// etwas auf, weil die Seite weiter funktioniert. Deshalb hier geprüft.
+const hsts = (await hole('/')).headers.get('strict-transport-security');
+pruefe(
+  Boolean(hsts && /max-age=\d{7,}/.test(hsts)),
+  `HSTS gesetzt (${hsts ?? 'fehlt'})`,
+);
+
 // Indexierung: Die Erwartung dreht sich mit PUBLIC_SITE_URL.
 //
 // Ohne Domain baut die Seite bewusst mit noindex, und das ist auf einer
@@ -314,6 +324,20 @@ const vollstaendig = (zusatz = {}) => ({
  */
 const versandPruefen = process.env.PRUEFUNG_VERSAND === '1';
 
+/**
+ * Steht der Zugang zu Resend überhaupt am Projekt?
+ *
+ * Ohne diese Frage behauptete der Prüflauf am Ende „eine Benachrichtigung ist
+ * unterwegs", ohne es wissen zu können — genau die Sorte Meldung, die später
+ * jemand glaubt. Gelesen wird nur, ob ein Wert vorhanden ist; Cloudflare gibt
+ * `secret_text` ohne Inhalt zurück, der Schlüssel bleibt unlesbar.
+ */
+async function versandEingerichtet() {
+  const projekt = await projektLesen();
+  const vars = projekt?.deployment_configs?.production?.env_vars ?? {};
+  return ['RESEND_API_KEY', 'LEAD_NOTIFY_EMAIL', 'LEAD_FROM_EMAIL'].filter((n) => !vars[n]);
+}
+
 const zeitpunktVorher = new Date().toISOString();
 
 const gueltig = await senden({
@@ -403,10 +427,18 @@ if (!treffer) {
   }
 
   if (versandPruefen) {
-    hinweis(
-      'Eine echte Benachrichtigung sollte jetzt unterwegs sein. Ob sie ankommt, ' +
-        'kann dieses Werkzeug nicht sehen — bitte im Posteingang nachsehen.',
-    );
+    const fehlend = await versandEingerichtet();
+    if (fehlend.length) {
+      nok(
+        `Versand nicht eingerichtet — am Projekt fehlt: ${fehlend.join(', ')}. ` +
+          'Es ist keine Benachrichtigung hinausgegangen.',
+      );
+    } else {
+      hinweis(
+        'Zugang steht; eine echte Benachrichtigung sollte unterwegs sein. Ob sie ' +
+          'ankommt, kann dieses Werkzeug nicht sehen — bitte im Posteingang nachsehen.',
+      );
+    }
   }
 }
 
