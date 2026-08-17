@@ -3,23 +3,32 @@
 Website der Agentur **S&S Leadcraft** — digitale Kundengewinnung ausschließlich für
 Dachdeckerbetriebe in Deutschland.
 
-Astro 5 (statisch) · Tailwind 4 · Cloudflare Workers · 7,6 KB JavaScript.
+Astro 5 (statisch) · Tailwind 4 · Cloudflare Pages · 7,6 KB JavaScript.
 
 ---
 
-## Status: noch nicht öffentlich
+## Status: live
 
-Die Seite ist **bewusst noch nicht veröffentlichungsfähig**. Drei Angaben fehlen, und
-solange sie fehlen, verhindert der Code selbst, dass etwas Halbfertiges öffentlich wird:
+Die Seite läuft unter **`https://www.ssleadcraft.de`** und ist öffentlich indexierbar.
+Ausgeliefert wird über Cloudflare **Pages** (Projekt `dachdecker-leadagentur-pages`),
+Anfragen landen im KV-Namensraum `LEADS` und werden anschließend per E-Mail gemeldet.
 
-| Fehlt                       | Auswirkung im Code                                                          |
-| --------------------------- | --------------------------------------------------------------------------- |
-| Domain                      | `robots.txt` sperrt alles, jede Seite trägt `noindex`, keine Sitemap, keine kanonischen URLs |
-| Geschäftliche E-Mail-Adresse | `contactEmail` ist `null`; überall steht der Hinweis „E-Mail folgt", nirgends eine erfundene Adresse |
-| Impressumsangaben           | Fehlende Pflichtangaben erscheinen als markierte Lücke; Impressum und Datenschutz bleiben auf `noindex` |
+| | |
+| --- | --- |
+| Produktionsadresse | `https://www.ssleadcraft.de` |
+| Auslieferung | Cloudflare Pages, Direktupload aus GitHub Actions |
+| Produktionszweig | `main` |
+| Anfragen | KV-Namensraum `LEADS`, danach E-Mail über Resend |
 
-Es sind **keine Platzhalterdaten** eingetragen, die wie echte Angaben aussehen — genau
-solche Werte gehen erfahrungsgemäß versehentlich live.
+Der Mechanismus, der vorher den Livegang verhindert hat, ist damit nicht abgeschaltet,
+sondern erfüllt: Ohne `PUBLIC_SITE_URL` baut die Seite weiterhin mit `noindex` und ohne
+Sitemap, ohne vollständige Impressumsangaben bleiben Impressum und Datenschutz auf
+`noindex`, und `contactEmail` ist nach wie vor die einzige Quelle für die Adresse. Es
+sind **keine Platzhalterdaten** eingetragen, die wie echte Angaben aussehen.
+
+Den vollständigen Produktionsstand — Bindungen, Secret-Namen, DNS, geprüfte Punkte,
+offene Punkte — führt `CLAUDE.md` ab „Current Production Status". Diese Datei
+beschreibt, wie das Projekt gebaut ist; jene, was davon gerade im Netz steht.
 
 ---
 
@@ -42,7 +51,7 @@ automatischen Auslieferung liegen. Für die eigene Kontrolle ist
 ### Prüfläufe
 
 ```bash
-npm run check:pruefungen                                   # alle sechs Läufe nacheinander
+npm run check:pruefungen                                   # alle sieben Läufe nacheinander
 node tools/messen.mjs              http://127.0.0.1:8788   # Datenmengen, LCP, CLS
 ```
 
@@ -52,20 +61,29 @@ Einzeln:
 node tools/pruefen.mjs             # Struktur, Links, SEO, Tippziele
 node tools/pruefen-interaktion.mjs # Menü, Formularstrecke, Rundgang, reduced-motion
 node tools/pruefen-audit.mjs       # Semantik, ARIA, Überlauf, Bilder — sechs Breiten von 320 bis 1920
+node tools/pruefen-enthuellung.mjs # ob Bildmasken und Zeilen tatsächlich aufgehen
 node tools/pruefen-tastatur.mjs    # Sprungmarke, Fokusrahmen, Menüfalle, Formular ohne Maus
 node tools/pruefen-formular.mjs    # Ablehnung durch den Server, Wiederherstellung der Eingaben
 node tools/pruefen-kontrast.mjs    # gemessener Kontrast jedes Textelements gegen seine Fläche
 ```
 
-Gemessen am 11.08.2026 gegen den Produktionsbuild, mobil, 4× CPU-Drosselung, ~1,6 Mbit/s:
+`pruefen-enthuellung.mjs` steht bewusst getrennt: Die übrigen Läufe setzen `.sichtbar`
+selbst, damit sie den Inhalt sehen — ein stehengebliebener Aufbau fiele ihnen deshalb
+nie auf.
+
+Gemessen am 17.08.2026 gegen den Produktionsbuild, mobil, 4× CPU-Drosselung, ~1,6 Mbit/s:
 
 | Seite         | Übertragen | LCP    | CLS |
 | ------------- | ---------- | ------ | --- |
-| `/`           | 254 KB     | 1,26 s | 0   |
-| `/leistungen` | 175 KB     | 0,94 s | 0   |
-| `/dachdecker` | 177 KB     | 1,05 s | 0   |
-| `/demo`       | 270 KB     | 0,84 s | 0   |
-| `/kontakt`    | 152 KB     | 0,95 s | 0   |
+| `/`           | 249 KB     | 1,28 s | 0   |
+| `/leistungen` | 175 KB     | 0,87 s | 0   |
+| `/dachdecker` | 177 KB     | 0,89 s | 0   |
+| `/demo`       | 271 KB     | 0,87 s | 0   |
+| `/kontakt`    | 152 KB     | 0,77 s | 0   |
+
+Die Motive auf `/` tauchen in dieser Tabelle nicht auf: Sie stehen unterhalb der Falte
+und laden `lazy`, zählen also nicht zum ersten Bildschirm. Genau deshalb blieb die
+Startseite beim Einbau der Bilder gleich schwer.
 
 JavaScript gesamt: 7,6 KB unkomprimiert, ein einziges Modul. Budget: LCP unter
 1,8 s, CLS unter 0,02, JavaScript unter 20 KB.
@@ -106,32 +124,45 @@ tools/                  Aufnahme- und Prüfskripte (nicht Teil des Auslieferungs
 
 ## Benötigte Fotografie
 
-Für dieses Projekt liegt noch keine eigene Fotografie vor. Es wurde **keine erfunden**:
-keine bildgenerierten Aufnahmen, keine Stock-Menschen als „unser Team". Stattdessen
-steht an jeder Bildstelle ein gestaltetes Bildfeld (`src/components/Bildfeld.astro`)
-mit Motiv, Ausschnitt und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie
-das Feld eins zu eins — Platz, Format und Anschnitt stehen bereits fest.
+Eigene Fotografie liegt bis auf das Gründerporträt nicht vor. Wo eine Aufnahme fehlt,
+steht ein gestaltetes Bildfeld (`src/components/Bildfeld.astro`) mit Motiv, Ausschnitt
+und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins zu eins
+— Platz, Format und Anschnitt stehen bereits fest.
 
-Für B-01, B-02 und B-04 sind **lizenzierte Übergangsaufnahmen** freigegeben
-(Material und Architektur, keine Personen; Registratur mit Quellenangabe in
-`src/config/motive.ts`). So kommen sie auf die Seite:
+**Stand der Bildstellen** (Registratur: `src/config/motive.ts`):
 
-1. Die drei freigegebenen Aufnahmen in Originalgröße herunterladen:
-   - B-01: [Ziegeldächer mit Gauben, Meran](https://unsplash.com/photos/old-european-building-with-tiled-roofs-and-dormer-windows-QkYoC6HL7sc)
-   - B-02: [Schieferdeckung im Wiederholungsmuster](https://unsplash.com/photos/dark-slate-roof-tiles-in-a-repeating-pattern-AX_KnhLSM3w)
-   - B-04: [Giebeldach im Sonnenlicht](https://unsplash.com/photos/the-gable-roof-of-a-house-basks-in-sunlight-mzkx33pU2go)
+| Nr. | Motiv | Stand |
+| --- | --- | --- |
+| B-01 | `beratung` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-02 | `material` | registriert als Unsplash-Aufnahme, Dateien fehlen → Bildfeld |
+| B-03 | `dacharbeit-flaeche` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-04 | `dacharbeit-detail` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-05 | Materialprobe | Bildfeld |
+| B-06 | Gründerporträt | eigene Aufnahme, ausgeliefert |
 
-   Beim Herunterladen die Lizenz auf der Seite prüfen (Unsplash-Lizenz, nicht
-   Unsplash+) und den Fotografennamen mit `quelle` in `src/config/motive.ts`
-   abgleichen.
-2. Ablegen als `bilder-quelle/motive/dachlandschaft.jpg`, `material.jpg`,
-   `objekt.jpg` (außerhalb der Versionierung).
+Hier stand vorher: „keine bildgenerierten Aufnahmen, keine Stock-Menschen bei der
+Arbeit". Diese Einschränkung ist am **14.08.2026 auf ausdrückliche Anweisung des
+Inhabers aufgehoben** worden, nachdem der Konflikt benannt war. Die drei
+KI-generierten Motive zeigen Personen bei Beratung und Dacharbeit.
+
+Der Preis dafür steht unter jedem dieser Bilder: **„Symbolbild · KI-generiert"** —
+sichtbar, nicht im Alternativtext versteckt (`Motiv.astro`, Eigenschaft `nachweis`).
+Wird der Nachweis entfernt, behauptet die Seite etwas, das nicht stimmt. Ob darüber
+hinaus eine Kennzeichnung nach Art. 50 KI-VO bzw. § 5 UWG nötig ist, gehört zur
+ausstehenden rechtlichen Prüfung (siehe `CLAUDE.md`, offene Punkte).
+
+So kommt eine weitere Aufnahme auf die Seite:
+
+1. Original beschaffen. Für B-02 ist eine lizenzierte Aufnahme vorgesehen:
+   [Schieferdeckung im Wiederholungsmuster](https://unsplash.com/photos/dark-slate-roof-tiles-in-a-repeating-pattern-AX_KnhLSM3w)
+   — Lizenz auf der Seite prüfen (Unsplash-Lizenz, nicht Unsplash+) und den
+   Fotografennamen mit `quelle` in `src/config/motive.ts` abgleichen.
+2. Ablegen als `bilder-quelle/motive/<name>.jpg` — `<name>` ist das Feld `name`
+   aus der Registratur, also `material`, `beratung`, `dacharbeit-flaeche` oder
+   `dacharbeit-detail`. Das Verzeichnis liegt außerhalb der Versionierung.
 3. `node tools/motive.mjs` erzeugt die WebP-Fassungen; der nächste Build nimmt
-   sie automatisch auf. Fehlen sie, zeigt die Seite weiter die Bildfelder.
-
-B-03 (Hände am Werkstück) bleibt bewusst Bildfeld: Fremde Hände als eigene
-Baustelle auszugeben wäre die Erfindung, die diese Seite nicht macht. Diese
-Stelle füllt das eigene Shooting.
+   sie automatisch auf. Fehlen sie, zeigt die Seite weiter das Bildfeld — es
+   wird nie ein leerer Rahmen ausgeliefert.
 
 | Nr. | Ort | Motiv | Format (Desktop / Mobil) |
 | --- | --- | --- | --- |
@@ -169,9 +200,10 @@ zeigt `Portraet.astro` weiter das gestaltete Bildfeld; es wird also nie ein
 leerer Rahmen ausgeliefert.
 
 **Was nicht infrage kommt:** Handwerker mit verschränkten Armen vor dem Firmenwagen,
-Daumen-hoch-Motive, Bilddatenbank-Baustellen ohne Bezug, sichtbar generierte Bilder.
-Die Aufnahmen entstehen auf echten Baustellen; bis dahin bleiben die Bildfelder stehen
-und benennen sichtbar, was fehlt.
+Daumen-hoch-Motive, Bilddatenbank-Baustellen ohne Bezug — und jede Aufnahme, die als
+eigene Baustelle gelesen werden kann, ohne eine zu sein. Die Übergangsmotive sind
+davon nur deshalb ausgenommen, weil sie ihre Herkunft unter dem Bild nennen. Ohne
+diesen Nachweis fallen sie unter dieselbe Grenze.
 
 Die Bildschirmaufnahmen im Concept Case (`public/images/demo/`) sind davon nicht
 betroffen — sie zeigen die real gebaute Demo.
@@ -234,19 +266,24 @@ mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
 
 ## Auslieferung: Worker und Pages
 
-Es gibt zwei Wege ins Netz. Sie stehen nebeneinander, nicht nacheinander — der
-eine ersetzt den anderen nicht, solange nicht entschieden ist, welcher bleibt.
+Ausgeliefert wird über **Pages**. Der Worker-Weg besteht als Konfiguration weiter,
+wird aber von keinem Ablauf mehr beliefert — entschieden ist noch nicht, ob er
+abgebaut wird.
 
-| | Worker | Pages |
+| | Pages — der laufende Weg | Worker — besteht, unbeliefert |
 |---|---|---|
-| Name | `ss-leadcraft` | `dachdecker-leadagentur-pages` |
-| Konfiguration | `wrangler.jsonc` | am Projekt bei Cloudflare, siehe unten |
-| Befehl | `npm run deploy` | `npm run pages:ausliefern` |
-| Adresse | `*.workers.dev` | `*.pages.dev` |
+| Name | `dachdecker-leadagentur-pages` | `ss-leadcraft` |
+| Konfiguration | am Projekt bei Cloudflare, siehe unten | `wrangler.jsonc` |
+| Befehl | `npm run pages:ausliefern` | `npm run deploy` |
+| Adresse | `www.ssleadcraft.de`, `*.pages.dev` | keine eigene Domain |
 
 Beide liefern denselben Buildstand und schreiben in **denselben** KV-Namensraum
 `LEADS`. Das ist Absicht: Anfragen sollen an einer Stelle liegen, gleich über
 welchen Weg sie hereinkamen.
+
+> `npm run deploy` zielt auf den Worker, nicht auf die laufende Seite. Wer die
+> Produktion aktualisieren will, nimmt den Pages-Weg — im Regelfall durch einen
+> Push auf `main`.
 
 ### Was Astro von sich aus für Pages erzeugt
 
@@ -299,26 +336,43 @@ npm run pruefen:pages      # die ausgelieferte Adresse prüfen
 ```
 
 `tools/pruefen-pages.mjs` prüft an der echten Adresse im Netz: jede Seite
-erreichbar, gestaltete Fehlerseite, `noindex` auf der Testadresse, Serverteil
-nicht öffentlich, `/api/anfrage` vom Serverteil beantwortet statt von der
-Asset-Schicht, gültige Anfrage im KV vollständig lesbar, abgelehnte Anfrage
-nicht abgelegt. Der Prüfdatensatz wird danach wieder gelöscht — `LEADS` ist der
-echte Anfragenspeicher, kein Spielplatz.
+erreichbar, gestaltete Fehlerseite, HSTS gesetzt, Serverteil nicht öffentlich,
+`/api/anfrage` vom Serverteil beantwortet statt von der Asset-Schicht, gültige
+Anfrage im KV vollständig lesbar, abgelehnte Anfrage nicht abgelegt. Die
+Erwartung an die Indexierung dreht sich mit `PUBLIC_SITE_URL`: ohne Domain
+`noindex`, mit Domain kanonische Adresse und erreichbare Sitemap. Der
+Prüfdatensatz wird danach wieder gelöscht — `LEADS` ist der echte
+Anfragenspeicher, kein Spielplatz.
 
 ### Auslieferung über GitHub Actions
 
-`.github/workflows/pages-testlauf.yml` führt dieselben drei Befehle bei jedem
-Push auf den Testzweig aus. Der Grund ist der Token: Er braucht einen Ort, an
-dem er verschlüsselt liegt und nach dem Speichern nicht mehr lesbar ist. Ein
-Feld für Umgebungsvariablen ist das nicht — ein Actions-Secret schon, und
-GitHub maskiert den Wert zusätzlich in jeder Ausgabe.
+Zwei Abläufe, beide unter `.github/workflows/`:
 
-Zwei Secrets unter **Settings → Secrets and variables → Actions**:
+| Datei | Auslöser | Was passiert |
+|---|---|---|
+| `pages-testlauf.yml` | Push auf `main` oder den Arbeitszweig, zusätzlich von Hand | einrichten → ausliefern → die eben entstandene Adresse prüfen |
+| `pages-abnahme.yml` | nur von Hand | **nichts ausliefern**; die Adresse prüfen, die gerade im Netz steht |
+
+Die Abnahme ist der Weg für einen Produktionscheck ohne neue Ausspielung. Sie
+baut nur den Vergleichsstand, prüft dann Zertifikat, Aufruf über HTTPS,
+Umleitung von HTTP und das Verhalten der Wurzeldomain — und lässt anschließend
+denselben Prüflauf gegen die eigene Domain laufen.
+
+Der Grund für Actions ist der Token: Er braucht einen Ort, an dem er
+verschlüsselt liegt und nach dem Speichern nicht mehr lesbar ist. Ein Feld für
+Umgebungsvariablen ist das nicht — ein Actions-Secret schon, und GitHub
+maskiert den Wert zusätzlich in jeder Ausgabe.
+
+Drei Secrets unter **Settings → Secrets and variables → Actions**:
 
 | Name | Inhalt |
 |---|---|
 | `CLOUDFLARE_API_TOKEN` | Token mit *Cloudflare Pages → Bearbeiten* und *Workers KV Storage → Bearbeiten* |
 | `CLOUDFLARE_ACCOUNT_ID` | Konto-ID |
+| `RESEND_API_KEY` | Zugang zu Resend; wird von `pages-einrichten.mjs` an das Pages-Projekt gehängt |
+
+Hier stehen **nur Namen**. Werte gehören in keine Datei dieses Repositorys, in
+kein Protokoll und in keine Prüfausgabe.
 
 Die Konto-ID ist kein Zugangsschlüssel, liegt hier aber trotzdem als Secret:
 Dieses Repository ist öffentlich, die Ablaufprotokolle also für jeden
@@ -333,8 +387,11 @@ Einstellung:
 
 | Zweig | Ziel | Adresse |
 |---|---|---|
-| `main` | Produktion — hier hängt die eigene Domain | `dachdecker-leadagentur-pages.pages.dev` |
+| `main` | Produktion — hier hängt die eigene Domain | `www.ssleadcraft.de`, dazu `dachdecker-leadagentur-pages.pages.dev` |
 | jeder andere | Vorschau, Produktion bleibt unberührt | eigene Adresse je Zweig |
+
+Ein Push auf `main` spielt also die Produktion aus. Das ist kein Nebeneffekt,
+sondern der vorgesehene Weg — aber es ist gut zu wissen, bevor man ihn geht.
 
 **Die Domain steht als Variable, nicht als Secret**: `PUBLIC_SITE_URL` unter
 *Settings → Secrets and variables → Actions → **Variables***. Sie wird beim
@@ -368,12 +425,22 @@ Zwei Dinge gehören zusammen:
 
 Der Eintrag am Projekt ist kein DNS-Eingriff: Cloudflare merkt sich den Namen
 und prüft selbst, ob der CNAME darauf zeigt. Fehlt er, bleibt die Domain auf
-`pending` — ohne dass etwas kaputtgeht. Solange nicht beides steht, bleibt es
-bei der `*.pages.dev`-Adresse.
+`pending` — ohne dass etwas kaputtgeht.
 
-`ssleadcraft.de` selbst zeigt weiter auf STRATO. Wer den Apex ebenfalls auf
-die Seite führen will, richtet bei STRATO eine Domainweiterleitung auf
-`https://www.ssleadcraft.de` ein.
+Beides steht seit dem 17.08.2026. Die Domain ist am Projekt aktiv, das
+Zertifikat kommt von Google Trust Services und erneuert sich selbst;
+`http://www.ssleadcraft.de/` wird mit 301 auf HTTPS umgeleitet. Zusätzlich
+setzt `public/_headers` HSTS für ein Jahr — bewusst **ohne** `preload`: Das
+trüge die Domain in eine in Browsern ausgelieferte Liste ein, und wieder
+herauszukommen dauert Monate.
+
+`ssleadcraft.de` ohne `www` zeigt weiter auf STRATO und liefert **kein HTTPS
+aus** — der Aufruf scheitert am Zertifikat. Für Anzeigen ist das folgenlos,
+dort steht die vollständige Zieladresse; es trifft, wer die kurze Form
+eintippt. Wer den Apex ebenfalls auf die Seite führen will, richtet bei STRATO
+eine Domainweiterleitung auf `https://www.ssleadcraft.de` ein. Über Cloudflare
+ginge es nur mit einem Wechsel der Nameserver — und damit über die
+Resend-Einträge.
 
 ### Benachrichtigung über neue Anfragen
 
@@ -418,54 +485,60 @@ PRUEFUNG_VERSAND=1 npm run pruefen:pages
 ### Was dabei ausdrücklich nicht passiert
 
 - Der Worker `ss-leadcraft` und `wrangler.jsonc` werden nicht angefasst.
-- Keine eigene Domain, kein DNS-Eintrag.
-- Keine Git-Anbindung. Das Projekt wird per Direktupload beliefert; Cloudflare
-  baut nichts und beobachtet keinen Zweig. `production_branch` ist innerhalb
-  von Cloudflare eine reine Beschriftung — ein Push nach `main` löst nichts aus.
+- **Kein DNS-Eingriff.** Der CNAME bei STRATO wird von Hand gesetzt; die
+  Werkzeuge haben dort keinen Zugang und sollen ihn nicht haben. Am Cloudflare-
+  Projekt steht nur der Name der Domain.
+- Keine Git-Anbindung zwischen Cloudflare und GitHub. Das Projekt wird per
+  Direktupload beliefert; Cloudflare baut nichts und beobachtet keinen Zweig.
+  `production_branch` ist innerhalb von Cloudflare eine reine Beschriftung —
+  ein Push nach `main` löst dort von sich aus nichts aus. Die Auslieferung
+  stößt der GitHub-Ablauf an.
 - Der Namensraum `LEADS` wird referenziert, nicht angelegt und nicht geleert.
+- Eine **aktive** Domain wird nie automatisch entfernt, auch wenn sie nicht in
+  `DOMAINS` steht — sie wird nur gemeldet. Ein Werkzeug, das eine laufende
+  Adresse stilllegt, weil eine Liste sie nicht kennt, wäre gefährlich.
 
 Solange `PUBLIC_SITE_URL` nicht gesetzt ist, baut die Seite mit `noindex`. Für
-eine `*.pages.dev`-Testadresse ist genau das richtig: Sie soll später nicht mit
+eine `*.pages.dev`-Vorschauadresse ist genau das richtig: Sie soll nicht mit
 der echten Domain um dieselben Suchbegriffe konkurrieren.
 
 ---
 
-## Vor dem Launch
+## Livegang: erledigt und offen
 
-1. **Impressumsangaben** in `src/config/site.ts` unter `impressum` eintragen.
-   Zwingend sind `rechtsform`, `strasse`, `plzOrt` sowie eine Aussage zur
-   Umsatzsteuer — entweder `umsatzsteuerId` oder `kleinunternehmer: true`.
-   `register` und `aufsichtsbehoerde` gehen nicht in die Prüfung ein: Beide
-   treffen nur auf manche Betriebe zu, und den Livegang an eine erfundene Angabe
-   zu knüpfen wäre das Gegenteil dessen, was dieses Projekt tut. Solange die
-   Seite nicht öffentlich ist, stehen sie trotzdem als markierte Lücke da.
-2. **E-Mail-Adresse** als `contactEmail` eintragen. Sie ist Pflicht: § 5 DDG
-   verlangt einen elektronischen Weg zur schnellen Kontaktaufnahme, die
-   Telefonnummer allein genügt dafür nicht. Ohne sie bleiben Impressum und
-   Datenschutz auf `noindex`.
-3. **Domain** als `PUBLIC_SITE_URL` setzen (in `wrangler.jsonc` unter `vars` oder als
-   Umgebungsvariable im Build). Damit werden `robots.txt`, Sitemap, kanonische URLs
-   und Open Graph automatisch aktiv. Die Sitemap führt nur indexierbare Seiten:
-   `/danke` bleibt dauerhaft draußen, Impressum und Datenschutz kommen erst dazu,
-   wenn die Pflichtangaben vollständig sind.
-4. **Zustellung** einrichten:
-   ```bash
-   npx wrangler kv namespace create LEADS    # ID in wrangler.jsonc eintragen
-   npx wrangler secret put RESEND_API_KEY    # alle drei als Secret, nicht als
-   npx wrangler secret put LEAD_NOTIFY_EMAIL # Variable: Der vars-Block ist beim
-   npx wrangler secret put LEAD_FROM_EMAIL   # Deploy maßgeblich und überschreibt
-   ```                                       # Klartextvariablen aus der Oberfläche.
+Erledigt und am 17.08.2026 gegen `https://www.ssleadcraft.de` nachgeprüft:
 
-   Die KV-Bindung ist der wichtigere Teil: Ohne sie gibt es keinen dauerhaften
-   Speicher. `LEAD_FROM_EMAIL` muss zu einer bei Resend verifizierten Domain
-   gehören, sonst nimmt Resend die Nachricht nicht an.
-5. **Datenschutzerklärung rechtlich prüfen** lassen. Der vorhandene Text beschreibt den
-   tatsächlichen technischen Stand, ersetzt aber keine Prüfung.
-6. Prüfläufe und Messung erneut ausführen, dann `npm run deploy`.
+1. **Impressumsangaben** stehen in `src/config/site.ts` unter `impressum` —
+   `rechtsform`, `strasse`, `plzOrt` und die Aussage zur Umsatzsteuer
+   (`kleinunternehmer: true`). `register` und `aufsichtsbehoerde` gehen nicht in
+   die Prüfung ein: Beide treffen nur auf manche Betriebe zu, und den Livegang an
+   eine erfundene Angabe zu knüpfen wäre das Gegenteil dessen, was dieses Projekt
+   tut.
+2. **E-Mail-Adresse** steht als `contactEmail`. Sie ist Pflicht — § 5 DDG verlangt
+   einen elektronischen Weg zur schnellen Kontaktaufnahme, die Telefonnummer allein
+   genügt dafür nicht.
+3. **Domain** steht als `PUBLIC_SITE_URL` in den Actions-**Variablen**, nicht in
+   `wrangler.jsonc`: Bei Direktupload wird im Ablauf gebaut, nicht bei Cloudflare.
+   Damit sind `robots.txt`, Sitemap, kanonische Adressen und Open Graph aktiv. Die
+   Sitemap führt nur indexierbare Seiten; `/danke` bleibt dauerhaft draußen.
+4. **Zustellung** steht: `LEADS` am Pages-Projekt gebunden, die drei Mailwerte in
+   Produktion und Vorschau hinterlegt, Versand am 17.08.2026 nachgewiesen.
+   `LEAD_FROM_EMAIL` gehört zu einer bei Resend verifizierten Domain — sonst nimmt
+   Resend die Nachricht nicht an.
 
-Erst danach Werbekampagnen starten. Sobald Google oder Meta mit Pixel laufen, kommt
-eine Einwilligungslösung dazu — die Architektur sieht sie vor, sie ist bewusst nicht
-auf Vorrat gebaut.
+Offen, und der einzige Punkt, der vor einem Werbestart als kritisch einzustufen ist:
+
+5. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der Frage, ob
+   die KI-generierten Motive eine Kennzeichnung nach Art. 50 KI-VO bzw. § 5 UWG
+   brauchen. Der vorhandene Text beschreibt den tatsächlichen technischen Stand,
+   ersetzt aber keine Prüfung.
+
+Sobald Google oder Meta mit Pixel laufen, kommt eine Einwilligungslösung dazu — die
+Architektur sieht sie vor, sie ist bewusst nicht auf Vorrat gebaut. Die
+Datenschutzerklärung kündigt sie bereits an und muss vorher ergänzt werden.
+
+Die weiteren offenen Punkte — Wurzeldomain ohne HTTPS, Entscheidung über den
+Worker-Weg — stehen in `CLAUDE.md` unter „Bekannte offene Punkte".
 
 ---
 

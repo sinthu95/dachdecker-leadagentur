@@ -1,5 +1,28 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+
+  // --------------------------------------------------------------------
+  // Diese Datei gehört dem Worker `ss-leadcraft` — nicht der laufenden
+  // Website.
+  //
+  // Ausgeliefert wird seit dem 17.08.2026 über Cloudflare **Pages**
+  // (Projekt `dachdecker-leadagentur-pages`, Adresse www.ssleadcraft.de).
+  // Der Worker besteht unverändert weiter, wird aber von keinem Ablauf mehr
+  // beliefert und trägt keine eigene Domain. `npm run deploy` zielt auf ihn,
+  // nicht auf die Produktion.
+  //
+  // Für Pages ist diese Datei ohne Wirkung: Wrangler meldet beim Ausspielen,
+  // dass es sie gefunden hat und übergeht — genau das soll es tun. Die
+  // Pages-Bindungen hängen am Projekt bei Cloudflare, gesetzt über die
+  // REST-API; was das Projekt ausmacht, steht in `tools/pages-konfig.mjs`.
+  //
+  // Hier darf **kein** `pages_build_output_dir` hinein. Damit hielte Wrangler
+  // die Datei für ein Pages-Projekt, und `npm run deploy` wäre kaputt.
+  //
+  // Ob der Worker-Weg bleibt oder abgebaut wird, ist nicht entschieden
+  // (siehe CLAUDE.md, „Bekannte offene Punkte").
+  // --------------------------------------------------------------------
+
   // Astro baut mit dem Cloudflare-Adapter: statische Seiten unter dist/ und
   // einen schlanken Worker, der ausschließlich POST /api/anfrage bedient.
   // Alles andere wird direkt als statisches Asset ausgeliefert.
@@ -48,24 +71,38 @@
   "kv_namespaces": [{ "binding": "LEADS", "id": "71bb7eb8ae0d4c659ace074645a6a72c" }],
 
   // --------------------------------------------------------------------
-  // OFFEN 1 — Benachrichtigung per E-Mail. Alle drei Werte sind nötig;
-  // fehlt einer, versendet der Endpunkt nichts. Als Secret setzen, nicht als
+  // Benachrichtigung per E-Mail — auf dem Pages-Weg eingerichtet, auf diesem
+  // Weg nicht.
+  //
+  // Der Endpunkt liest RESEND_API_KEY, LEAD_NOTIFY_EMAIL und LEAD_FROM_EMAIL
+  // zur Laufzeit; fehlt einer der drei, wird nichts versendet. Am
+  // Pages-Projekt hängen sie und der Versand ist nachgewiesen. An diesem
+  // Worker hängen sie nicht: Er wird nicht mehr beliefert, und Werte für eine
+  // Auslieferung anzulegen, die nicht stattfindet, hieße den Zugang an einer
+  // zweiten Stelle zu führen.
+  //
+  // Würde der Worker-Weg wieder aufgenommen, dann so — als Secret, nicht als
   // Variable: Der „vars"-Block unten ist beim Deploy maßgeblich und würde im
   // Dashboard gesetzte Klartextvariablen wieder entfernen. Secrets bleiben.
   //
   //   npx wrangler secret put RESEND_API_KEY      Zugang zu Resend
-  //   npx wrangler secret put LEAD_NOTIFY_EMAIL   Ihr Posteingang
+  //   npx wrangler secret put LEAD_NOTIFY_EMAIL   Posteingang
   //   npx wrangler secret put LEAD_FROM_EMAIL     Absender, verifizierte Domain
   //
-  // Die Anfrage ist auch ohne diesen Schritt sicher abgelegt — sie kommt dann
-  // nur nicht von selbst zu Ihnen.
+  // Die Anfrage wäre auch ohne diesen Schritt sicher abgelegt — sie käme dann
+  // nur nicht von selbst an.
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
-  // OFFEN 2 — Domain. PUBLIC_SITE_URL wird beim Bauen gelesen, nicht zur
-  // Laufzeit: Der Wert muss in den Build-Variablen der Cloudflare-Oberfläche
-  // stehen, damit robots.txt, Sitemap und kanonische URLs aktiv werden.
-  // Ohne ihn baut die Seite bewusst mit noindex.
+  // Domain. PUBLIC_SITE_URL wird beim Bauen gelesen, nicht zur Laufzeit.
+  //
+  // Auf dem Pages-Weg steht der Wert als GitHub-Actions-Variable, weil dort
+  // gebaut wird — nicht bei Cloudflare. Dieser Block gilt nur für
+  // `npm run deploy`; er bleibt leer, damit ein Worker-Deploy nicht
+  // versehentlich eine zweite indexierbare Fassung derselben Seite ins Netz
+  // stellt, die mit www.ssleadcraft.de um dieselben Suchbegriffe konkurriert.
+  //
+  // Folge: Ein Deploy von hier baut bewusst mit noindex und ohne Sitemap.
   // --------------------------------------------------------------------
   "vars": {
     "PUBLIC_SITE_URL": ""
