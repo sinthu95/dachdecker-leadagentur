@@ -22,8 +22,17 @@
  * Anfragenspeicher, kein Spielplatz. Bleibt er wider Erwarten liegen, nennt
  * das Werkzeug den Schlüssel.
  *
- * Es wird keine E-Mail versendet — Verdachtsfälle nicht, und ohne
- * RESEND_API_KEY ohnehin nichts.
+ * Versand: Der Routinelauf füllt absichtlich den Honigtopf aus. Die Anfrage
+ * wird dann als Verdachtsfall abgelegt und ausdrücklich nicht versendet — die
+ * Ablage ist genauso geprüft, aber der echte Posteingang bekommt nicht bei
+ * jeder Auslieferung etwas, das wie ein Lead aussieht.
+ *
+ * Den Versandweg prüft man eigens:
+ *
+ *   PRUEFUNG_VERSAND=1 node tools/pruefen-pages.mjs
+ *
+ * Dann geht eine echte Benachrichtigung hinaus. Ob sie ankommt, sieht dieses
+ * Werkzeug nicht — das muss im Posteingang nachgesehen werden.
  */
 import { readdirSync, existsSync } from 'node:fs';
 import { setTimeout as warten } from 'node:timers/promises';
@@ -286,18 +295,40 @@ const vollstaendig = (zusatz = {}) => ({
   name: 'Prüflauf Pages',
   telefon: '00000 000000',
   email: 'pruefung@pruefung.invalid',
-  // Realistische Ausfülldauer: über der Untergrenze von 1500 ms, damit die
-  // Anfrage nicht als Verdachtsfall abgelegt wird.
+  // Realistische Ausfülldauer: über der Untergrenze von 1500 ms.
   geladen: String(Date.now() - 30_000),
   ...zusatz,
 });
 
+/**
+ * Der Routinelauf füllt den Honigtopf absichtlich aus.
+ *
+ * Damit legt der Endpunkt die Anfrage unter `verdacht:` ab und versendet sie
+ * ausdrücklich nicht. Die Ablage ist genauso geprüft wie vorher — aber es
+ * geht bei jeder Auslieferung keine Mail an den echten Posteingang, die dort
+ * wie ein Lead aussähe. Wer eine Prüfung baut, die den Betrieb stört, bekommt
+ * sie abgeschaltet.
+ *
+ * Der Versandweg wird eigens geprüft: mit PRUEFUNG_VERSAND=1. Dann geht eine
+ * echte Benachrichtigung hinaus — einmal, auf Zuruf.
+ */
+const versandPruefen = process.env.PRUEFUNG_VERSAND === '1';
+
 const zeitpunktVorher = new Date().toISOString();
 
-const gueltig = await senden({ ...vollstaendig(), einwilligung: 'ja' });
+const gueltig = await senden({
+  ...vollstaendig(),
+  einwilligung: 'ja',
+  ...(versandPruefen ? {} : { firmenzusatz: 'Prüflauf — kein Versand' }),
+});
 pruefe(
   gueltig.status === 303 && (gueltig.headers.get('location') ?? '').endsWith('/danke'),
   `gültige Anfrage → 303 /danke (${gueltig.status} ${gueltig.headers.get('location') ?? '—'})`,
+);
+console.log(
+  versandPruefen
+    ? '  ·     PRUEFUNG_VERSAND=1 — diese Anfrage löst eine echte Benachrichtigung aus'
+    : '  ·     Honigtopf gesetzt — wird abgelegt, aber nicht versendet',
 );
 
 const unvollstaendig = await senden({
@@ -314,9 +345,13 @@ pruefe(
 // Die Schlüsselliste ist nicht sofort konsistent; deshalb mehrere Versuche.
 console.log('\nAblage im Namensraum LEADS');
 
+// Der Routinelauf legt unter `verdacht:` ab (Honigtopf), der Versandlauf
+// unter `anfrage:`. Gesucht wird deshalb im passenden Bereich.
+const PRAEFIX = versandPruefen ? 'anfrage:' : 'verdacht:';
+
 async function suchen(gesuchteMarke) {
   for (let versuch = 0; versuch < 10; versuch += 1) {
-    const alle = await kvSchluessel('anfrage:');
+    const alle = await kvSchluessel(PRAEFIX);
     // Nur Schlüssel, die nach dem Absenden entstanden sind. Der Zeitstempel
     // steht im Schlüssel und ist als ISO-Text sortierbar.
     const neue = alle.filter((s) => (s.split(':').slice(1, -1).join(':') || '') >= zeitpunktVorher);
@@ -331,9 +366,9 @@ async function suchen(gesuchteMarke) {
 
 const treffer = await suchen(marke);
 if (!treffer) {
-  nok('gültige Anfrage im KV gefunden — nach 15 s kein Datensatz mit der Prüfmarke');
+  nok(`keine Ablage unter „${PRAEFIX}" — nach 15 s kein Datensatz mit der Prüfmarke`);
 } else {
-  ok(`gültige Anfrage im KV gefunden: ${treffer.schluessel}`);
+  ok(`Anfrage im KV gefunden: ${treffer.schluessel}`);
 
   let satz = null;
   try {
@@ -345,7 +380,15 @@ if (!treffer) {
     Boolean(satz && satz.name && satz.telefon && satz.email && satz.leistungen?.length),
     'Datensatz ist vollständig lesbar',
   );
-  pruefe(!satz?.verdacht, 'Datensatz ist kein Verdachtsfall');
+  // Der Honigtopf muss auch wirklich gegriffen haben: Wäre der Datensatz
+  // keiner, ginge bei jeder Auslieferung eine Mail hinaus, und niemand merkte
+  // es, weil die Ablage ja stimmt.
+  pruefe(
+    versandPruefen ? !satz?.verdacht : Boolean(satz?.verdacht?.honigtopf),
+    versandPruefen
+      ? 'Datensatz ist kein Verdachtsfall — Versand war also erlaubt'
+      : 'Honigtopf hat gegriffen — kein Versand ausgelöst',
+  );
   pruefe(
     typeof satz?.kennung === 'string' && treffer.schluessel.endsWith(satz.kennung),
     'Schlüssel und Kennung im Datensatz gehören zusammen',
@@ -357,6 +400,13 @@ if (!treffer) {
     ok('Prüfdatensatz wieder gelöscht');
   } catch (f) {
     nok(`Prüfdatensatz konnte nicht gelöscht werden (${treffer.schluessel}): ${f.message}`);
+  }
+
+  if (versandPruefen) {
+    hinweis(
+      'Eine echte Benachrichtigung sollte jetzt unterwegs sein. Ob sie ankommt, ' +
+        'kann dieses Werkzeug nicht sehen — bitte im Posteingang nachsehen.',
+    );
   }
 }
 

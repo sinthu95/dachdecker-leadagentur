@@ -375,6 +375,46 @@ bei der `*.pages.dev`-Adresse.
 die Seite führen will, richtet bei STRATO eine Domainweiterleitung auf
 `https://www.ssleadcraft.de` ein.
 
+### Benachrichtigung über neue Anfragen
+
+Der Endpunkt liest `RESEND_API_KEY`, `LEAD_NOTIFY_EMAIL` und `LEAD_FROM_EMAIL`
+aus `locals.runtime.env` — also zur **Laufzeit**. Eine Actions-Variable
+erreicht ihn deshalb nie; sie existiert nur, während gebaut wird.
+`PUBLIC_SITE_URL` ist genau umgekehrt. Die drei Werte hängen als Bindungen am
+Pages-Projekt, gesetzt von `pages-einrichten.mjs`.
+
+| Wert | Herkunft | Ablage bei Cloudflare |
+|---|---|---|
+| `LEAD_NOTIFY_EMAIL` | fest in `MAIL` | `plain_text` |
+| `LEAD_FROM_EMAIL` | fest in `MAIL` | `plain_text` |
+| `RESEND_API_KEY` | Actions-**Secret** | `secret_text` |
+
+`secret_text` heißt: Cloudflare speichert verschlüsselt und gibt den Wert über
+die API nie wieder heraus — auch den eigenen Werkzeugen nicht. Kein Werkzeug
+gibt ihn aus, GitHub schwärzt ihn zusätzlich in jeder Ablaufausgabe.
+
+**Fehlt der Schlüssel, wird er nicht gesetzt — und nicht gelöscht.** Ein Lauf
+ohne Schlüssel darf einen hinterlegten nicht wegräumen; das wäre die
+unangenehmste Art, den Versand stillzulegen. Aus demselben Grund führt die
+Einrichtung `deployment_configs` zusammen, statt sie zu ersetzen, und liest
+danach nach, was tatsächlich dort steht.
+
+**Absender ist nicht der Empfänger.** `formular@ssleadcraft.de` sendet,
+`kontakt@ssleadcraft.de` empfängt. Absender gleich Empfänger sieht für
+Spamfilter nach gefälschter Selbstzustellung aus; `reply_to` steht ohnehin auf
+der Adresse des Anfragenden, geantwortet wird also direkt dorthin.
+`formular@` braucht kein Postfach — Resend verlangt nur die verifizierte
+Domain, Rückläufer fängt `send.ssleadcraft.de` ab.
+
+**Der Prüflauf versendet nichts.** Er füllt absichtlich den Honigtopf aus; die
+Anfrage wird als Verdachtsfall abgelegt und nicht versendet. Sonst bekäme der
+echte Posteingang bei jeder Auslieferung etwas, das wie ein Lead aussieht.
+Den Versandweg prüft man eigens:
+
+```bash
+PRUEFUNG_VERSAND=1 npm run pruefen:pages
+```
+
 ### Was dabei ausdrücklich nicht passiert
 
 - Der Worker `ss-leadcraft` und `wrangler.jsonc` werden nicht angefasst.

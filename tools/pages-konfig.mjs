@@ -107,6 +107,48 @@ export const BINDUNGEN = {
   kv_namespaces: { LEADS: { namespace_id: KV_LEADS } },
 };
 
+/**
+ * Benachrichtigung über neue Anfragen.
+ *
+ * Diese Werte müssen zur **Laufzeit** an der Anwendung hängen, nicht beim
+ * Bauen: `src/pages/api/anfrage.ts` liest sie aus `locals.runtime.env`. Eine
+ * Actions-Variable erreicht sie nie — die existiert nur, während gebaut wird.
+ * `PUBLIC_SITE_URL` ist genau umgekehrt.
+ *
+ * Absender ist bewusst nicht dieselbe Adresse wie der Empfänger: Absender
+ * gleich Empfänger sieht für Spamfilter nach gefälschter Selbstzustellung aus.
+ * `formular@` braucht kein Postfach — Resend verlangt nur die verifizierte
+ * Domain, und Rückläufer fängt `send.ssleadcraft.de` ab. Geantwortet wird
+ * ohnehin nicht dorthin: Der Endpunkt setzt `reply_to` auf die Adresse des
+ * Anfragenden.
+ */
+export const MAIL = {
+  LEAD_NOTIFY_EMAIL: 'kontakt@ssleadcraft.de',
+  LEAD_FROM_EMAIL: 'formular@ssleadcraft.de',
+};
+
+/**
+ * Die Umgebungswerte, die am Projekt gesetzt werden.
+ *
+ * Der Schlüssel kommt aus der Umgebung und wird als `secret_text` abgelegt:
+ * Cloudflare speichert ihn dann verschlüsselt und gibt ihn über die API nie
+ * wieder heraus — auch diesem Werkzeug nicht. Er wird nirgends ausgegeben.
+ *
+ * Fehlt er, wird er **nicht** gesetzt und damit auch nicht gelöscht. Ein Lauf
+ * ohne Schlüssel darf einen bereits hinterlegten nicht wegräumen; das wäre
+ * die unangenehmste Art, den Versand stillzulegen.
+ */
+export function umgebungsWerte() {
+  const werte = {
+    LEAD_NOTIFY_EMAIL: { value: MAIL.LEAD_NOTIFY_EMAIL, type: 'plain_text' },
+    LEAD_FROM_EMAIL: { value: MAIL.LEAD_FROM_EMAIL, type: 'plain_text' },
+  };
+  if (process.env.RESEND_API_KEY) {
+    werte.RESEND_API_KEY = { value: process.env.RESEND_API_KEY, type: 'secret_text' };
+  }
+  return werte;
+}
+
 const BASIS = 'https://api.cloudflare.com/client/v4';
 
 /**

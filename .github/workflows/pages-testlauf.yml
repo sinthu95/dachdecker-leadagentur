@@ -53,6 +53,15 @@ jobs:
       # Variables. Solange sie fehlt, baut die Seite bewusst mit noindex und
       # ohne Sitemap — genau richtig, solange nur *.pages.dev erreichbar ist.
       PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      # Zugang zu Resend für die Anfrage-Benachrichtigung. Wird von
+      # pages-einrichten.mjs als „secret_text" an das Pages-Projekt gehängt,
+      # weil der Endpunkt ihn zur Laufzeit liest — nicht beim Bauen.
+      #
+      # Fehlt er, setzt die Einrichtung ihn nicht und löscht ihn auch nicht;
+      # der Lauf bleibt grün und meldet nur, dass nichts versendet wird.
+      # GitHub schwärzt den Wert in jeder Ausgabe, und keines der Werkzeuge
+      # gibt ihn aus.
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
     steps:
       # Zuerst und ohne Quellcode: Fehlt der Zugang, soll der Lauf hier enden
