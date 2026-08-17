@@ -10,13 +10,19 @@
  * `ss-leadcraft`, der Namensraum selbst und dessen Inhalt bleiben unberührt;
  * der Namensraum wird nur referenziert, nicht angelegt und nicht geleert.
  *
- * Was hier NICHT passiert: keine eigene Domain, kein DNS-Eintrag, keine
- * Git-Anbindung. Das Projekt wird per Direktupload beliefert.
+ * Eigene Domains aus `DOMAINS` werden am Projekt eingetragen. Das ist kein
+ * DNS-Eingriff: Cloudflare merkt sich nur den Namen und prüft von sich aus,
+ * ob ein CNAME darauf zeigt. Der CNAME selbst wird bei STRATO gesetzt, von
+ * Hand — dieses Werkzeug hat dort keinen Zugang und soll ihn nicht haben.
+ *
+ * Was hier NICHT passiert: keine Git-Anbindung. Das Projekt wird per
+ * Direktupload beliefert.
  */
 import {
   PROJEKT,
   PRODUKTIONSZWEIG,
   KV_LEADS,
+  DOMAINS,
   BINDUNGEN,
   api,
   kontoPfad,
@@ -151,6 +157,38 @@ for (const umgebung of ['production', 'preview']) {
 if (fehler) {
   console.error('\nAbbruch: Die Bindung ist nicht gesetzt.');
   process.exit(1);
+}
+
+// --- Eigene Domains -------------------------------------------------------
+// Anlegen ist ungefährlich und wiederholbar: Cloudflare nimmt den Namen
+// entgegen und prüft selbst, ob der CNAME darauf zeigt. Fehlt er noch, bleibt
+// die Domain auf „pending" stehen — ohne dass irgendetwas kaputtgeht.
+if (DOMAINS.length) {
+  console.log('\nEigene Domains');
+  const vorhanden = await api(kontoPfad(`/pages/projects/${PROJEKT}/domains`));
+  const bekannt = new Map((vorhanden ?? []).map((d) => [d.name, d]));
+
+  for (const name of DOMAINS) {
+    let eintrag = bekannt.get(name);
+    if (!eintrag) {
+      eintrag = await api(kontoPfad(`/pages/projects/${PROJEKT}/domains`), {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+      });
+      info(`${name} angelegt`);
+    }
+    const stand = eintrag?.status ?? 'unbekannt';
+    if (stand === 'active') {
+      ok(`${name} aktiv`);
+    } else {
+      // Kein Fehler: Solange der CNAME bei STRATO fehlt, kann Cloudflare gar
+      // nicht bestätigen. Der Lauf soll deswegen nicht rot werden.
+      info(
+        `${name} steht auf „${stand}" — erwartet, solange bei STRATO kein\n` +
+          `        CNAME ${name.split('.')[0]} → ${PROJEKT}.pages.dev. eingetragen ist`,
+      );
+    }
+  }
 }
 
 console.log(

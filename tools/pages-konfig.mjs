@@ -73,6 +73,24 @@ export const PRODUKTIONSZWEIG = 'main';
  */
 export const KV_LEADS = '71bb7eb8ae0d4c659ace074645a6a72c';
 
+/**
+ * Eigene Domains des Pages-Projekts.
+ *
+ * Bewusst eine Subdomain und nicht der Apex: Eine Apex-Domain kann nicht per
+ * CNAME zeigen, sie verlangt den Wechsel der Nameserver zu Cloudflare. Bei
+ * `ssleadcraft.de` liegen aber die Resend-Einträge für den Mailversand
+ * (DKIM auf `resend._domainkey`, SPF auf `send`) — die müssten dabei
+ * vollständig mitgenommen werden, und ein übersehener DKIM-Selektor fällt
+ * erst auf, wenn Benachrichtigungen im Spam landen.
+ *
+ * Eine Subdomain braucht davon nichts: ein CNAME bei STRATO, fertig. Die
+ * Nameserver bleiben, wo sie sind, und der Mailversand bleibt unberührt.
+ *
+ * Bei STRATO muss dafür stehen:
+ *   CNAME  www  →  dachdecker-leadagentur-pages.pages.dev.
+ */
+export const DOMAINS = ['www.ssleadcraft.de'];
+
 /** Wie beim Worker: dieselbe Laufzeit soll denselben Code ausführen. */
 export const KOMPATIBILITAET_DATUM = '2026-08-11';
 export const KOMPATIBILITAET_FLAGGEN = ['nodejs_compat'];
