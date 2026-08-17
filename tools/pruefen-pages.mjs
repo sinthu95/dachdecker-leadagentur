@@ -4,10 +4,12 @@
  *
  *   node tools/pruefen-pages.mjs [https://…pages.dev]
  *
- * Ohne Argument wird die jüngste Ausspielung des Testzweigs genommen.
+ * Ohne Argument wird die jüngste Ausspielung des aktuellen Zweigs genommen.
  *
  * Nachgewiesen wird in dieser Reihenfolge:
- *   1. Jede Seite kommt an, mit gestalteter Fehlerseite und ohne Index-Freigabe.
+ *   1. Jede Seite kommt an, mit gestalteter Fehlerseite. Ob sie in den Index
+ *      darf, richtet sich nach PUBLIC_SITE_URL: ohne Domain muss noindex
+ *      stehen, mit Domain müssen kanonische Adresse und Sitemap greifen.
  *   2. Der Serverteil liegt nicht offen im Netz.
  *   3. /api/anfrage wird vom Serverteil beantwortet, nicht von der
  *      Asset-Schicht — bei Pages die Stelle, an der eine falsche
@@ -26,7 +28,7 @@
 import { readdirSync, existsSync } from 'node:fs';
 import { setTimeout as warten } from 'node:timers/promises';
 import {
-  ZWEIG,
+  zweigJetzt,
   letzteAusspielung,
   kvSchluessel,
   kvWert,
@@ -58,7 +60,7 @@ const pruefe = (bedingung, text) => (bedingung ? ok(text) : nok(text));
 // --- Adresse ---------------------------------------------------------------
 let basis = process.argv[2];
 if (!basis) {
-  const ausspielung = (await letzteAusspielung(ZWEIG)) ?? (await letzteAusspielung());
+  const ausspielung = (await letzteAusspielung(zweigJetzt())) ?? (await letzteAusspielung());
   if (!ausspielung) {
     console.error(`\nKeine Ausspielung gefunden. Zuerst: npm run pages:ausliefern\n`);
     process.exit(1);
@@ -186,15 +188,32 @@ for (const pfad of seitenAusBuild()) {
 const robots = await hole('/robots.txt');
 pruefe(robots.status === 200, `/robots.txt → 200 (${robots.status})`);
 
-// Ohne PUBLIC_SITE_URL baut die Seite bewusst mit noindex. Auf einer
-// *.pages.dev-Testadresse ist das keine Nebensache: Sonst konkurriert die
-// Vorschau später mit der echten Domain um dieselben Suchbegriffe.
+// Indexierung: Die Erwartung dreht sich mit PUBLIC_SITE_URL.
+//
+// Ohne Domain baut die Seite bewusst mit noindex, und das ist auf einer
+// *.pages.dev-Adresse keine Nebensache — sonst konkurriert sie später mit der
+// echten Domain um dieselben Suchbegriffe. Mit gesetzter Domain muss genau
+// das Gegenteil gelten, sonst geht die Seite unsichtbar live.
+//
+// Beides fest zu prüfen ginge nicht: Eine Prüfung, die nach dem Setzen der
+// Domain reihenweise Fehler meldet, wird abgeschaltet statt gelesen.
+const domain = (process.env.PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
 const start = await hole('/');
 const startText = await start.text();
-pruefe(
-  /<meta[^>]+name="robots"[^>]+noindex/i.test(startText),
-  'Startseite trägt noindex — die Testadresse gehört nicht in den Index',
-);
+const hatNoindex = /<meta[^>]+name="robots"[^>]+noindex/i.test(startText);
+
+if (!domain) {
+  pruefe(hatNoindex, 'ohne PUBLIC_SITE_URL: noindex gesetzt — gehört nicht in den Index');
+} else {
+  pruefe(!hatNoindex, `mit PUBLIC_SITE_URL: kein noindex (${domain})`);
+  const kanonisch = startText.match(/<link[^>]+rel="canonical"[^>]+href="([^"]+)"/i)?.[1];
+  pruefe(
+    kanonisch === `${domain}/` || kanonisch === domain,
+    `kanonische Adresse zeigt auf die Domain (gelesen: ${kanonisch ?? '—'})`,
+  );
+  const sitemap = await hole('/sitemap-index.xml');
+  pruefe(sitemap.status === 200, `Sitemap vorhanden (${sitemap.status})`);
+}
 
 // Welche Form ist die kanonische? Der Worker setzt über
 // `html_handling: "drop-trailing-slash"` die Form ohne Schrägstrich durch —

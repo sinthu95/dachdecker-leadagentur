@@ -325,8 +325,55 @@ Dieses Repository ist öffentlich, die Ablaufprotokolle also für jeden
 einsehbar, und die ID taucht in jedem API-Pfad auf, den eine Fehlermeldung
 nennt. Als Secret wird sie dort automatisch geschwärzt.
 
-`main` löst den Ablauf nicht aus. Fehlt eines der Secrets, endet der Lauf im
-ersten Schritt mit einem Hinweis, statt mitten in der Auslieferung.
+Fehlt eines der Secrets, endet der Lauf im ersten Schritt mit einem Hinweis,
+statt mitten in der Auslieferung.
+
+**Welcher Zweig wohin liefert.** Der Zweigname entscheidet, nicht eine
+Einstellung:
+
+| Zweig | Ziel | Adresse |
+|---|---|---|
+| `main` | Produktion — hier hängt die eigene Domain | `dachdecker-leadagentur-pages.pages.dev` |
+| jeder andere | Vorschau, Produktion bleibt unberührt | eigene Adresse je Zweig |
+
+**Die Domain steht als Variable, nicht als Secret**: `PUBLIC_SITE_URL` unter
+*Settings → Secrets and variables → Actions → **Variables***. Sie wird beim
+Bauen gelesen, nicht zur Laufzeit — bei Direktupload wird im Ablauf gebaut,
+nicht bei Cloudflare, deshalb gehört der Wert dorthin und nicht in die
+Cloudflare-Oberfläche.
+
+Solange sie fehlt, baut die Seite mit `noindex` und ohne Sitemap. Der Prüflauf
+dreht seine Erwartung mit: ohne Domain besteht er auf `noindex`, mit Domain auf
+kanonischer Adresse und erreichbarer Sitemap. Eine Prüfung, die nach dem Setzen
+der Domain reihenweise Fehler meldet, würde abgeschaltet statt gelesen.
+
+### Die eigene Domain
+
+Die Seite läuft unter **`www.ssleadcraft.de`** — einer Subdomain, nicht dem
+Apex. Das ist eine Entscheidung mit Grund:
+
+Eine Apex-Domain kann nicht per CNAME auf ein Pages-Projekt zeigen; sie
+verlangt den Wechsel der Nameserver zu Cloudflare. Bei `ssleadcraft.de` liegen
+aber die Resend-Einträge für den Mailversand — DKIM auf `resend._domainkey`,
+SPF auf `send`. Die müssten bei einem Wechsel vollständig mitgenommen werden,
+und ein übersehener DKIM-Selektor fällt erst auf, wenn Benachrichtigungen im
+Spam landen. Eine Subdomain braucht davon nichts.
+
+Zwei Dinge gehören zusammen:
+
+| Wo | Was |
+|---|---|
+| STRATO | `CNAME www → dachdecker-leadagentur-pages.pages.dev.` |
+| Cloudflare | Domain am Projekt, gesetzt von `pages-einrichten.mjs` aus `DOMAINS` |
+
+Der Eintrag am Projekt ist kein DNS-Eingriff: Cloudflare merkt sich den Namen
+und prüft selbst, ob der CNAME darauf zeigt. Fehlt er, bleibt die Domain auf
+`pending` — ohne dass etwas kaputtgeht. Solange nicht beides steht, bleibt es
+bei der `*.pages.dev`-Adresse.
+
+`ssleadcraft.de` selbst zeigt weiter auf STRATO. Wer den Apex ebenfalls auf
+die Seite führen will, richtet bei STRATO eine Domainweiterleitung auf
+`https://www.ssleadcraft.de` ein.
 
 ### Was dabei ausdrücklich nicht passiert
 

@@ -27,8 +27,30 @@
 /** Name des Pages-Projekts. Nicht der Worker; der heißt `ss-leadcraft`. */
 export const PROJEKT = 'dachdecker-leadagentur-pages';
 
-/** Zweig, aus dem der Testlauf ausgeliefert wird. */
+/** Zweig, aus dem der Testlauf ausgeliefert wird, wenn nichts anderes gilt. */
 export const ZWEIG = 'claude/cloudflare-pages-migration-zfj110';
+
+/**
+ * Der Zweig, aus dem gerade ausgeliefert wird.
+ *
+ * In GitHub Actions steht er in GITHUB_REF_NAME. Er entscheidet alles Weitere:
+ * Stimmt er mit dem Produktionszweig des Projekts überein, ist es eine
+ * Produktionsauslieferung — und nur an der hängt eine eigene Domain. Jeder
+ * andere Name ergibt eine Vorschau unter eigener Adresse.
+ *
+ * Deshalb wird er gelesen und nicht gesetzt: Ein fest verdrahteter Zweigname
+ * hätte zur Folge, dass ein Push auf `main` eine Vorschau erzeugt und die
+ * Domain weiter auf einen alten Stand zeigt — ohne dass irgendetwas
+ * fehlschlägt.
+ */
+export function zweigJetzt() {
+  return process.env.GITHUB_REF_NAME || ZWEIG;
+}
+
+/** Ist das die Produktionsauslieferung? */
+export function istProduktion(zweig = zweigJetzt()) {
+  return zweig === PRODUKTIONSZWEIG;
+}
 
 /**
  * Produktionszweig des Pages-Projekts.
@@ -50,6 +72,24 @@ export const PRODUKTIONSZWEIG = 'main';
  * hereinkamen. Die ID ist kein Geheimnis, sie benennt nur den Namensraum.
  */
 export const KV_LEADS = '71bb7eb8ae0d4c659ace074645a6a72c';
+
+/**
+ * Eigene Domains des Pages-Projekts.
+ *
+ * Bewusst eine Subdomain und nicht der Apex: Eine Apex-Domain kann nicht per
+ * CNAME zeigen, sie verlangt den Wechsel der Nameserver zu Cloudflare. Bei
+ * `ssleadcraft.de` liegen aber die Resend-Einträge für den Mailversand
+ * (DKIM auf `resend._domainkey`, SPF auf `send`) — die müssten dabei
+ * vollständig mitgenommen werden, und ein übersehener DKIM-Selektor fällt
+ * erst auf, wenn Benachrichtigungen im Spam landen.
+ *
+ * Eine Subdomain braucht davon nichts: ein CNAME bei STRATO, fertig. Die
+ * Nameserver bleiben, wo sie sind, und der Mailversand bleibt unberührt.
+ *
+ * Bei STRATO muss dafür stehen:
+ *   CNAME  www  →  dachdecker-leadagentur-pages.pages.dev.
+ */
+export const DOMAINS = ['www.ssleadcraft.de'];
 
 /** Wie beim Worker: dieselbe Laufzeit soll denselben Code ausführen. */
 export const KOMPATIBILITAET_DATUM = '2026-08-11';
