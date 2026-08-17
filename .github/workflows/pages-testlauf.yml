@@ -26,6 +26,13 @@ on:
       - main
       - claude/cloudflare-pages-migration-zfj110
   workflow_dispatch:
+    inputs:
+      versand:
+        description: >-
+          Versandweg mitprüfen. Löst eine echte Benachrichtigung an den
+          Posteingang aus — deshalb aus und nur auf Zuruf an.
+        type: boolean
+        default: false
 
 # Zwei gleichzeitige Auslieferungen in dasselbe Projekt wären ein Rennen um
 # denselben Stand. Lieber nacheinander.
@@ -117,6 +124,11 @@ jobs:
       - name: Ausgelieferte Adresse prüfen
         env:
           ADRESSE: ${{ steps.ausliefern.outputs.url }}
+          # Ohne diesen Schalter füllt der Prüflauf den Honigtopf aus: Die
+          # Anfrage wird abgelegt, aber nicht versendet. Sonst ginge bei jeder
+          # Auslieferung eine Mail hinaus, die wie ein echter Lead aussieht.
+          # Bei einem Push ist `inputs` leer und damit falsch — genau richtig.
+          PRUEFUNG_VERSAND: ${{ inputs.versand && '1' || '0' }}
         run: npm run pruefen:pages -- "$ADRESSE"
 
       - name: Zusammenfassung
