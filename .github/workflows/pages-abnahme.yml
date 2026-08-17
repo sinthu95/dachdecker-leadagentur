@@ -1,0 +1,150 @@
+# Abnahme der laufenden Auslieferung.
+#
+# Unterschied zum Testlauf: Hier wird nichts ausgeliefert und nichts
+# eingerichtet. Gebaut wird nur, um zu wissen, welche Seiten es geben muss;
+# geprüft wird dann die Adresse, die gerade im Netz steht — die eigene Domain,
+# nicht die *.pages.dev-Adresse. Der Stand bei Cloudflare bleibt unangetastet.
+#
+# Warum das nötig ist: Der Testlauf prüft die Adresse, die er selbst eben
+# erzeugt hat. Ob DNS, Zertifikat und Weiterleitung der eigenen Domain
+# stimmen, sagt er damit nicht — und genau das ist die Frage vor dem
+# Werbestart.
+#
+# Nur von Hand auslösbar. Eine Abnahme, die bei jedem Push liefe, schriebe bei
+# jedem Push eine Anfrage in den echten Anfragenspeicher.
+
+name: Abnahme
+
+on:
+  workflow_dispatch:
+    inputs:
+      adresse:
+        description: Zu prüfende Adresse, ohne Schrägstrich am Ende.
+        type: string
+        default: https://www.ssleadcraft.de
+      versand:
+        description: >-
+          Versandweg mitprüfen. Löst eine echte Benachrichtigung an den
+          Posteingang aus — deshalb aus und nur auf Zuruf an.
+        type: boolean
+        default: false
+
+concurrency:
+  group: pages-abnahme
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  abnahme:
+    name: Laufende Auslieferung prüfen
+    runs-on: ubuntu-latest
+    env:
+      # Gelesen wird damit der Anfragenspeicher LEADS und die Einstellung des
+      # Projekts. Geschrieben wird ausschließlich der Prüfdatensatz, den der
+      # Prüflauf danach selbst wieder löscht.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Muss beim Bauen gesetzt sein, sonst baut der Vergleichsstand mit
+      # noindex und die Prüfung erwartet das Gegenteil von dem, was live steht.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+
+    steps:
+      - name: Zugangsdaten prüfen
+        run: |
+          fehlend=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ]  || fehlend="$fehlend CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || fehlend="$fehlend CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$fehlend" ]; then
+            echo "Zugangsdaten fehlen:$fehlend"
+            exit 1
+          fi
+          echo "Zugangsdaten vorhanden."
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      # Nur der Vergleichsstand: Aus dist/ liest der Prüflauf, welche Seiten
+      # es geben muss. Ausgeliefert wird davon nichts.
+      - name: Vergleichsstand bauen
+        run: npm run build
+
+      # Alles, was die eigene Domain betrifft und was eine Prüfung gegen die
+      # *.pages.dev-Adresse grundsätzlich nicht sehen kann.
+      - name: Domain, Verschlüsselung, Umleitung
+        env:
+          ADRESSE: ${{ inputs.adresse }}
+        run: |
+          set -u
+          befund=0
+          host="${ADRESSE#https://}"; host="${host#http://}"; host="${host%%/*}"
+          wurzel="${host#www.}"
+
+          echo "== Zertifikat: $host =="
+          echo | openssl s_client -servername "$host" -connect "$host:443" 2>/dev/null \
+            | openssl x509 -noout -issuer -subject -dates \
+            || { echo "FEHLER kein Zertifikat abrufbar"; befund=1; }
+
+          echo
+          echo "== Aufruf über HTTPS =="
+          code=$(curl -sS -o /dev/null -w '%{http_code}' "$ADRESSE/") || code=000
+          echo "$ADRESSE/ -> $code"
+          [ "$code" = "200" ] || { echo "FEHLER erwartet 200"; befund=1; }
+
+          echo
+          echo "== Aufruf über HTTP (muss umgeleitet werden) =="
+          ziel=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "http://$host/") || ziel="000"
+          echo "http://$host/ -> $ziel"
+          case "$ziel" in
+            30*\ https://*) : ;;
+            *) echo "FEHLER erwartet Umleitung auf https"; befund=1 ;;
+          esac
+
+          echo
+          echo "== Wurzeldomain (nur Bericht, sie ist nicht am Projekt eingetragen) =="
+          curl -sS -o /dev/null -w "https://$wurzel/ -> %{http_code} %{redirect_url}\n" \
+            "https://$wurzel/" || echo "https://$wurzel/ -> nicht erreichbar"
+
+          echo
+          echo "== Entfernte Adresse app.$wurzel (darf nicht mehr auflösen) =="
+          if getent hosts "app.$wurzel" >/dev/null 2>&1; then
+            echo "HINWEIS app.$wurzel löst weiterhin auf"
+          else
+            echo "ok app.$wurzel löst nicht mehr auf"
+          fi
+
+          exit $befund
+
+      # Seiten, Fehlerseite, noindex/kanonisch/Sitemap, Serverteil nicht
+      # öffentlich, /api/anfrage, Ablage im Anfragenspeicher, Ablehnung einer
+      # unvollständigen Anfrage. Der Prüfdatensatz wird wieder gelöscht.
+      - name: Seiten, Formular, Ablage, Versand
+        env:
+          ADRESSE: ${{ inputs.adresse }}
+          PRUEFUNG_VERSAND: ${{ inputs.versand && '1' || '0' }}
+        run: npm run pruefen:pages -- "$ADRESSE"
+
+      - name: Zusammenfassung
+        if: always()
+        env:
+          ADRESSE: ${{ inputs.adresse }}
+          VERSAND: ${{ inputs.versand && 'ja' || 'nein' }}
+          ERGEBNIS: ${{ job.status }}
+        run: |
+          {
+            echo "## Abnahme"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Ergebnis | $ERGEBNIS |"
+            echo "| Adresse | $ADRESSE |"
+            echo "| Versand mitgeprüft | $VERSAND |"
+          } >> "$GITHUB_STEP_SUMMARY"
