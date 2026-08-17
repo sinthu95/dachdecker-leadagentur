@@ -24,6 +24,8 @@ import {
   KV_LEADS,
   DOMAINS,
   BINDUNGEN,
+  MAIL,
+  umgebungsWerte,
   api,
   kontoPfad,
   zugang,
@@ -112,6 +114,17 @@ ok(`LEADS gefunden: „${namensraum.title}" (${KV_LEADS})`);
 console.log('\nPages-Projekt');
 let projekt = await projektLesen();
 
+/**
+ * Was je Umgebung geschrieben wird.
+ *
+ * Zusammengeführt, nicht ersetzt: Was bereits am Projekt hängt und hier nicht
+ * vorkommt, bleibt stehen. Cloudflare führt `deployment_configs` beim PATCH
+ * zusammen und löscht einen Wert nur, wenn er ausdrücklich auf `null` gesetzt
+ * wird — das passiert hier nirgends. Der Prüfschritt unten weist nach, dass
+ * es tatsächlich so ist, statt sich darauf zu verlassen.
+ */
+const umgebungsBlock = () => ({ ...BINDUNGEN, env_vars: umgebungsWerte() });
+
 if (!projekt) {
   info(`${PROJEKT} existiert noch nicht — wird angelegt`);
   projekt = await api(kontoPfad('/pages/projects'), {
@@ -121,7 +134,7 @@ if (!projekt) {
       production_branch: PRODUKTIONSZWEIG,
       // Beide Umgebungen gleich ausstatten: Bei Pages erbt die Vorschau
       // nichts von der Produktion. Der Testlauf läuft als Vorschau.
-      deployment_configs: { production: BINDUNGEN, preview: BINDUNGEN },
+      deployment_configs: { production: umgebungsBlock(), preview: umgebungsBlock() },
     }),
   });
   ok(`angelegt: ${PROJEKT}`);
@@ -130,7 +143,7 @@ if (!projekt) {
   projekt = await api(kontoPfad(`/pages/projects/${PROJEKT}`), {
     method: 'PATCH',
     body: JSON.stringify({
-      deployment_configs: { production: BINDUNGEN, preview: BINDUNGEN },
+      deployment_configs: { production: umgebungsBlock(), preview: umgebungsBlock() },
     }),
   });
   ok('Bindungen aktualisiert');
@@ -154,8 +167,33 @@ for (const umgebung of ['production', 'preview']) {
   }
 }
 
+// --- Gegenprobe der Benachrichtigung --------------------------------------
+// Gelesen wird nur, ob ein Wert da ist und welcher Art er ist. Cloudflare gibt
+// `secret_text` ohne Inhalt zurück — der Schlüssel steht damit nirgends im
+// Protokoll, auch nicht versehentlich.
+console.log('\nBenachrichtigung');
+for (const umg of ['production', 'preview']) {
+  const vars = geprueft?.deployment_configs?.[umg]?.env_vars ?? {};
+  for (const name of ['LEAD_NOTIFY_EMAIL', 'LEAD_FROM_EMAIL', 'RESEND_API_KEY']) {
+    const e = vars[name];
+    if (!e) {
+      if (name === 'RESEND_API_KEY') {
+        info(`${name} fehlt in „${umg}" — ohne ihn wird nichts versendet.` +
+          ' Als Actions-Secret hinterlegen, dann setzt der nächste Lauf ihn.');
+      } else {
+        console.log(`  FEHLER ${name} fehlt in „${umg}"`);
+        fehler += 1;
+      }
+      continue;
+    }
+    // Klartextwerte dürfen genannt werden, Geheimnisse nie.
+    const zusatz = e.type === 'secret_text' ? 'verschlüsselt hinterlegt' : e.value;
+    ok(`${name} in „${umg}": ${zusatz}`);
+  }
+}
+
 if (fehler) {
-  console.error('\nAbbruch: Die Bindung ist nicht gesetzt.');
+  console.error('\nAbbruch: Bindung oder Benachrichtigung sind nicht vollständig gesetzt.');
   process.exit(1);
 }
 
