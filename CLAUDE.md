@@ -60,12 +60,14 @@ Redaktion, nicht Software-Startup.
   erzeugt mit `tools/schriften.mjs`.
 - **Fotografie wird nicht erfunden.** Fehlende Aufnahmen stehen als `<Bildfeld>` mit
   Motiv, Ausschnitt und Format. Die vollständige Liste steht im README unter
-  „Benötigte Fotografie". Keine bildgenerierten Aufnahmen. Lizenzierte
-  Material- und Architekturaufnahmen sind als dokumentierter Übergang erlaubt
-  (Registratur in `src/config/motive.ts`, Quelle sichtbar in der Bemaßung) —
-  **keine Stock-Menschen bei der Arbeit**: Fremde Hände als „unsere Baustelle"
-  auszugeben wäre genau die Erfindung, die diese Seite nicht macht. B-03 bleibt
-  Bildfeld, bis ein eigenes Shooting es füllt.
+  „Benötigte Fotografie". Übergangsmotive sind erlaubt — lizenzierte Aufnahmen
+  ebenso wie die drei KI-generierten, die seit dem 14.08.2026 auf ausdrückliche
+  Anweisung des Inhabers stehen. Bedingung ist in jedem Fall dieselbe:
+  **Registratur in `src/config/motive.ts` und die Quelle sichtbar unter dem
+  Bild** (`Motiv.astro`, Eigenschaft `nachweis`) — bei den KI-Bildern
+  „Symbolbild · KI-generiert". Der Nachweis ist der Preis dafür, dass diese
+  Bilder stehen dürfen: Ohne ihn behauptet die Seite eine eigene Baustelle, die
+  es nicht gibt. Ein Motiv ohne sichtbaren Nachweis kommt nicht auf die Seite.
 - **Schemata erklären, sie behaupten nicht.** `SchemaAnfrageweg` und `SchemaGebiet`
   zeigen den Ablauf als Konstruktionszeichnung — keine nachgebauten Bildschirmfotos
   eines Werbekontos, keine Volumina, keine Rankings. Wo Beispielwerte nötig sind
@@ -167,10 +169,9 @@ Die Seite ist **live und öffentlich indexierbar**:
 Zuletzt vollständig geprüft am 17.08.2026 gegen die echte Domain, mit echtem
 Mailversand: **0 Befunde**.
 
-Nicht mehr zutreffend, aber an einzelnen Stellen noch so beschrieben: der
-README-Abschnitt „Status: noch nicht öffentlich" und die Kommentare „OFFEN 1/2"
-in `wrangler.jsonc`. Beide beziehen sich auf den Worker-Weg und den Zustand vor
-dem Livegang — siehe „Offene Punkte".
+README und `wrangler.jsonc` sind am 17.08.2026 auf diesen Stand nachgezogen
+worden. Wo dort noch der Zustand vor dem Livegang beschrieben stand — „Status:
+noch nicht öffentlich", „OFFEN 1/2" —, steht jetzt der Livestand.
 
 ## Projektstruktur und wichtige Dateien
 
@@ -387,12 +388,9 @@ ein Widerspruch in der Datenschutzerklärung.
 3. **`app.ssleadcraft.de` steht noch am Pages-Projekt.** Wirkungslos, da kein
    DNS-Eintrag mehr darauf zeigt; erscheint aber in der Adressliste jeder
    Ausspielung.
-4. **README und `wrangler.jsonc` sind an Stellen veraltet.** Der Abschnitt
-   „Status: noch nicht öffentlich" und die Kommentare „OFFEN 1/2" beschreiben den
-   Zustand vor dem Livegang bzw. den Worker-Weg. Inhaltlich falsch für Pages.
-5. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
+4. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
    entschieden, ob der Worker `ss-leadcraft` bleibt oder abgebaut wird.
-6. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
+5. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
    Einwilligungsdialog und eine Ergänzung der Datenschutzerklärung — beides ist
    dort bereits angekündigt.
 
@@ -423,11 +421,9 @@ In dieser Reihenfolge sinnvoll — nichts davon ist begonnen:
 2. **Entscheiden, was `ssleadcraft.de` ohne `www` tun soll** — Weiterleitung bei
    STRATO einrichten oder die kurze Form nirgends verwenden.
 3. **`app.ssleadcraft.de` am Pages-Projekt entfernen**, sobald bestätigt.
-4. **README und `wrangler.jsonc` an den Livestand angleichen**, damit keine zwei
-   Wahrheiten nebeneinander stehen.
-5. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
+4. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
    Konfiguration abgebaut werden — das nimmt eine ganze Fehlerquelle heraus.
-6. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
+5. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
    Datenschutzerklärung vorher ergänzen.
 
 # Diese Datei pflegen
