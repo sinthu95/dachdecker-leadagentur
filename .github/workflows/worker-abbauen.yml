@@ -1,0 +1,84 @@
+# Abbau des Workers `ss-leadcraft` bei Cloudflare.
+#
+# Ausgeliefert wird über Pages. Der Worker wird von keinem Ablauf mehr
+# beliefert und trägt keine eigene Domain — zwei Wege ins Netz, von denen nur
+# einer benutzt wird, und beide mit Zugriff auf denselben Anfragenspeicher.
+#
+# Nur von Hand, und nur mit wörtlicher Bestätigung. Ohne sie sieht der Lauf
+# bloß nach und berichtet; das ist der Normalfall. Ein Löschbefehl, der aus
+# Versehen ausgelöst werden kann, ist keiner, den man haben will.
+#
+# Der Ablauf fasst weder das Pages-Projekt noch den Namensraum LEADS an. Nach
+# dem Abbau wird beides nachgelesen und nachgewiesen.
+
+name: Worker abbauen
+
+on:
+  workflow_dispatch:
+    inputs:
+      bestaetigung:
+        description: >-
+          Zum Löschen wörtlich eintragen: ss-leadcraft abbauen
+          — leer lassen, um nur nachzusehen.
+        type: string
+        default: ''
+
+concurrency:
+  group: worker-abbauen
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  abbauen:
+    name: Worker nachsehen und abbauen
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+    steps:
+      - name: Zugangsdaten prüfen
+        run: |
+          fehlend=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ]  || fehlend="$fehlend CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || fehlend="$fehlend CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$fehlend" ]; then
+            echo "Zugangsdaten fehlen:$fehlend"
+            exit 1
+          fi
+          echo "Zugangsdaten vorhanden."
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      # Die Bestätigung geht über die Umgebung in den Befehl, nicht per
+      # Einsetzung in die Befehlszeile: Ein eingesetzter Wert wäre Text, den
+      # die Shell auswertet, bevor er irgendwo ankommt.
+      - name: Abbauen
+        env:
+          BESTAETIGUNG: ${{ inputs.bestaetigung }}
+        run: node tools/worker-abbauen.mjs
+
+      - name: Zusammenfassung
+        if: always()
+        env:
+          ERGEBNIS: ${{ job.status }}
+          BESTAETIGT: ${{ inputs.bestaetigung != '' && 'ja' || 'nein — nur nachgesehen' }}
+        run: |
+          {
+            echo "## Worker abbauen"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Ergebnis | $ERGEBNIS |"
+            echo "| Gelöscht | $BESTAETIGT |"
+          } >> "$GITHUB_STEP_SUMMARY"
