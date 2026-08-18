@@ -91,6 +91,29 @@ export const KV_LEADS = '71bb7eb8ae0d4c659ace074645a6a72c';
  */
 export const DOMAINS = ['www.ssleadcraft.de'];
 
+/**
+ * Namentlich freigegebene Abmeldungen.
+ *
+ * Die Einrichtung räumt von sich aus nur Domains ab, die Cloudflare **nicht**
+ * als aktiv führt. Eine aktive Domain wird nie automatisch entfernt: Sie
+ * könnte gerade Verkehr ausliefern, und ein Werkzeug, das eine laufende
+ * Adresse stilllegt, weil eine Liste sie nicht kennt, wäre gefährlich.
+ *
+ * Diese Liste ist der Weg daran vorbei — und zwar nur für den Namen, der hier
+ * ausdrücklich steht. Cloudflare führt eine Domain noch als „active", wenn
+ * das Zertifikat einmal ausgestellt wurde; ob überhaupt noch ein DNS-Eintrag
+ * darauf zeigt, weiß es nicht. Genau dieser Fall ist gemeint.
+ *
+ * `app.ssleadcraft.de`: CNAME bei STRATO entfernt, die Adresse löst seit dem
+ * 17.08.2026 nicht mehr auf. Am Projekt stand sie weiter und tauchte in der
+ * Adressliste jeder Ausspielung auf. Entfernung am 17.08.2026 vom Inhaber
+ * ausdrücklich freigegeben.
+ *
+ * Nach getaner Arbeit gehört ein Name hier wieder heraus: Die Liste ist ein
+ * Auftrag, kein Dauerzustand.
+ */
+export const DOMAINS_ABMELDEN = ['app.ssleadcraft.de'];
+
 /** Wie beim Worker: dieselbe Laufzeit soll denselben Code ausführen. */
 export const KOMPATIBILITAET_DATUM = '2026-08-11';
 export const KOMPATIBILITAET_FLAGGEN = ['nodejs_compat'];
