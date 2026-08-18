@@ -104,15 +104,17 @@ export const DOMAINS = ['www.ssleadcraft.de'];
  * das Zertifikat einmal ausgestellt wurde; ob überhaupt noch ein DNS-Eintrag
  * darauf zeigt, weiß es nicht. Genau dieser Fall ist gemeint.
  *
- * `app.ssleadcraft.de`: CNAME bei STRATO entfernt, die Adresse löst seit dem
- * 17.08.2026 nicht mehr auf. Am Projekt stand sie weiter und tauchte in der
- * Adressliste jeder Ausspielung auf. Entfernung am 17.08.2026 vom Inhaber
- * ausdrücklich freigegeben.
+ * Die Liste ist ein Auftrag, kein Dauerzustand: Ist ein Name abgemeldet,
+ * gehört er wieder heraus. Ein Eintrag, der jahrelang stehenbleibt, wird
+ * irgendwann nicht mehr gelesen — und dann räumt er etwas ab, an das niemand
+ * mehr gedacht hat.
  *
- * Nach getaner Arbeit gehört ein Name hier wieder heraus: Die Liste ist ein
- * Auftrag, kein Dauerzustand.
+ * Bisher stand hier: `app.ssleadcraft.de`. Der CNAME bei STRATO war entfernt,
+ * die Adresse löste nicht mehr auf, Cloudflare führte sie aber weiter als
+ * „active", weil das Zertifikat einmal ausgestellt worden war. Abgemeldet am
+ * 18.08.2026 nach ausdrücklicher Freigabe des Inhabers.
  */
-export const DOMAINS_ABMELDEN = ['app.ssleadcraft.de'];
+export const DOMAINS_ABMELDEN = [];
 
 /** Wie beim Worker: dieselbe Laufzeit soll denselben Code ausführen. */
 export const KOMPATIBILITAET_DATUM = '2026-08-11';

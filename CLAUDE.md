@@ -242,6 +242,13 @@ glauben.
 Eigene Domains stehen in `DOMAINS`. Eine dort nicht genannte Domain wird entfernt
 — **außer sie ist aktiv**; eine aktive Domain wird nur gemeldet, nie angetastet.
 
+Die eine Ausnahme ist `DOMAINS_ABMELDEN`: Dort steht ein Name, den ein Mensch
+ausdrücklich zur Abmeldung freigegeben hat — der Weg für den Fall, dass
+Cloudflare eine Domain noch als „active" führt, obwohl längst kein DNS-Eintrag
+mehr darauf zeigt. Die Liste ist ein Auftrag und wird nach getaner Arbeit wieder
+geleert; sie steht normalerweise leer. Nach jedem Lauf wird der Stand der
+Domains zurückgelesen und nachgewiesen, statt dem Rückgabewert zu glauben.
+
 ## GitHub- und Auslieferungsablauf
 
 Zwei Abläufe, beide in `.github/workflows/`:
@@ -319,7 +326,7 @@ Entscheidung, keine Übergangslösung (Begründung unten).
 | --- | --- |
 | `www.ssleadcraft.de` | CNAME bei STRATO → `dachdecker-leadagentur-pages.pages.dev.` · am Projekt **aktiv** · Zertifikat von Google Trust Services, erneuert sich selbst |
 | `ssleadcraft.de` (ohne www) | zeigt weiter auf STRATO · **kein HTTPS**, der Aufruf scheitert am Zertifikat |
-| `app.ssleadcraft.de` | CNAME entfernt, löst nicht mehr auf · am Pages-Projekt **noch als aktiv geführt** (Stand 17.08.2026) |
+| `app.ssleadcraft.de` | CNAME entfernt, löst nicht mehr auf · am Pages-Projekt **abgemeldet** am 18.08.2026 |
 | `resend._domainkey`, `send` | DKIM und SPF für den Mailversand — **nicht anfassen** |
 
 ## Bereits durchgeführte Prüfungen
@@ -385,12 +392,9 @@ ein Widerspruch in der Datenschutzerklärung.
 2. **`ssleadcraft.de` ohne `www` liefert nicht aus.** Für Anzeigen folgenlos —
    dort steht die vollständige Zieladresse. Es trifft, wer die kurze Form
    eintippt. Behebung ist eine STRATO-Änderung und braucht eine Entscheidung.
-3. **`app.ssleadcraft.de` steht noch am Pages-Projekt.** Wirkungslos, da kein
-   DNS-Eintrag mehr darauf zeigt; erscheint aber in der Adressliste jeder
-   Ausspielung.
-4. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
+3. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
    entschieden, ob der Worker `ss-leadcraft` bleibt oder abgebaut wird.
-5. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
+4. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
    Einwilligungsdialog und eine Ergänzung der Datenschutzerklärung — beides ist
    dort bereits angekündigt.
 
@@ -420,10 +424,9 @@ In dieser Reihenfolge sinnvoll — nichts davon ist begonnen:
    Kennzeichnungsfrage zu den KI-Bildern. Vor dem Werbestart.
 2. **Entscheiden, was `ssleadcraft.de` ohne `www` tun soll** — Weiterleitung bei
    STRATO einrichten oder die kurze Form nirgends verwenden.
-3. **`app.ssleadcraft.de` am Pages-Projekt entfernen**, sobald bestätigt.
-4. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
+3. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
    Konfiguration abgebaut werden — das nimmt eine ganze Fehlerquelle heraus.
-5. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
+4. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
    Datenschutzerklärung vorher ergänzen.
 
 # Diese Datei pflegen
