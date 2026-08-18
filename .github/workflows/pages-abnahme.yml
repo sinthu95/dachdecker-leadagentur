@@ -109,9 +109,41 @@ jobs:
           esac
 
           echo
+          # Die Wurzeldomain steht nicht am Pages-Projekt und ist deshalb nur
+          # Bericht, kein Befund — sie auszuliefern ist eine Entscheidung, kein
+          # Muss.
+          #
+          # Geprüft werden beide Schemata, und das ist der Punkt: Eine
+          # Weiterleitung ist selbst eine HTTP-Antwort. Fehlt für die Wurzel
+          # ein Zertifikat, bricht die Verbindung ab, bevor sie überhaupt
+          # gesendet wird — über `http://` greift die Weiterleitung dann,
+          # über `https://` nicht. Wer nur eines von beiden abfragt, hält den
+          # halben Zustand für den ganzen.
           echo "== Wurzeldomain (nur Bericht, sie ist nicht am Projekt eingetragen) =="
-          curl -sS -o /dev/null -w "https://$wurzel/ -> %{http_code} %{redirect_url}\n" \
-            "https://$wurzel/" || echo "https://$wurzel/ -> nicht erreichbar"
+          erwartet="https://www.$wurzel/"
+          for schema in http https; do
+            if antwort=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$schema://$wurzel/" 2>/tmp/wurzel-fehler); then
+              code=${antwort%% *}
+              ziel=${antwort#* }
+              echo "  $schema://$wurzel/ -> $code ${ziel:-—}"
+              case "$code" in
+                301) [ "$ziel" = "$erwartet" ] \
+                       && echo "  ok Weiterleitung greift über $schema, dauerhaft (301)" \
+                       || echo "  HINWEIS 301, aber Ziel ist nicht $erwartet" ;;
+                302|303|307|308) echo "  HINWEIS Weiterleitung greift, aber nicht dauerhaft ($code) — 301 wäre richtig" ;;
+                200) echo "  HINWEIS antwortet selbst mit einer Seite, statt weiterzuleiten" ;;
+                *)   echo "  HINWEIS unerwartete Antwort $code" ;;
+              esac
+            else
+              echo "  $schema://$wurzel/ -> nicht erreichbar: $(tr -d '\n' < /tmp/wurzel-fehler)"
+              # Kein `[ … ] && echo`: Der Schritt läuft unter `bash -e`, und
+              # ein falscher Test wäre dort ein fehlgeschlagener Befehl — der
+              # Ablauf bräche mitten im Bericht ab.
+              if [ "$schema" = https ]; then
+                echo "  HINWEIS über https nicht erreichbar — für die Wurzel fehlt ein gültiges Zertifikat"
+              fi
+            fi
+          done
 
           echo
           echo "== Entfernte Adresse app.$wurzel (darf nicht mehr auflösen) =="
