@@ -23,6 +23,7 @@ import {
   PRODUKTIONSZWEIG,
   KV_LEADS,
   DOMAINS,
+  DOMAINS_ABMELDEN,
   BINDUNGEN,
   MAIL,
   umgebungsWerte,
@@ -233,18 +234,66 @@ if (DOMAINS.length) {
   // mehr: Sie war einmal eingetragen, der CNAME ist weg, Cloudflare kann sie
   // nicht mehr bestätigen. Solche Reste werden entfernt.
   //
-  // Eine **aktive** Domain wird niemals angefasst, auch wenn sie hier nicht
-  // steht — sie liefert gerade Verkehr aus. Sie wird nur gemeldet, damit die
-  // Entscheidung bei einem Menschen bleibt. Ein Werkzeug, das eine laufende
-  // Adresse stilllegt, weil eine Liste sie nicht kennt, wäre gefährlich.
+  // Eine **aktive** Domain wird niemals von selbst angefasst, auch wenn sie
+  // hier nicht steht — sie liefert gerade Verkehr aus. Sie wird nur gemeldet,
+  // damit die Entscheidung bei einem Menschen bleibt. Ein Werkzeug, das eine
+  // laufende Adresse stilllegt, weil eine Liste sie nicht kennt, wäre
+  // gefährlich.
+  //
+  // Die eine Ausnahme ist DOMAINS_ABMELDEN: dort steht ein Name, den ein
+  // Mensch ausdrücklich zur Abmeldung freigegeben hat. Das ist kein
+  // Aufweichen der Regel, sondern ihr Gegenstück — die Entscheidung bleibt
+  // beim Menschen, sie ist nur aufgeschrieben statt angeklickt.
+  for (const name of DOMAINS_ABMELDEN) {
+    if (DOMAINS.includes(name)) {
+      // Ein Name in beiden Listen wäre ein Widerspruch: anlegen und abmelden
+      // im selben Lauf. Lieber laut abbrechen als raten, was gemeint war.
+      throw new Error(
+        `${name} steht in DOMAINS und in DOMAINS_ABMELDEN. Einer von beiden Einträgen ist falsch.`,
+      );
+    }
+    const eintrag = bekannt.get(name);
+    if (!eintrag) {
+      info(`${name} steht nicht mehr am Projekt — nichts abzumelden`);
+      continue;
+    }
+    await api(kontoPfad(`/pages/projects/${PROJEKT}/domains/${name}`), { method: 'DELETE' });
+    ok(`${name} abgemeldet (Stand „${eintrag.status}", ausdrücklich freigegeben)`);
+  }
+
   for (const [name, eintrag] of bekannt) {
     if (DOMAINS.includes(name)) continue;
+    if (DOMAINS_ABMELDEN.includes(name)) continue; // oben schon erledigt
     if (eintrag.status === 'active') {
       info(`${name} ist aktiv, steht aber nicht in DOMAINS — bleibt unangetastet`);
       continue;
     }
     await api(kontoPfad(`/pages/projects/${PROJEKT}/domains/${name}`), { method: 'DELETE' });
     ok(`${name} entfernt (Stand „${eintrag.status}", kein Verkehr)`);
+  }
+
+  // --- Gegenprobe ---------------------------------------------------------
+  // Wie bei den Bindungen: nicht dem Rückgabewert glauben, sondern nachlesen.
+  // Ein DELETE, das die API annimmt, ohne den Eintrag zu entfernen, sähe von
+  // außen wie Erfolg aus — und der Name stünde beim nächsten Mal wieder da.
+  const danach = new Set(
+    ((await api(kontoPfad(`/pages/projects/${PROJEKT}/domains`))) ?? []).map((d) => d.name),
+  );
+  for (const name of DOMAINS) {
+    if (!danach.has(name)) {
+      console.log(`  FEHLER ${name} steht nach dem Lauf nicht mehr am Projekt`);
+      fehler += 1;
+    }
+  }
+  for (const name of DOMAINS_ABMELDEN) {
+    if (danach.has(name)) {
+      console.log(`  FEHLER ${name} steht trotz Abmeldung weiterhin am Projekt`);
+      fehler += 1;
+    }
+  }
+  if (fehler) {
+    console.error('\nAbbruch: Der Stand der eigenen Domains ist nicht der erwartete.');
+    process.exit(1);
   }
 }
 
