@@ -325,7 +325,7 @@ Entscheidung, keine Übergangslösung (Begründung unten).
 | Name | Stand |
 | --- | --- |
 | `www.ssleadcraft.de` | CNAME bei STRATO → `dachdecker-leadagentur-pages.pages.dev.` · am Projekt **aktiv** · Zertifikat von Google Trust Services, erneuert sich selbst |
-| `ssleadcraft.de` (ohne www) | zeigt weiter auf STRATO · **kein HTTPS**, der Aufruf scheitert am Zertifikat |
+| `ssleadcraft.de` (ohne www) | zeigt auf STRATO · **Weiterleitung mit 301 auf `https://www.ssleadcraft.de/`**, über http und https · Zertifikat bei STRATO, aktiviert am 18.08.2026 |
 | `app.ssleadcraft.de` | CNAME entfernt, löst nicht mehr auf · am Pages-Projekt **abgemeldet** am 18.08.2026 |
 | `resend._domainkey`, `send` | DKIM und SPF für den Mailversand — **nicht anfassen** |
 
@@ -389,12 +389,9 @@ ein Widerspruch in der Datenschutzerklärung.
    ob die KI-generierten Bilder eine Kennzeichnung nach Art. 50 KI-VO bzw.
    § 5 UWG brauchen. Der einzige Punkt, der vor einem Werbestart als kritisch
    einzustufen ist.
-2. **`ssleadcraft.de` ohne `www` liefert nicht aus.** Für Anzeigen folgenlos —
-   dort steht die vollständige Zieladresse. Es trifft, wer die kurze Form
-   eintippt. Behebung ist eine STRATO-Änderung und braucht eine Entscheidung.
-3. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
+2. **Zwei Auslieferungswege stehen weiter nebeneinander.** Es ist nicht
    entschieden, ob der Worker `ss-leadcraft` bleibt oder abgebaut wird.
-4. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
+3. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
    Einwilligungsdialog und eine Ergänzung der Datenschutzerklärung — beides ist
    dort bereits angekündigt.
 
@@ -422,11 +419,9 @@ In dieser Reihenfolge sinnvoll — nichts davon ist begonnen:
 
 1. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der
    Kennzeichnungsfrage zu den KI-Bildern. Vor dem Werbestart.
-2. **Entscheiden, was `ssleadcraft.de` ohne `www` tun soll** — Weiterleitung bei
-   STRATO einrichten oder die kurze Form nirgends verwenden.
-3. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
+2. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
    Konfiguration abgebaut werden — das nimmt eine ganze Fehlerquelle heraus.
-4. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
+3. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
    Datenschutzerklärung vorher ergänzen.
 
 # Diese Datei pflegen

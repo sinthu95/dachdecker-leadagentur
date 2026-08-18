@@ -434,13 +434,21 @@ setzt `public/_headers` HSTS für ein Jahr — bewusst **ohne** `preload`: Das
 trüge die Domain in eine in Browsern ausgelieferte Liste ein, und wieder
 herauszukommen dauert Monate.
 
-`ssleadcraft.de` ohne `www` zeigt weiter auf STRATO und liefert **kein HTTPS
-aus** — der Aufruf scheitert am Zertifikat. Für Anzeigen ist das folgenlos,
-dort steht die vollständige Zieladresse; es trifft, wer die kurze Form
-eintippt. Wer den Apex ebenfalls auf die Seite führen will, richtet bei STRATO
-eine Domainweiterleitung auf `https://www.ssleadcraft.de` ein. Über Cloudflare
-ginge es nur mit einem Wechsel der Nameserver — und damit über die
-Resend-Einträge.
+`ssleadcraft.de` ohne `www` zeigt weiter auf STRATO und wird von dort seit dem
+18.08.2026 **mit 301 auf `https://www.ssleadcraft.de/` weitergeleitet** — über
+`http` wie über `https`. Der Apex steht dafür nicht am Pages-Projekt und
+braucht es auch nicht; es ist eine Domainweiterleitung im STRATO-Kundenbereich,
+ohne Frame und ohne Maskierung.
+
+Dazu gehört zwingend ein Zertifikat für die Wurzel: Eine Weiterleitung ist
+selbst eine HTTP-Antwort, und ohne Zertifikat bricht die Verbindung ab, bevor
+sie gesendet wird. Über `http` griff die Weiterleitung dann bereits, über
+`https` noch nicht — ein Zustand, den man leicht für „eingerichtet" hält.
+Deshalb prüft die Abnahme beide Schemata.
+
+Über Cloudflare ginge der Apex nur mit einem Wechsel der Nameserver — und
+damit über die Resend-Einträge. Das ist der Grund, warum es die
+STRATO-Weiterleitung geworden ist.
 
 ### Benachrichtigung über neue Anfragen
 
@@ -537,8 +545,8 @@ Sobald Google oder Meta mit Pixel laufen, kommt eine Einwilligungslösung dazu �
 Architektur sieht sie vor, sie ist bewusst nicht auf Vorrat gebaut. Die
 Datenschutzerklärung kündigt sie bereits an und muss vorher ergänzt werden.
 
-Die weiteren offenen Punkte — Wurzeldomain ohne HTTPS, Entscheidung über den
-Worker-Weg — stehen in `CLAUDE.md` unter „Bekannte offene Punkte".
+Der weitere offene Punkt — die Entscheidung über den Worker-Weg — steht in
+`CLAUDE.md` unter „Bekannte offene Punkte".
 
 ---
 
