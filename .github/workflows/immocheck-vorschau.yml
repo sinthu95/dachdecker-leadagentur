@@ -1,0 +1,109 @@
+# Öffentliche Vorschau der Immocheck-NRW-Website (Kundenprojekt).
+#
+# Liefert den fertig gebauten Stand aus vorschau-immocheck/stand als
+# EIGENES Cloudflare-Pages-Projekt „immocheck-nrw-vorschau" aus
+# (Adresse: immocheck-nrw-vorschau.pages.dev). Der Quellcode liegt im
+# privaten Repository dachdecker-premium-demo (Ordner immocheck-nrw/,
+# Zweig claude/immocheck-nrw-redesign-tfv0lc); hierher wandert nur der
+# Build, weil nur dieses Repository die Cloudflare-Secrets besitzt.
+#
+# Fasst nichts Bestehendes an: nicht das Pages-Projekt
+# dachdecker-leadagentur-pages, nicht den Worker ss-leadcraft, keine
+# Domains, kein DNS, keinen KV-Namensraum. Der Stand ist vollständig
+# auf noindex gesetzt (X-Robots-Tag und sperrende robots.txt liegen
+# bereits im Ordner).
+#
+# Läuft nur auf dem Arbeitszweig claude/immocheck-nrw-redesign-tfv0lc —
+# main und die Produktionsabläufe bleiben unberührt.
+name: immocheck-vorschau
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/immocheck-nrw-redesign-tfv0lc
+    paths:
+      - 'vorschau-immocheck/**'
+      - '.github/workflows/immocheck-vorschau.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ausliefern:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zugangsdaten prüfen
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          KONTO: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          fehlt=0
+          [ -n "$TOKEN" ] || { echo "::error::CLOUDFLARE_API_TOKEN fehlt"; fehlt=1; }
+          [ -n "$KONTO" ] || { echo "::error::CLOUDFLARE_ACCOUNT_ID fehlt"; fehlt=1; }
+          exit $fehlt
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Pages-Projekt sicherstellen (legt nur Neues an, ändert nichts Bestehendes)
+        working-directory: vorschau-immocheck
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx --yes wrangler@4 pages project create immocheck-nrw-vorschau --production-branch=vorschau \
+            || echo "Projekt existiert bereits — weiter."
+
+      - name: Ausliefern
+        working-directory: vorschau-immocheck
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 pages deploy stand --project-name=immocheck-nrw-vorschau --branch=vorschau --commit-dirty=true
+
+      - name: Erreichbarkeit und Inhalte prüfen
+        run: |
+          basis="https://immocheck-nrw-vorschau.pages.dev"
+          sleep 10
+          pruefe() {
+            code=$(curl -sS -o /dev/null -w '%{http_code}' "$1")
+            echo "PRUEF $code $1"
+            [ "$code" = "$2" ]
+          }
+          pruefe "$basis/" 200
+          pruefe "$basis/leistungen" 200
+          pruefe "$basis/wohnflaechenberechnung" 200
+          pruefe "$basis/grundrisszeichnung" 200
+          pruefe "$basis/objektbesichtigung" 200
+          pruefe "$basis/marktwertermittlung" 200
+          pruefe "$basis/energieausweis" 200
+          pruefe "$basis/schnittzeichnungen-ansichten" 200
+          pruefe "$basis/fuer-makler-und-verwaltungen" 200
+          pruefe "$basis/ueber-uns" 200
+          pruefe "$basis/kontakt" 200
+          pruefe "$basis/impressum" 200
+          pruefe "$basis/datenschutz" 200
+          pruefe "$basis/danke" 200
+          pruefe "$basis/diese-seite-gibt-es-nicht" 404
+          css=$(curl -sS "$basis/" | grep -o '/_astro/[^"]*\.css' | head -1)
+          echo "CSS-Datei: $css"
+          pruefe "$basis$css" 200
+          pruefe "$basis/fonts/source-serif-4-latin-400-normal.woff2" 200
+          pruefe "$basis/fonts/public-sans-latin-400-normal.woff2" 200
+          pruefe "$basis/favicon.svg" 200
+          echo "— noindex-Kopfzeile:"
+          curl -sSI "$basis/" | grep -i x-robots-tag
+          echo "— robots.txt:"
+          curl -sS "$basis/robots.txt"
+          echo "— Formularfunktion (Honigtopf-Testfall: wird als Verdacht einsortiert, kein Versand, keine Ablage ohne KV):"
+          formular=$(curl -sS -o /dev/null -w '%{http_code}' -X POST "$basis/api/anfrage" \
+            -H 'X-Anfrage: fetch' \
+            -F name=Prueflauf -F email=pruef@example.com -F leistung=anderes -F ort=Pruefort \
+            -F datenschutz=ja -F firma_seite=pruefung -F beginn=1 -F js=ja)
+          echo "PRUEF $formular POST /api/anfrage"
+          [ "$formular" = "200" ]
+          echo "VORSCHAU-PRUEFUNG OHNE BEFUND: $basis"

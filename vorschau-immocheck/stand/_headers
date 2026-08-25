@@ -1,0 +1,12 @@
+# Sicherheitskopfzeilen — von Cloudflare Pages ausgewertet.
+# HSTS bewusst noch nicht gesetzt: erst mit der endgültigen Domain-Entscheidung
+# beim Livegang. Eine strenge CSP folgt nach Prüfung der tatsächlich
+# ausgelieferten Inline-Bestandteile.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+/*
+  X-Robots-Tag: noindex
