@@ -15,8 +15,9 @@ noindex gesetzten Vorschau-Stand der neuen Immocheck-NRW-Website
   Cloudflare-Secrets besitzt. Er fasst weder das Pages-Projekt
   `dachdecker-leadagentur-pages` noch den Worker `ss-leadcraft`,
   Domains, DNS oder den KV-Namensraum `LEADS` an.
-- Aktualisieren: im Quellprojekt bauen, `dist/` nach `stand/` kopieren
-  (robots.txt und der X-Robots-Tag-Block in `_headers` bleiben auf
-  noindex), committen — der Push liefert automatisch aus.
+- Aktualisieren: im Quellprojekt bauen, `dist/` nach `stand/` **und
+  `functions/` nach `functions/`** kopieren (robots.txt und der
+  X-Robots-Tag-Block in `_headers` bleiben auf noindex), committen —
+  der Push liefert automatisch aus.
 
 Dieser Ordner wird **nicht nach `main` gemergt**.
