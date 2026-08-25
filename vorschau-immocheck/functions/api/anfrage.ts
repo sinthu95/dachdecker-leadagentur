@@ -64,17 +64,31 @@ export async function onRequestPost(kontext: FunktionsKontext): Promise<Response
   }
 
   const name = textFeld(daten, 'name', 200);
-  const email = textFeld(daten, 'email', 200);
-  const telefon = textFeld(daten, 'telefon', 60);
+  let email = textFeld(daten, 'email', 200);
+  let telefon = textFeld(daten, 'telefon', 60);
   const leistung = textFeld(daten, 'leistung', 60);
   const ort = textFeld(daten, 'ort', 120);
   const nachricht = textFeld(daten, 'nachricht', 4000);
   const rueckruf = textFeld(daten, 'rueckruf', 4) === 'ja';
   const datenschutz = textFeld(daten, 'datenschutz', 4) === 'ja';
 
-  // Pflichtfelder serverseitig — der Browser ist nur die erste Stufe
-  if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || ort.length < 3 || !BEKANNTE_LEISTUNGEN.has(leistung)) {
-    return antwortFehler(perFetch, 'Bitte füllen Sie Name, E-Mail, Ort und die gewünschte Leistung vollständig aus.');
+  // Schnellanfrage: ein kombiniertes Kontaktfeld — Telefon ODER E-Mail
+  const kontakt = textFeld(daten, 'kontakt', 200);
+  if (kontakt && !email && !telefon) {
+    if (kontakt.includes('@')) email = kontakt;
+    else telefon = kontakt;
+  }
+
+  const emailGueltig = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const telefonGueltig = telefon.replace(/\D/g, '').length >= 6;
+
+  // Pflichtfelder serverseitig — der Browser ist nur die erste Stufe.
+  // Erreichbarkeit genügt über einen Kanal: Telefon oder E-Mail.
+  if (name.length < 2 || ort.length < 3 || !BEKANNTE_LEISTUNGEN.has(leistung) || (!emailGueltig && !telefonGueltig)) {
+    return antwortFehler(
+      perFetch,
+      'Bitte füllen Sie Name, Ort, die gewünschte Leistung sowie Telefonnummer oder E-Mail-Adresse aus.'
+    );
   }
   if (!datenschutz) {
     return antwortFehler(perFetch, 'Ohne Einwilligung in die Datenverarbeitung können wir die Anfrage nicht annehmen.');
@@ -93,7 +107,7 @@ export async function onRequestPost(kontext: FunktionsKontext): Promise<Response
     kennung,
     zeitpunkt,
     name,
-    email,
+    email: email || null,
     telefon: telefon || null,
     leistung,
     ort,
@@ -129,13 +143,13 @@ export async function onRequestPost(kontext: FunktionsKontext): Promise<Response
         body: JSON.stringify({
           from: `Immocheck NRW Website <${env.LEAD_FROM_EMAIL}>`,
           to: [env.LEAD_NOTIFY_EMAIL],
-          reply_to: email,
+          ...(emailGueltig ? { reply_to: email } : {}),
           subject: `Neue Anfrage: ${leistung} — ${ort}`,
           text: [
             `Neue Anfrage über immocheck-nrw.de (${zeitpunkt})`,
             '',
             `Name:      ${name}`,
-            `E-Mail:    ${email}`,
+            `E-Mail:    ${email || '—'}`,
             `Telefon:   ${telefon || '—'}`,
             `Leistung:  ${leistung}`,
             `Objektort: ${ort}`,
