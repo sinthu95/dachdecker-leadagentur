@@ -2,13 +2,31 @@
 import Marke from './Marke.astro';
 import Linie from './Linie.astro';
 import { demoStationen } from '../data/inhalte';
+import { brancheHolen } from '../data/branchen';
 import { site } from '../config/site';
 
 interface Props {
   /** Auf /demo trägt die Seite die Aussage bereits in ihrer h1. */
   kompakt?: boolean;
+  /**
+   * Schlüssel aus `src/data/branchen.ts`.
+   *
+   * Der Concept Case ist kein allgemeiner Beweis, sondern das Beispielprojekt
+   * einer Branche — gebaut für einen Dachdeckerbetrieb. Auf der
+   * branchenoffenen Hauptseite steht er deshalb nicht mehr für sich, sondern
+   * als das, was die Spezialisierung darüber behauptet: dieselbe Technik,
+   * einmal für eine Branche zu Ende ausgestaltet. Die Eigenschaft benennt die
+   * Branche und verweist auf ihre Seite, statt sie im Fließtext zu verstecken.
+   */
+  branche?: string;
 }
-const { kompakt = false } = Astro.props;
+const { kompakt = false, branche: brancheSchluessel } = Astro.props;
+const branche = brancheHolen(brancheSchluessel);
+
+/* Auf der Branchenseite selbst wäre der Hinweis ein Verweis auf die Seite, die
+   gerade gelesen wird. Der Steckbrief nennt die Branche dort weiterhin. */
+const hier = Astro.url.pathname.replace(/\/$/, '') || '/';
+const zeigeBranchenhinweis = Boolean(branche) && hier !== branche?.pfad;
 
 /**
  * Position jeder Station in der langen Aufnahme, als Anteil der Bildhöhe.
@@ -30,11 +48,11 @@ const zeigeRundgang = !kompakt;
   <div class="schiene pt-[clamp(5rem,12vw,11.5rem)]">
     <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
       <div class="lg:col-span-7">
-        <Marke label="Concept Case" />
+        <Marke label="Beispielprojekt" />
         {
           kompakt ? (
             <h2 id="case-titel" class="sr-only">
-              Der geführte Rundgang durch die Concept Study
+              Der geführte Rundgang durch das Beispielprojekt
             </h2>
           ) : (
             <h2 id="case-titel" class="zeilen mt-8 max-w-[17ch] text-gross lg:mt-10">
@@ -53,16 +71,20 @@ const zeigeRundgang = !kompakt;
       </div>
 
       <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
-        {/* Minimale Einordnung für die branchenoffene Hauptseite: Das Beispiel
-            stammt aus einer Branche, steht aber für den Ablauf, nicht für die
-            Zielgruppe. Endgültig eingeordnet wird es in Phase 3, wenn die
-            Branchenübersicht steht. */}
         <p class="steig vorspann" style="--i:2">
-          Eine vollständig gebaute Concept Study: Positionierung, Auftritt, regionale
+          Ein vollständig gebautes Beispielprojekt: Positionierung, Auftritt, regionale
           Sichtbarkeit und Anfrageweg einmal an einem Beispielbetrieb durchgezogen —
-          damit sichtbar wird, wie die Teile ineinandergreifen. Beispielhaft an einem
-          Dachdeckerbetrieb; der Ablauf ist derselbe, gleich für welche Branche.
+          damit sichtbar wird, wie die Teile ineinandergreifen.
         </p>
+        {
+          branche && zeigeBranchenhinweis && (
+            <p class="steig fliess mt-5 max-w-[42ch] text-klein" style="--i:3">
+              Gebaut für die Branche {branche.name}. Der Ablauf darin ist derselbe wie
+              überall, ausgestaltet ist er für dieses Gewerk:{' '}
+              <a href={branche.pfad}>zur Branchenseite {branche.name}</a>.
+            </p>
+          )
+        }
       </div>
     </div>
 
@@ -74,8 +96,13 @@ const zeigeRundgang = !kompakt;
     >
       {
         [
-          ['Projekt', 'Concept Study, in Eigenregie gebaut'],
-          ['Betrieb', 'Beispielbetrieb aus einer Branche, frei angelegt — kein Kunde'],
+          ['Projekt', 'Beispielprojekt, in Eigenregie gebaut'],
+          [
+            'Betrieb',
+            branche
+              ? `${branche.betrieb}, frei angelegt — kein Kunde`
+              : 'Beispielbetrieb aus einer Branche, frei angelegt — kein Kunde',
+          ],
           ['Umfang', 'Auftritt, Anfragestrecke, Kampagnenstruktur'],
           ['Status', 'Gebaut und öffentlich einsehbar'],
         ].map(([marke, wert]) => (
@@ -204,7 +231,7 @@ const zeigeRundgang = !kompakt;
       <div class="order-2 lg:order-1 lg:col-span-7">
         <h3 class="text-mittel">Mobil ist keine gestauchte Desktopversion.</h3>
         <p class="steig vorspann mt-6 max-w-[44ch]" style="--i:1">
-          Die meisten Dachanfragen entstehen abends auf dem Telefon. Deshalb sind Hero,
+          Die meisten Anfragen entstehen abends auf dem Telefon. Deshalb sind Hero,
           Navigation und Anfragestrecke in der Demo für kleine Bildschirme eigenständig
           komponiert — mit eigener Zeilenführung und einer Telefonnummer, die immer
           erreichbar bleibt.
@@ -260,14 +287,14 @@ const zeigeRundgang = !kompakt;
         {
           !kompakt && (
             <a href="/demo" class="knopf knopf-linie w-full sm:w-auto">
-              Concept Case im Detail
+              Beispielprojekt im Detail
             </a>
           )
         }
       </div>
       <p class="fliess mt-6 max-w-[58ch] text-[0.85rem]">
-        Öffnet in einem neuen Tab. Betriebsname und Kontaktdaten dort sind Teil der
-        Concept Study und gehören zu keinem realen Betrieb.
+        Öffnet in einem neuen Tab. Betriebsname und Kontaktdaten dort sind Teil des
+        Beispielprojekts und gehören zu keinem realen Betrieb.
       </p>
     </div>
   </div>

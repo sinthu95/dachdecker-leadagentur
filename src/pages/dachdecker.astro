@@ -2,27 +2,50 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import Orientierung from '../components/Orientierung.astro';
+import Problem from '../components/Problem.astro';
 import ConceptCase from '../components/ConceptCase.astro';
 import System from '../components/System.astro';
 import Anfrage from '../components/Anfrage.astro';
 import Marke from '../components/Marke.astro';
 import { wettbewerb } from '../data/inhalte';
+import { brancheHolen, BRANCHEN_PFAD } from '../data/branchen';
+import { site } from '../config/site';
 
 /**
- * Landingpage für bezahlten Traffic. Reduzierte Kopfzeile, kein Menü,
- * ein Ziel. Hero-Variante C: Wer hier ankommt, hat bereits gesucht — er
- * braucht Bestätigung, keine Spannung.
+ * Die erste Branchenseite — und weiterhin die Landingpage für bezahlten
+ * Traffic: reduzierte Kopfzeile, kein Menü, ein Ziel. Wer hier ankommt, hat
+ * bereits gesucht und braucht Bestätigung, keine Spannung.
+ *
+ * Was Phase 3 geändert hat und was ausdrücklich nicht
+ * ---------------------------------------------------
+ *   - Die Adresse bleibt `/dachdecker`. Keine Umleitung, kein neuer Pfad,
+ *     keine geänderte kanonische Adresse: Was an Sichtbarkeit auf dieser
+ *     Seite liegt, bleibt darauf liegen.
+ *   - Titel, Beschreibung und alle branchenspezifischen Texte kommen jetzt aus
+ *     `src/data/branchen.ts` statt aus dieser Datei und den Komponenten. Der
+ *     Wortlaut ist bis auf zwei Stellen derselbe.
+ *   - Die Beschreibung ist gekürzt (war 175 Zeichen, damit über der Grenze,
+ *     ab der Google abschneidet) und trägt nicht mehr „ein Betrieb je
+ *     Einzugsgebiet". Diese Zusage gilt nicht allgemein, sondern wird einzeln
+ *     vereinbart; sie stand zuletzt nur noch hier.
+ *   - Neu ist der Abschnitt „Das Problem", der das Motiv B-03 trägt. Es steht
+ *     seit Phase 3 nicht mehr auf der branchenoffenen Startseite und hat hier
+ *     seinen sachlich richtigen Platz.
+ *   - Unverändert bleiben Aufbau, Reihenfolge und das eine Ziel der Seite:
+ *     die Anfrage am Ende.
  */
+const branche = brancheHolen('dachdecker')!;
 ---
 
 <BaseLayout
-  title="Kundengewinnung für Dachdeckerbetriebe"
-  description="Mehr qualifizierte Anfragen für Dachsanierung, Neueindeckung und Flachdach. Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe — ein Betrieb je Einzugsgebiet."
-  path="/dachdecker"
+  title={branche.seo.titel}
+  description={branche.seo.beschreibung}
+  path={branche.pfad}
   fokus={true}
 >
-  <Hero variante="c" />
+  <Hero branche="dachdecker" />
   <Orientierung />
+  <Problem branche="dachdecker" />
 
   <!-- Der schärfste Einwand zuerst: geteilte Portal-Leads -->
   <section class="kapitel schnitt stein" aria-labelledby="portale-titel">
@@ -64,7 +87,34 @@ import { wettbewerb } from '../data/inhalte';
     </div>
   </section>
 
-  <ConceptCase />
-  <System />
+  <ConceptCase branche="dachdecker" />
+  <System branche="dachdecker" />
   <Anfrage />
+
+  {/* Einordnung statt Sackgasse.
+
+      Die Seite läuft bewusst ohne Menü — ein Ziel, keine Abzweigungen. Seit
+      sie von `/branchen` aus verlinkt ist, kommen hier aber auch Leser an, die
+      nicht auf eine Anzeige geklickt haben; für sie endete die Seite bisher
+      ohne jeden Weg zurück. Diese eine schmale Zeile steht deshalb hinter dem
+      Formular, nicht davor: Wer bis hierher gelesen hat, ist an der Anfrage
+      vorbei und verliert nichts mehr. */}
+  {/* Eigene Beschriftung, nicht „Einordnung": Diesen Namen trägt bereits der
+      Orientierungsblock unter dem Hero. Zwei Bereiche mit derselben
+      Beschriftung sind für einen Screenreader nicht unterscheidbar. */}
+  <section class="stein" aria-label="Zuordnung dieser Seite">
+    <div class="schiene">
+      <div
+        class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-t border-linie py-5"
+      >
+        <p class="marke">
+          Branchenseite {branche.nr} · {branche.name}
+        </p>
+        <p class="flex flex-wrap gap-x-7 gap-y-2">
+          <a href={BRANCHEN_PFAD} class="marke tipp text-schiefer">Alle Branchen</a>
+          <a href="/" class="marke tipp text-schiefer">{site.name}</a>
+        </p>
+      </div>
+    </div>
+  </section>
 </BaseLayout>

@@ -9,6 +9,17 @@ import { motivDaten, motivVorhanden } from '../config/motive';
  *
  * Die Bemaßungszeile sagt die Wahrheit über den Zustand: Solange die Aufnahme
  * fehlt, steht dort „Aufnahme folgt" — liegt sie vor, steht dort die Quelle.
+ *
+ * Zum Motiv (Entscheidung Phase 3)
+ * --------------------------------
+ * `dacharbeit-detail` bleibt hier stehen, obwohl die Marke nicht mehr
+ * ausschließlich für Dachdecker steht. Der Grund ist die Aufnahme selbst: Sie
+ * zeigt Hände und Material in extremer Nahaufnahme, keine als Gewerk
+ * erkennbare Person und keine Dachfläche im Ganzen; als vollbreite Zäsur ohne
+ * Textaussage daneben liest sie sich als Handwerk, nicht als Zielgruppe. Das
+ * ist eine Abwägung, kein Freispruch: Der Ziegel ist erkennbar, und dieses
+ * Motiv ist der erste Kandidat zum Austausch, sobald eine branchenoffene
+ * Aufnahme vorliegt.
  */
 const vorhanden = motivVorhanden('dacharbeit-detail');
 const quelle = motivDaten('dacharbeit-detail')?.quelle ?? '';

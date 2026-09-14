@@ -1,13 +1,24 @@
 ---
 import Marke from './Marke.astro';
 import { kette, systemGrenzen } from '../data/inhalte';
+import { brancheHolen } from '../data/branchen';
 import { site } from '../config/site';
 
 interface Props {
   /** Auf der Leistungsseite folgt darunter die ausführliche Stufendarstellung. */
   ausfuehrlich?: boolean;
+  /**
+   * Schlüssel aus `src/data/branchen.ts`. Ein- und Austritt des Systems werden
+   * dann in der Sprache dieser Branche benannt — der Ablauf dazwischen bleibt
+   * derselbe, denn er ist es auch.
+   */
+  branche?: string;
 }
-const { ausfuehrlich = false } = Astro.props;
+const { ausfuehrlich = false, branche: brancheSchluessel } = Astro.props;
+const branche = brancheHolen(brancheSchluessel);
+
+const eingangText = branche?.system.eingang ?? systemGrenzen.eingang.text;
+const ausgangText = branche?.system.ausgang ?? systemGrenzen.ausgang.text;
 
 /**
  * Das System als Konstruktionszeichnung, nicht als Kachelraster.
@@ -56,11 +67,11 @@ const eineSpalte = 'calc((100% - 3 * 2rem) / 4)';
     <div class="mt-14 grid gap-x-8 gap-y-6 border-t border-linie-stark pt-6 lg:mt-16 lg:grid-cols-12">
       <div class="steig lg:col-span-4">
         <p class="vermessung">{systemGrenzen.eingang.marke}</p>
-        <p class="fliess mt-2 max-w-[34ch] text-klein">{systemGrenzen.eingang.text}</p>
+        <p class="fliess mt-2 max-w-[34ch] text-klein">{eingangText}</p>
       </div>
       <div class="steig lg:col-span-4 lg:col-start-9 lg:text-right" style="--i:2">
         <p class="vermessung lg:vermessung-rechts">{systemGrenzen.ausgang.marke}</p>
-        <p class="fliess mt-2 max-w-[34ch] text-klein lg:ml-auto">{systemGrenzen.ausgang.text}</p>
+        <p class="fliess mt-2 max-w-[34ch] text-klein lg:ml-auto">{ausgangText}</p>
       </div>
     </div>
 

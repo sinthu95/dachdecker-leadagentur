@@ -13,7 +13,7 @@
 import puppeteer from 'puppeteer-core';
 
 const basis = process.argv[2] ?? 'http://127.0.0.1:4321';
-const SEITEN = ['/', '/leistungen', '/dachdecker', '/demo', '/ueber-uns', '/kontakt', '/danke'];
+const SEITEN = ['/', '/leistungen', '/branchen', '/dachdecker', '/demo', '/ueber-uns', '/kontakt', '/danke'];
 const KLASSEN = ['steig', 'zeilen', 'zieh', 'zieh-y', 'zeichne', 'bildmaske'];
 
 const browser = await puppeteer.launch({

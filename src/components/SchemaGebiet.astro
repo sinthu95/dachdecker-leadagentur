@@ -7,7 +7,7 @@ import { gebiet } from '../data/inhalte';
  *
  * Drei Ringe um den Betrieb, außen die Fläche ohne Ausspielung. Die Radien
  * sind ausdrücklich beispielhaft: Was ein Betrieb sinnvoll bedient, ergibt
- * sich aus Anfahrt, Kolonnenstärke und Auftragsart — nicht aus einer Zahl,
+ * sich aus Anfahrt, Teamstärke und Auftragsart — nicht aus einer Zahl,
  * die auf einer Website steht.
  *
  * Die Zeichnung ist ein Lageplan, kein Kartenausschnitt: Eine echte Karte
@@ -39,13 +39,18 @@ const strahl = {
     <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
       <div class="lg:col-span-7">
         <Marke label="Schema · Einzugsgebiet" />
-        <h2 id="gebiet-titel" class="mt-8 max-w-[16ch] text-gross lg:mt-10">
-          Ein Gebiet. Genau ein Betrieb.
+        {/* Hier stand „Ein Gebiet. Genau ein Betrieb." — dieselbe pauschale
+            Zusage auf Gebietsexklusivität, die weiter unten im Fließtext
+            bereits entfernt wurde. Eine Überschrift behauptet lauter als ein
+            Absatz; sie ist deshalb zuerst angefasst worden. Der Abschnitt
+            handelt von der Aussteuerung, und genau davon spricht er jetzt. */}
+        <h2 id="gebiet-titel" class="mt-8 max-w-[18ch] text-gross lg:mt-10">
+          Werbung endet dort, wo die Anfahrt sich nicht mehr lohnt.
         </h2>
       </div>
       <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
         <p class="steig vorspann" style="--i:1">
-          Anzeigen laufen nicht „deutschlandweit". Sie laufen dort, wo Ihre Kolonne
+          Anzeigen laufen nicht „deutschlandweit". Sie laufen dort, wo Ihr Betrieb
           morgens hinkommt und abends wieder weg.
         </p>
       </div>

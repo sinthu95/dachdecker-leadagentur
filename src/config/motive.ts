@@ -66,7 +66,10 @@ export const motive: readonly Motiv[] = [
     sizes: '(min-width: 1680px) 66rem, 66vw',
   },
   {
-    // B-03 — Startseite, Bildfläche im Abschnitt „Problem"
+    // B-03 — Abschnitt „Problem", seit Phase 3 nur noch auf `/dachdecker`.
+    // Auf der branchenoffenen Startseite steht dort das gestaltete Bildfeld:
+    // Ein erkennbarer Dachdecker neben einem Text über „die meisten
+    // Unternehmen" behauptet eine Zielgruppe, die die Marke nicht mehr hat.
     name: 'dacharbeit-flaeche',
     alt: 'Dachdecker mit Auffanggurt kniet auf einer dunklen Ziegeldachfläche und setzt einen Ziegel; im Hintergrund Giebel, Schornstein und offener Himmel',
     quelle: 'Symbolbild · KI-generiert',

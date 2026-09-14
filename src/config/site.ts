@@ -73,7 +73,7 @@ export const site = {
 /** Einheitlicher Wortlaut. Nie durch Synonyme ersetzen. */
 export const cta = {
   primaer: 'Potenzialanalyse anfragen',
-  sekundaer: 'Concept Case ansehen',
+  sekundaer: 'Beispielprojekt ansehen',
   mikro:
     'Kostenfrei · ca. 40 Minuten · kein Verkaufsgespräch. Wir sagen Ihnen auch, wenn wir nicht passen.',
 } as const;

@@ -11,6 +11,7 @@ const basis = process.argv[2] || 'http://127.0.0.1:4321';
 const SEITEN = [
   '/',
   '/leistungen',
+  '/branchen',
   '/dachdecker',
   '/demo',
   '/ueber-uns',
@@ -120,7 +121,10 @@ for (const { name, w, h, mobil } of BREITEN) {
     if (!bericht.beschreibung) melden('FEHLER', `${pfad} @${name}`, 'keine Beschreibung');
     if (bericht.titel.length > 65)
       melden('WARNUNG', `${pfad} @${name}`, `Titel ${bericht.titel.length} Zeichen`);
-    if (bericht.beschreibung.length > 175)
+    // 160 Zeichen: die Grenze, die in CLAUDE.md steht. Der Prüflauf warnte
+    // bisher erst ab 175 und ließ damit genau die Beschreibungen durch, die
+    // Google abschneidet — eine Regel, die niemand prüft, ist keine.
+    if (bericht.beschreibung.length > 160)
       melden('WARNUNG', `${pfad} @${name}`, `Beschreibung ${bericht.beschreibung.length} Zeichen`);
 
     // Überschriftenebenen ohne Sprünge

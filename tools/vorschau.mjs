@@ -22,6 +22,7 @@ if (!existsSync(dist)) {
 const SEITEN = [
   ['/', 'index.html'],
   ['/leistungen', 'leistungen/index.html'],
+  ['/branchen', 'branchen/index.html'],
   ['/dachdecker', 'dachdecker/index.html'],
   ['/demo', 'demo/index.html'],
   ['/ueber-uns', 'ueber-uns/index.html'],

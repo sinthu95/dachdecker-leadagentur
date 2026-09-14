@@ -6,7 +6,7 @@
 import puppeteer from 'puppeteer-core';
 
 const basis = process.argv[2] ?? 'http://127.0.0.1:4321';
-const SEITEN = ['/', '/leistungen', '/dachdecker', '/demo', '/ueber-uns', '/kontakt', '/danke', '/impressum', '/datenschutz'];
+const SEITEN = ['/', '/leistungen', '/branchen', '/dachdecker', '/demo', '/ueber-uns', '/kontakt', '/danke', '/impressum', '/datenschutz'];
 
 const browser = await puppeteer.launch({
   executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',

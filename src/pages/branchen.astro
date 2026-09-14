@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SeitenKopf from '../components/SeitenKopf.astro';
+import Spezialisierung from '../components/Spezialisierung.astro';
+import Marke from '../components/Marke.astro';
+import Linie from '../components/Linie.astro';
+import AbschlussCTA from '../components/AbschlussCTA.astro';
+import { branchen } from '../data/branchen';
+
+/**
+ * Die Branchenübersicht.
+ *
+ * Sie ist bewusst kein Katalog. Aufgeführt wird, wofür eine Seite gebaut ist —
+ * nicht, was denkbar wäre. Eine Liste mit „Sanitär (in Vorbereitung)" und
+ * „Elektro (geplant)" wäre die bequemste Stelle des ganzen Projekts, um Arbeit
+ * zu behaupten, die nicht begonnen ist.
+ *
+ * Deshalb steht unter der Liste kein Ausblick, sondern die Bedingung: Eine
+ * Branchenseite entsteht aus einem Projekt in dieser Branche. Wer hier seine
+ * Branche nicht findet, bekommt keinen Platzhalter, sondern den Weg ins
+ * Gespräch.
+ */
+---
+
+<BaseLayout
+  title="Branchen"
+  description="Derselbe Ablauf, je Branche eigen ausgestaltet: Suchverhalten, Leistungen und Anfragestrecke unterscheiden sich erheblich. Übersicht der Branchenseiten."
+  path="/branchen"
+>
+  {/* Die Zeilen heißen bewusst nicht „Ein System. Je Branche anders
+      ausgestaltet." — der Abschnitt „Spezialisierung" weiter unten trägt die
+      Überschrift „Ein System. Branchentief angewandt." Zwei Überschriften mit
+      demselben Anfang auf einer Seite lesen sich wie ein Versehen. */}
+  <SeitenKopf
+    marke="Branchen"
+    zeilen={['Wonach gesucht wird,', 'unterscheidet sich.', 'Der Ablauf nicht.']}
+    text="Website, Werbung, Anfragestrecke und Messung laufen überall nach demselben Ablauf. Was sich unterscheidet, ist alles darin: wonach gesucht wird, welche Leistung sich lohnt, welcher Einwand zuerst kommt — und woran man eine brauchbare Anfrage erkennt."
+  />
+
+  <!-- ====================================================================
+       Die gebauten Branchenseiten. Redaktioneller Index, kein Kachelraster —
+       dieselbe Setzung wie im Leistungsindex, damit „eine Branche" hier so
+       viel Gewicht bekommt wie eine Position dort.
+       ==================================================================== -->
+  <section class="kapitel schnitt stein" aria-labelledby="branchen-titel">
+    <div class="schiene">
+      <div class="grid gap-x-8 gap-y-8 lg:grid-cols-12">
+        <div class="lg:col-span-7">
+          <Marke label="Ausgearbeitet" />
+          <h2 id="branchen-titel" class="mt-8 max-w-[18ch] text-gross lg:mt-10">
+            {branchen.length === 1 ? 'Eine Branche, ganz durchgezogen.' : 'Die Branchenseiten.'}
+          </h2>
+        </div>
+        <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+          <p class="steig vorspann" style="--i:1">
+            Hier steht, wofür eine eigene Seite gebaut ist — und sonst nichts. Eine
+            Ankündigungsliste wäre schnell geschrieben und hätte keinen Wert.
+          </p>
+        </div>
+      </div>
+
+      <!-- Das tragende Raster als Signaturelement über dem Index -->
+      <div class="relative mt-12 hidden h-20 lg:mt-14 lg:block" aria-hidden="true">
+        <Linie art="raster" class="h-full w-full text-kies" />
+      </div>
+
+      <ol class="mt-12 border-t border-schiefer lg:mt-4">
+        {
+          branchen.map((branche, i) => (
+            <li class="steig border-b border-linie-stark" style={`--i:${Math.min(i, 4)}`}>
+              <div class="grid items-baseline gap-x-8 gap-y-4 py-9 lg:grid-cols-12 lg:py-12">
+                <span class="zahlen block font-mono text-[clamp(1.2rem,1.9vw,1.95rem)] leading-none text-graphit lg:col-span-1">
+                  {branche.nr}
+                </span>
+
+                <div class="lg:col-span-5">
+                  <h3 class="text-[clamp(2rem,4vw,3.9rem)] leading-[1] font-medium tracking-[-0.04em]">
+                    {branche.name}
+                  </h3>
+                  <p class="fliess mt-6 max-w-[42ch]">{branche.kurz}</p>
+
+                  {branche.beispielprojekt && (
+                    <p class="fliess mt-5 max-w-[42ch] text-klein">
+                      {branche.beispielprojekt.text}{' '}
+                      <a href={branche.beispielprojekt.pfad}>Beispielprojekt ansehen</a>.
+                    </p>
+                  )}
+
+                  <a href={branche.pfad} class="verweis mt-7 text-schiefer">
+                    Zur Branchenseite
+                    <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+                      <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
+                    </svg>
+                  </a>
+                </div>
+
+                <div class="lg:col-span-5 lg:col-start-8">
+                  {/* Suchverhalten als das, was den Unterschied ausmacht.
+                      Beispiele, keine gemessenen Werte — die Marke „Schema"
+                      steht deshalb daneben. */}
+                  <dl class="border-t border-linie">
+                    <div class="grid gap-x-6 gap-y-1 border-b border-linie py-3 sm:grid-cols-4">
+                      <dt class="vermessung sm:pt-[0.25em]">Gesucht</dt>
+                      <dd class="sm:col-span-3">
+                        <ul class="flex flex-wrap gap-x-5 gap-y-1">
+                          {branche.suche.gesucht.map((wort) => (
+                            <li class="font-mono text-[0.68rem] text-schiefer">{wort}</li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                    <div class="grid gap-x-6 gap-y-1 border-b border-linie py-3 sm:grid-cols-4">
+                      <dt class="vermessung sm:pt-[0.25em]">Ausgeschlossen</dt>
+                      <dd class="sm:col-span-3">
+                        <ul class="flex flex-wrap gap-x-5 gap-y-1">
+                          {branche.suche.ausgeschlossen.map((wort) => (
+                            <li class="font-mono text-[0.68rem] text-graphit line-through decoration-zinnober/70">
+                              {wort}
+                            </li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                  </dl>
+                  <p class="marke mt-3">Schema · Beispiele, keine gemessenen Werte</p>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Spezialisierung verweis={false} />
+
+  <!-- ====================================================================
+       Die ehrliche Auskunft für alle übrigen Branchen.
+       ==================================================================== -->
+  <section class="kapitel schnitt stein" aria-labelledby="andere-titel">
+    <div class="schiene">
+      <div class="grid gap-x-8 gap-y-10 lg:grid-cols-12">
+        <div class="lg:col-span-5">
+          <Marke label="Ihre Branche fehlt" />
+          <h2 id="andere-titel" class="mt-8 max-w-[15ch] text-gross lg:mt-10">
+            Die Liste ist kurz. Mit Absicht.
+          </h2>
+        </div>
+
+        <div class="lg:col-span-6 lg:col-start-7">
+          <p class="steig vorspann max-w-[46ch]" style="--i:1">
+            Eine Branchenseite entsteht aus Arbeit in dieser Branche — nicht aus der
+            Überlegung, dass die Übersicht voller aussehen könnte. Was hier fehlt, fehlt
+            deshalb, und nicht, weil wir es nicht erwähnen wollten.
+          </p>
+          <p class="steig fliess mt-6 max-w-[52ch]" style="--i:2">
+            Das heißt nicht, dass wir nur für diese Branche arbeiten. Der Ablauf ist
+            überall derselbe, und die Ausgestaltung entsteht im Aufmaß — bei einer noch
+            nicht ausgearbeiteten Branche eben von Grund auf statt aus dem, was wir
+            schon wissen. Ob wir zu Ihrem Betrieb passen, sagen wir im Erstgespräch. Wenn
+            nicht, sagen wir das auch.
+          </p>
+
+          {/* Bewusst kein Knopf an dieser Stelle: Der Abschluss-Aufruf steht
+              unmittelbar darunter. Zwei gleichlautende Schaltflächen im selben
+              Bildschirm nehmen sich gegenseitig das Gewicht. */}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <AbschlussCTA
+    zeilen={['Passt das', 'auf Ihren Betrieb?']}
+    text="In der Potenzialanalyse sehen wir uns Ihr Einzugsgebiet, Ihre Leistungen und Ihren jetzigen Auftritt an — unabhängig davon, ob es zu Ihrer Branche schon eine Seite gibt."
+  />
+</BaseLayout>

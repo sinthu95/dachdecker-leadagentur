@@ -14,6 +14,7 @@ mkdirSync(ordner, { recursive: true });
 
 const SEITEN = [
   ['leistungen', '/leistungen'],
+  ['branchen', '/branchen'],
   ['dachdecker', '/dachdecker'],
   ['demo', '/demo'],
   ['ueber-uns', '/ueber-uns'],

@@ -12,7 +12,11 @@ const wurzel = new URL('..', import.meta.url).pathname;
 const b64 = (p) => readFileSync(wurzel + p).toString('base64');
 
 const html = `<!doctype html><meta charset="utf-8"><style>
-@font-face{font-family:'IS';src:url(data:font/woff2;base64,${b64('public/fonts/instrumentsans.woff2')}) format('woff2');font-weight:400 700}
+/* Dieselben Schriftdateien wie die Website. Sie hießen früher
+   instrumentsans/plexmono und heißen seit tools/schriften.mjs grotesk und
+   plexmono500 — das Werkzeug lief seither in einen ENOENT und erzeugte kein
+   Bild mehr. */
+@font-face{font-family:'IS';src:url(data:font/woff2;base64,${b64('public/fonts/grotesk.woff2')}) format('woff2');font-weight:400 700}
 @font-face{font-family:'PM';src:url(data:font/woff2;base64,${b64('public/fonts/plexmono500.woff2')}) format('woff2');font-weight:500}
 *{margin:0;padding:0;box-sizing:border-box}
 body{width:1200px;height:630px;background:#0B0E12;color:#E7E7E4;font-family:'IS',sans-serif;
@@ -24,8 +28,10 @@ svg.linie{position:absolute;inset:0;width:100%;height:100%}
   font-family:'PM',monospace;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:#8C949E}
 .kopf b{color:#E7E7E4;font-weight:500}
 .marke{position:relative;display:inline-block;font-weight:600;letter-spacing:-.03em;color:#E7E7E4}
+/* Kein hervorgehobenes Schlagwort mehr: signal ist funktional (Hinweis, Fokus)
+   und steht nicht als Auszeichnungsfarbe im Fließtext. Die Betonung trägt
+   allein die Groesse — dieselbe Regel wie auf der Seite. */
 h1{position:relative;font-size:74px;line-height:1.02;letter-spacing:-.04em;font-weight:600;max-width:15.5ch}
-h1 em{font-style:normal;color:#7C9BEA}
 .fuss{position:relative;display:flex;align-items:center;justify-content:space-between;
   font-family:'PM',monospace;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:#8C949E}
 .bem{display:flex;align-items:center;gap:12px}
@@ -39,10 +45,10 @@ h1 em{font-style:normal;color:#7C9BEA}
   <path d="M-40 620 600 160 1240 620" fill="none" stroke="#3C4653" stroke-width="1.2"/>
   <circle cx="600" cy="100" r="4" fill="#4A72D8"/>
 </svg>
-<p class="kopf"><span class="marke">S&amp;S Leadcraft</span> — Digitale Kundengewinnung für Dachdeckerbetriebe</p>
-<h1>Der beste Dachdecker der Region ist selten der, den man <em>zuerst findet</em>.</h1>
+<p class="kopf"><span class="marke">S&amp;S Leadcraft</span> — Websites, Werbung und Automatisierung als ein System</p>
+<h1>Nachfrage entsteht nicht zufällig.</h1>
 <div class="fuss">
-  <span>Ein Betrieb je Einzugsgebiet · Deutschlandweit</span>
+  <span>Digitale Kundengewinnung · Deutschlandweit</span>
   <span class="bem">Neigung <i></i> 38°</span>
 </div>`;
 

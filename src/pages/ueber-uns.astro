@@ -11,8 +11,13 @@ import { site } from '../config/site';
 
 const grundsaetze = [
   {
-    titel: 'Ein Betrieb je Einzugsgebiet',
-    text: 'Wir arbeiten nicht mit zwei Dachdeckerbetrieben, die um dieselben Kunden konkurrieren. Das ist keine Verknappungsmasche, sondern die Voraussetzung dafür, dass wir für Sie überhaupt sinnvoll bieten können.',
+    // Hier stand „Ein Betrieb je Einzugsgebiet" als Grundsatz — also als etwas,
+    // das immer gilt. Das stimmt nicht: Exklusivität wird im Einzelfall
+    // vereinbart. Ein Grundsatz, den man nicht in jedem Fall einhält, ist
+    // keiner. Was bleibt, ist die Zusage, die tatsächlich eingehalten wird:
+    // Die Frage wird vorher geklärt und das Ergebnis festgehalten.
+    titel: 'Exklusivität wird vereinbart, nicht behauptet',
+    text: 'Zwei Anbieter derselben Leistung im selben Gebiet bieten sich in derselben Auktion den Preis hoch — bezahlt von beiden. Wo das droht, sprechen wir vor der Zusammenarbeit darüber und halten fest, was gilt. Eine pauschale Zusage steht hier nicht, weil wir sie nicht in jedem Fall halten könnten.',
   },
   {
     titel: 'Alles läuft auf Ihren Namen',
@@ -39,13 +44,13 @@ const grundsaetze = [
 
 <BaseLayout
   title="Über S&S Leadcraft"
-  description="S&S Leadcraft ist eine auf Dachdeckerbetriebe spezialisierte Agentur für digitale Kundengewinnung, gegründet von Sinthusan Sinnathurai in Sprockhövel."
+  description="Agentur für digitale Kundengewinnung: Websites, Werbung und Automatisierung als ein System. Gegründet von Sinthusan Sinnathurai in Sprockhövel."
   path="/ueber-uns"
 >
   <SeitenKopf
     marke="Über uns"
-    zeilen={['Eine Agentur,', 'die genau eine Branche', 'wirklich versteht.']}
-    text={`${site.name} wurde 2026 von ${site.gruender} in ${site.ort} gegründet — mit einer bewussten Verengung auf Dachdeckerbetriebe statt einer möglichst breiten Kundenliste.`}
+    zeilen={['Ein System,', 'das in die Tiefe geht —', 'nicht in die Breite.']}
+    text={`${site.name} wurde 2026 von ${site.gruender} in ${site.ort} gegründet. Websites, Werbung und Automatisierung laufen als ein Ablauf zusammen — und je Branche entsteht eine eigene Ausgestaltung, statt für alle gleichzeitig zu sprechen.`}
   />
 
   <Gruender ausfuehrlich={true} />

@@ -117,8 +117,32 @@ tools/                  Aufnahme- und Prüfskripte (nicht Teil des Auslieferungs
 
 ### Seiten
 
-`/` · `/leistungen` · `/dachdecker` (Werbe-Landingpage, ohne Menü) · `/demo` ·
-`/ueber-uns` · `/kontakt` · `/danke` (noindex) · `/impressum` · `/datenschutz` · 404
+`/` · `/leistungen` · `/branchen` · `/dachdecker` (Branchenseite und
+Werbe-Landingpage, ohne Menü) · `/demo` · `/ueber-uns` · `/kontakt` ·
+`/danke` (noindex) · `/impressum` · `/datenschutz` · 404
+
+### Marke und Branchenseiten
+
+`S&S Leadcraft` ist die branchenoffene Hauptmarke: Websites, Werbung und
+Automatisierung als ein System. Darunter liegen Branchenseiten, die denselben
+Ablauf für ein Gewerk ausgestalten. Die erste — und derzeit einzige — ist
+`/dachdecker`; die Übersicht ist `/branchen`.
+
+Alles, was an einer Branche tatsächlich anders ist, steht in
+**`src/data/branchen.ts`**: Hero-Zeilen, Titel und Beschreibung, Ein- und
+Austritt des Systems, Suchbeispiele, die Leistungsliste für das Formular und
+das zugehörige Beispielprojekt. Komponenten bekommen den Schlüssel als
+Eigenschaft (`<Hero branche="dachdecker" />`, ebenso `System`, `Problem`,
+`ConceptCase`) und holen sich den Rest selbst. Was in jeder Branche gleich
+ist, bleibt in `inhalte.ts` und wird nicht je Branche kopiert.
+
+Zwei Regeln gelten für diese Datei:
+
+- **Keine Branche ohne Seite.** Eine Liste geplanter Gewerke wäre ein
+  Versprechen auf Arbeit, die nicht begonnen ist. Eine Branche kommt hinzu,
+  wenn es ein Projekt darin gibt.
+- **Keine Exklusivitätszusage.** Exklusivität wird einzeln vereinbart. Weder
+  die Hauptseite noch eine Branchenseite sagt sie allgemein zu.
 
 ---
 
@@ -135,7 +159,7 @@ und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins 
 | --- | --- | --- |
 | B-01 | `beratung` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
 | B-02 | `material` | registriert als Unsplash-Aufnahme, Dateien fehlen → Bildfeld |
-| B-03 | `dacharbeit-flaeche` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-03 | `dacharbeit-flaeche` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — **nur noch auf `/dachdecker`** |
 | B-04 | `dacharbeit-detail` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
 | B-05 | Materialprobe | Bildfeld |
 | B-06 | Gründerporträt | eigene Aufnahme, ausgeliefert |
@@ -167,8 +191,9 @@ So kommt eine weitere Aufnahme auf die Seite:
 | Nr. | Ort | Motiv | Format (Desktop / Mobil) |
 | --- | --- | --- | --- |
 | B-01 | Startseite, Hero | Moderne Dachlandschaft aus erhöhter Position: Firstlinien gegen offenen Himmel, ruhige Geometrie, kühles Tageslicht | 16:9 / 4:5 |
-| B-02 | Startseite, Hero (rechte Spalte, ab 1024 px) | Detail einer Doppelstehfalz-Deckung in Titanzink: Kante, Schattenkante, Materialoberfläche | 3:4 |
-| B-03 | Startseite, „Das Problem" | Dachdecker bei der präzisen Arbeit am Falz: Hände, Werkzeug, Materialkante — Konzentration statt Pose | 3:2 / 4:5 |
+| B-02 | Startseite und `/dachdecker`, Hero (rechte Spalte, ab 1024 px) | Materialstudie: Oberfläche im Wiederholungsmuster, Kante und Schattenkante im streifenden Licht. Die vorgesehene Aufnahme zeigt Schiefer — die frühere Beschreibung nannte Titanzink und passte nicht zur Vorlage | 3:4 |
+| B-03 | `/dachdecker`, „Das Problem" | Dachdecker bei der präzisen Arbeit am Falz: Hände, Werkzeug, Materialkante — Konzentration statt Pose | 3:2 / 4:5 |
+| B-03n | Startseite, „Das Problem" | **Offen.** Präzise Handarbeit ohne erkennbares Gewerk: Hände, Werkzeug, Werkstück, halbnah, natürliches Licht. Ersetzt B-03 an dieser Stelle, seit die Hauptseite branchenoffen ist | 3:2 / 4:5 |
 | B-04 | Startseite, Bildband vor „Prozess" (randlos) | Modernes Wohnhaus in der Totalen: klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar, kein Weitwinkelverzug | 21:9 / 4:5 |
 | B-05 | Startseite und `/ueber-uns`, „Spezialisierung" | Schiefer, Zink und Ziegel nebeneinander als Materialprobe im Streiflicht, Oberflächen und Kanten deutlich | 4:5 |
 | B-06 | Startseite und `/ueber-uns`, „Der Kopf dahinter“ | Porträt Sinthusan Sinnathurai. **Aufnahme liegt vor** — siehe „Das Gründerporträt“ unten | 4:5 / 6:7 |
@@ -205,7 +230,7 @@ eigene Baustelle gelesen werden kann, ohne eine zu sein. Die Übergangsmotive si
 davon nur deshalb ausgenommen, weil sie ihre Herkunft unter dem Bild nennen. Ohne
 diesen Nachweis fallen sie unter dieselbe Grenze.
 
-Die Bildschirmaufnahmen im Concept Case (`public/images/demo/`) sind davon nicht
+Die Bildschirmaufnahmen im Beispielprojekt (`public/images/demo/`) sind davon nicht
 betroffen — sie zeigen die real gebaute Demo.
 
 ---
@@ -554,8 +579,18 @@ Der weitere offene Punkt — die Entscheidung über den Worker-Weg — steht in
 
 Keine erfundenen Referenzen, Bewertungen, Auszeichnungen, Umsatz- oder Leadzahlen.
 Kein `aggregateRating` in den strukturierten Daten. Keine Countdown- oder
-Verknappungsmechanik. Der Concept Case wird durchgängig als Demonstrationsprojekt mit
-frei erfundenem Betrieb gekennzeichnet.
+Verknappungsmechanik. Das Beispielprojekt wird durchgängig als
+Demonstrationsprojekt mit frei erfundenem Betrieb gekennzeichnet.
+
+**Keine pauschale Gebietsexklusivität.** Exklusivität wird einzeln vereinbart;
+eine allgemeine Zusage steht weder auf der Hauptseite noch auf einer
+Branchenseite. Zuletzt entfernt wurden dabei die Überschrift „Ein Gebiet. Genau
+ein Betrieb." (`SchemaGebiet.astro`), der Grundsatz „Ein Betrieb je
+Einzugsgebiet" auf `/ueber-uns`, derselbe Satz in der Beschreibung von
+`/dachdecker` und die Fußzeile des Vorschaubilds (`tools/og-bild.mjs`).
+
+**Keine Branche ohne Seite.** `src/data/branchen.ts` führt nur Branchen, für die
+eine Seite gebaut ist. Angekündigte oder geplante Gewerke stehen dort nicht.
 
 Veröffentlicht wird nur, was gemessen wurde — die Zahlen oben stammen aus
 `tools/messen.mjs`.
@@ -564,7 +599,7 @@ Veröffentlicht wird nur, was gemessen wurde — die Zahlen oben stammen aus
 
 ## Verhältnis zur Dachdecker-Demo
 
-Der Concept Case zeigt das separate Projekt **`dachdecker-premium-demo`**. Dieses
+Das Beispielprojekt zeigt das separate Projekt **`dachdecker-premium-demo`**. Dieses
 Repository wird nicht verändert. Die Bildschirmaufnahmen unter
 `public/images/demo/` entstehen aus einer lokal gebauten Kopie:
 

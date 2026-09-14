@@ -5,7 +5,16 @@ import ConceptCase from '../components/ConceptCase.astro';
 import Marke from '../components/Marke.astro';
 import AbschlussCTA from '../components/AbschlussCTA.astro';
 import { demoStationen } from '../data/inhalte';
+import { brancheHolen, BRANCHEN_PFAD } from '../data/branchen';
 import { site } from '../config/site';
+
+/**
+ * Seit Phase 3 heißt diese Seite nach außen Beispielprojekt, nicht Referenz —
+ * so steht sie auch im Menü. Sie gehört zur Branche Dachdecker und sagt das
+ * jetzt an jeder Stelle, an der sie vorher nur „ein Beispielbetrieb" sagte.
+ * Damit trägt sie die Spezialisierung, statt sie zu verwischen.
+ */
+const branche = brancheHolen('dachdecker')!;
 
 /** Muster, die auf vielen Handwerksseiten vorkommen — gegenübergestellt.
  *  Bewusst textlich und schematisch: kein Screenshot einer fremden Seite,
@@ -39,15 +48,26 @@ const muster = [
 ---
 
 <BaseLayout
-  title="Concept Case — das System, einmal gebaut"
-  description="Eine vollständig gebaute Concept Study: Positionierung, Auftritt, regionale Sichtbarkeit und Anfrageweg an einem Dachdecker-Beispielbetrieb durchgezogen."
+  title="Beispielprojekt — das System, einmal gebaut"
+  description="Das Beispielprojekt zur Branche Dachdecker: Positionierung, Auftritt, regionale Sichtbarkeit und Anfrageweg vollständig durchgezogen — kein Kundenprojekt."
   path="/demo"
 >
   <SeitenKopf
-    marke="Concept Case"
+    marke="Beispielprojekt"
     zeilen={['Das System,', 'einmal vollständig', 'durchgezogen.']}
-    text="Eine Concept Study statt einer Referenzliste: der komplette Auftritt eines Dachdeckerbetriebs, gebaut wie für einen Kunden — Positionierung, Seitenaufbau, Anfragestrecke. Jede Entscheidung darin ist echt getroffen; der Betrieb dahinter ist frei angelegt und kein Kunde."
+    text={`Ein Beispielprojekt statt einer Referenzliste: der komplette Auftritt für einen ${branche.betrieb}, gebaut wie für einen Kunden — Positionierung, Seitenaufbau, Anfragestrecke. Jede Entscheidung darin ist echt getroffen; der Betrieb dahinter ist frei angelegt und kein Kunde.`}
   />
+
+  {/* Einordnung direkt unter dem Kopf: Das Projekt gehört zu einer Branche,
+      und das steht hier, bevor die erste Aufnahme kommt. */}
+  <div class="schiene bg-papier">
+    <p class="fliess max-w-[62ch] border-t border-linie pt-5 pb-2 text-klein">
+      Das Projekt gehört zur Branche <a href={branche.pfad}>{branche.name}</a> — der Ablauf
+      darin ist derselbe wie überall, ausgestaltet ist er für dieses Gewerk. Welche
+      Branchen eine eigene Seite haben, steht in der{' '}
+      <a href={BRANCHEN_PFAD}>Branchenübersicht</a>.
+    </p>
+  </div>
 
   <ConceptCase kompakt={true} />
 

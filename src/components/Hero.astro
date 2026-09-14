@@ -2,25 +2,38 @@
 import Linie from './Linie.astro';
 import Motiv from './Motiv.astro';
 import { site, cta } from '../config/site';
+import { brancheHolen } from '../data/branchen';
 
 interface Props {
-  /** Variante für Werbe-Landingpages: bestätigend statt spannungsaufbauend. */
-  variante?: 'a' | 'c';
+  /**
+   * Schlüssel aus `src/data/branchen.ts`. Gesetzt: Der Hero spricht in der
+   * Sprache dieser Branche — bestätigend statt spannungsaufbauend, denn wer
+   * auf einer Branchenseite ankommt, hat bereits gesucht. Nicht gesetzt: der
+   * Claim der branchenoffenen Hauptmarke.
+   */
+  branche?: string;
 }
-const { variante = 'a' } = Astro.props;
+const { branche: brancheSchluessel } = Astro.props;
+const branche = brancheHolen(brancheSchluessel);
 
 /* Zeilenumbrüche sind gesetzt, nicht dem Zufall überlassen — sie tragen den
    Rhythmus der Titelseite.
 
-   Variante 'a' ist der Claim der Hauptmarke: branchenoffen und bewusst ohne
-   Erfolgsversprechen. „Nachfrage entsteht nicht zufällig" sagt, dass Nachfrage
+   Der Claim der Hauptmarke ist branchenoffen und bewusst ohne
+   Erfolgsversprechen: „Nachfrage entsteht nicht zufällig" sagt, dass Nachfrage
    gebaut wird — nicht, dass sie garantiert entsteht.
 
-   Variante 'c' trägt die Werbe-Landingpages und bleibt branchenspezifisch;
-   sie wird von der jeweiligen Seite gesetzt. */
-const zeilenA = ['Nachfrage entsteht', 'nicht zufällig.'];
-const zeilenC = ['Digitale', 'Kundengewinnung', 'für Dachdecker-', 'betriebe.'];
-const zeilen = variante === 'a' ? zeilenA : zeilenC;
+   Die Zeilen der Branchenseiten stehen nicht mehr hier, sondern in
+   `branchen.ts`. Damit liegt alles, was an einer Branche anders ist, an einer
+   einzigen Stelle, statt sich über die Komponenten zu verteilen. */
+const zeilenHaupt = ['Nachfrage entsteht', 'nicht zufällig.'];
+const zeilen = branche ? branche.hero.zeilen : zeilenHaupt;
+
+/* Die Geometrie bleibt auf jeder Seite dieselbe — ihre Begründung nicht. Wo
+   eine Branche den Winkel tatsächlich herleitet (Dach: Regeldachneigung),
+   steht ihre Herleitung; sonst trägt er als Maß, nicht als Erzählung. */
+const winkelSatz =
+  branche?.winkel ?? 'Ein Winkel, ein Raster, eine Kurve. Jede Linie dieser Seite folgt ihnen.';
 ---
 
 <section class="relative overflow-hidden bg-papier pt-24 lg:pt-28">
@@ -59,17 +72,9 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
             die Ladefolge eine Richtung hat: Zeilen, Vorspann, Handlung. */}
         <p class="steig vorspann max-w-[38ch]" style="--i:3">
           {
-            variante === 'a' ? (
-              <>
-                Websites, Werbung und Automatisierung als ein System — für Unternehmen,
-                die planbar qualifizierte Anfragen gewinnen wollen.
-              </>
-            ) : (
-              <>
-                {site.name} entwickelt Websites, Kampagnen und digitale Kundengewinnung
-                speziell für Dachdeckerbetriebe.
-              </>
-            )
+            branche
+              ? branche.hero.vorspann
+              : 'Websites, Werbung und Automatisierung als ein System — für Unternehmen, die planbar qualifizierte Anfragen gewinnen wollen.'
           }
         </p>
 
@@ -102,19 +107,7 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
               >38°</span
             >
           </div>
-          <p class="mt-3 text-[0.78rem] leading-relaxed text-graphit">
-            {
-              /* Die Geometrie bleibt auf jeder Seite dieselbe — ihre Begründung
-                 nicht. Auf der Branchenseite stammt der Winkel erkennbar vom
-                 Dach; auf der branchenoffenen Hauptseite wäre diese Herleitung
-                 eine Behauptung über ein Gewerk, für das die Marke nicht mehr
-                 ausschließlich steht. Der Winkel trägt dort als Maß, nicht als
-                 Erzählung. */
-              variante === 'a'
-                ? 'Ein Winkel, ein Raster, eine Kurve. Jede Linie dieser Seite folgt ihnen.'
-                : 'Regeldachneigung eines Ziegeldachs. Jeder Winkel dieser Seite folgt ihr.'
-            }
-          </p>
+          <p class="mt-3 text-[0.78rem] leading-relaxed text-graphit">{winkelSatz}</p>
         </div>
       </div>
     </div>
@@ -127,7 +120,7 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
         <Motiv
           name="beratung"
           nummer="B-01"
-          motiv="Beratung vor dem Objekt — Handwerker und Kundin im Gespräch, das Dach im Rücken."
+          motiv="Beratung vor dem Objekt — Fachbetrieb und Kundin im Gespräch, das Gebäude im Rücken."
           ausschnitt="Querformat, halbnah"
           class="w-full"
         />
@@ -136,7 +129,7 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
         <Motiv
           name="material"
           nummer="B-02"
-          motiv="Detail einer Doppelstehfalz-Deckung in Titanzink — Kante, Schattenkante, Materialoberfläche."
+          motiv="Materialstudie — Oberfläche im Wiederholungsmuster, Kante und Schattenkante im streifenden Licht."
           ausschnitt="Hochformat, Nahaufnahme"
           class="h-full w-full"
         />

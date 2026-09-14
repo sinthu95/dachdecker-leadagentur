@@ -1,6 +1,17 @@
 ---
 import Marke from './Marke.astro';
 import Bildfeld from './Bildfeld.astro';
+import { BRANCHEN_PFAD, branchen } from '../data/branchen';
+
+interface Props {
+  /** Auf `/branchen` selbst führt der Verweis auf die Seite, die man liest. */
+  verweis?: boolean;
+}
+const { verweis = true } = Astro.props;
+
+/* Nur die Zahl, keine Aufzählung geplanter Gewerke: Was es gibt, steht auf der
+   Übersicht — was es nicht gibt, wird auch nicht angedeutet. */
+const anzahl = branchen.length;
 
 const gruende = [
   {
@@ -57,6 +68,19 @@ const gruende = [
             ))
           }
         </dl>
+
+        {
+          verweis && (
+            <div class="steig mt-10">
+              <a href={BRANCHEN_PFAD} class="verweis text-schiefer">
+                {anzahl === 1 ? 'Die erste Branchenseite' : 'Alle Branchenseiten'}
+                <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+                  <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
+                </svg>
+              </a>
+            </div>
+          )
+        }
       </div>
     </div>
   </div>

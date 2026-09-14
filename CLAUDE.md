@@ -19,7 +19,14 @@ Marke zu zerstören:
 - **Keine Zahl ohne Messung.** Leistungsangaben stammen aus `tools/messen.mjs` und
   werden mit Datum genannt.
 - **Keine Verknappungsmechanik.** Kein Countdown, kein „nur noch 2 Plätze".
-  Die regionale Exklusivität ist eine Regel, kein Druckmittel.
+- **Keine pauschale Gebietsexklusivität.** Exklusivität wird einzeln vereinbart.
+  Weder die Hauptseite noch eine Branchenseite sagt sie allgemein zu — kein
+  „ein Betrieb je Gebiet", auch nicht als Überschrift, Beschreibung oder
+  Bildunterschrift. Was vereinbart ist, gilt; was nicht vereinbart ist, wird
+  nicht behauptet.
+- **Keine Branche ohne Seite.** `src/data/branchen.ts` führt nur Branchen, für
+  die eine Seite gebaut ist. Keine geplanten, angekündigten oder „in
+  Vorbereitung" stehenden Gewerke.
 - **Keine erfundenen Stammdaten.** Domain, E-Mail und Impressumsangaben stehen
   ausschließlich in `src/config/site.ts`. Fehlende Werte bleiben `null` und erscheinen
   über `<Luecke>` sichtbar — niemals als echt aussehender Platzhalter.
@@ -29,8 +36,10 @@ Marke zu zerstören:
 ## Sprache
 
 Durchgehend Deutsch, auch in Bezeichnern, Kommentaren und Commit-Nachrichten.
-Ansprache per Sie. Der Leser ist Inhaber eines Handwerksbetriebs: konkret, ohne
-Agenturvokabular, ohne Anglizismen, wo es ein deutsches Wort gibt.
+Ansprache per Sie. Der Leser ist Inhaber eines mittelständischen Betriebs —
+auf `/dachdecker` eines Handwerksbetriebs: konkret, ohne Agenturvokabular, ohne
+Anglizismen, wo es ein deutsches Wort gibt. Eingeführte Produkt- und
+Branchenbegriffe (Google Ads, Meta Ads, Landingpage) bleiben.
 
 Ein Wortlaut bleibt über die ganze Seite identisch, insbesondere der Haupt-CTA
 **„Potenzialanalyse anfragen"** (`cta.primaer`). Keine Synonyme.
@@ -42,16 +51,20 @@ Redaktion, nicht Software-Startup.
 
 - **Papier dominiert.** Grundfläche ist `papier`, abgesetzt durch `kalkstein` (`.stein`)
   und `beton` (Bildfelder). Dunkle Abschnitte (`.dunkel`, `anthrazit`) sind gesetzte
-  Kontraste — derzeit Concept Case, Prozess und Abschluss-CTA — keine Grundstimmung.
+  Kontraste — derzeit Beispielprojekt, Prozess und Abschluss-CTA — keine Grundstimmung.
 - **Farben** nur über die Tokens in `global.css`: `papier`, `kalkstein`, `beton`,
   `kies`, `graphit`, `schiefer`, `anthrazit`, `tinte`, `linie`, `linie-stark`,
   `linie-dunkel`, `signal`, `zinnober`, `moos`. Keine Literalwerte in Komponenten.
 - **`signal`** ist ein gedecktes Tiefblau und rein funktional: Hinweisfelder, Fokus.
   **Nie als Buttonfläche, nie als Verlauf, nie zum Hervorheben von Schlagwörtern.**
   Betonung entsteht durch Größe, Zeilenumbruch und Weißraum — nicht durch Farbe.
-- **Ein Winkel:** 38°, die Regeldachneigung eines Ziegeldachs. Alle Diagonalen und
-  Konstruktionslinien folgen ihm (`Linie.astro`: `dach`, `achse`, `raster`, `rahmen`,
-  `zusammenfuehrung`).
+- **Ein Winkel:** 38°. Alle Diagonalen und Konstruktionslinien folgen ihm
+  (`Linie.astro`: `dach`, `achse`, `raster`, `rahmen`, `zusammenfuehrung`). Der
+  Winkel stammt aus der Regeldachneigung eines Ziegeldachs — **hergeleitet
+  werden darf er nur dort, wo das stimmt**, also auf `/dachdecker`
+  (`branchen.ts`, Feld `winkel`). Auf der branchenoffenen Hauptseite trägt er
+  als Maß, nicht als Erzählung: „Ein Winkel, ein Raster, eine Kurve." Die
+  Geometrie selbst bleibt überall dieselbe — sie wird nicht neu gestaltet.
 - **Keine Karten, kein Eckenradius.** Gruppierung entsteht durch harte Linien,
   Spaltenraster und Abstand.
 - **Drei Schriften mit getrennten Rollen:** `SSL Grotesk` für Überschriften und Text,
@@ -85,8 +98,8 @@ minimal gegen den Scroll (`.versatz`, Stärke über `data-versatz`). Eine einzig
 
 Kein Glühen, keine fliegenden Karten, keine bewegten Hintergründe, keine Cursor-Effekte.
 
-Der gepinnte Scroll-Moment läuft **genau einmal je Seite** — im Concept Case, und nur
-dort, wo die Stationen nicht ohnehin ausführlich folgen (`zeigeRundgang`).
+Der gepinnte Scroll-Moment läuft **genau einmal je Seite** — im Beispielprojekt, und
+nur dort, wo die Stationen nicht ohnehin ausführlich folgen (`zeigeRundgang`).
 
 `prefers-reduced-motion` ist ein gleichwertiger zweiter Zustand, kein Notbehelf: alle
 Inhalte sofort sichtbar, kein Informationsverlust.
@@ -174,6 +187,15 @@ README und `wrangler.jsonc` sind am 17.08.2026 auf diesen Stand nachgezogen
 worden. Wo dort noch der Zustand vor dem Livegang beschrieben stand — „Status:
 noch nicht öffentlich", „OFFEN 1/2" —, steht jetzt der Livestand.
 
+**Achtung, das Repository ist der Produktion voraus.** Der branchenoffene Umbau
+(Phasen 1 bis 3, Stand 14.09.2026) liegt auf dem Zweig
+`claude/positionierung-branchenoffen` und ist **nicht ausgespielt**. Unter
+`www.ssleadcraft.de` steht weiter der Stand von `main`: Dachdecker-Positionierung,
+kein `/branchen`, Menüpunkt „Für Dachdecker". Örtlich sind alle sieben Prüfläufe
+und `check:build` auf dem Zweigstand ohne Befund durchgelaufen; im Netz geprüft
+ist er nicht. Ausgespielt wird erst nach Freigabe durch den Inhaber — ein Push
+auf `main` löst die Produktionsauslieferung aus.
+
 ## Projektstruktur und wichtige Dateien
 
 ```
@@ -181,9 +203,13 @@ src/config/site.ts        Alle Stammdaten: Domain, E-Mail, Impressum, CTA-Wortla
                           Einzige Quelle. `impressumVollstaendig` entscheidet über
                           noindex auf Impressum und Datenschutz.
 src/config/motive.ts      Registratur der Übergangsmotive samt sichtbarem Nachweis.
-src/data/inhalte.ts       Textbausteine der Seiten.
+src/data/inhalte.ts       Textbausteine der Seiten, branchenoffen.
+src/data/branchen.ts      Die Branchen mit eigener Seite. Nur das, was je
+                          Branche wirklich anders ist. Keine geplanten Gewerke.
 src/pages/api/anfrage.ts  Einzige serverseitig gerenderte Route (`prerender = false`).
-src/pages/*.astro         Neun Seiten plus 404 und robots.txt.
+src/pages/*.astro         Zehn Seiten plus 404 und robots.txt.
+                          `/branchen` ist die Übersicht, `/dachdecker` die
+                          erste Branchenseite (und weiter Werbe-Landingpage).
 astro.config.ts           output static, trailingSlash never, build.format 'file'.
 wrangler.jsonc            Gehört ausschließlich dem Worker `ss-leadcraft`.
 public/_headers           HSTS. Wird von Pages ausgewertet, nicht ausgeliefert.
@@ -411,17 +437,41 @@ ein Widerspruch in der Datenschutzerklärung.
    14.09.2026). Umgesetzt: Phase 1 — Stammdaten, Claim, Hero, Orientierung,
    Navigation, Fußzeile. Phase 2 — Problem, Neue Realität, Leistungen (acht,
    davon sechs auf der Startseite), Spezialisierung, Gründerbereich, Passung,
-   Anfrageweg-Beispiele, minimale Einordnung des Concept Case. Offen:
-   Übersicht `/branchen` mit zentraler Datenstruktur, Concept Case und
-   Bildmotive einordnen, `/ueber-uns` und `/demo`, Formular zweigleisig,
-   Gefäß für echte Fallstudien. `/dachdecker` bleibt als erste Branchenseite
-   unverändert; der Menüpunkt zeigt bis zum Bau von `/branchen` direkt dorthin.
+   Anfrageweg-Beispiele. Phase 3 (14.09.2026) — `src/data/branchen.ts`,
+   Übersicht `/branchen`, Menüpunkt „Branchen", `/dachdecker` an die Struktur
+   angeschlossen, Beispielprojekt der Branche zugeordnet, Bildmotive
+   entschieden, `/demo` und `/ueber-uns` nachgezogen, Vorschaubild neu erzeugt.
+   **Offen: Phase 4** — Formular zweigleisig (branchenoffene Liste auf
+   `/kontakt` und der Hauptseite, gewerkgenaue Liste je Branche aus
+   `branchen.ts`), verstecktes Feld `herkunft_seite`, Hinweis auf den
+   `sessionStorage` in der Datenschutzerklärung. **Offen: Phase 5** —
+   `src/data/faelle.ts` als Gefäß für echte Fallstudien mit Pflichtfeldern
+   Zeitraum, Quelle und Freigabe.
 6. **Gebietsexklusivität wird nicht mehr pauschal zugesichert.** Auf der
    Hauptseite stand „Ein Betrieb je Einzugsgebiet" an vier Stellen —
-   Orientierung, Gebietsschema, Passung, Fragen. Das ist entfernt: Exklusivität
-   wird einzeln vereinbart. Was vereinbart ist, gilt; was nicht vereinbart ist,
-   wird nicht behauptet. Auch auf Branchenseiten dürfen keine weitergehenden
+   Orientierung, Gebietsschema, Passung, Fragen. In Phase 3 kamen vier weitere
+   Fundstellen dazu, die vorher übersehen worden waren: die Überschrift „Ein
+   Gebiet. Genau ein Betrieb." in `SchemaGebiet.astro`, der erste Grundsatz auf
+   `/ueber-uns`, die Beschreibung von `/dachdecker` und die Fußzeile des
+   Vorschaubilds (`tools/og-bild.mjs`). Alles entfernt: Exklusivität wird
+   einzeln vereinbart. Was vereinbart ist, gilt; was nicht vereinbart ist, wird
+   nicht behauptet. Auch auf Branchenseiten dürfen keine weitergehenden
    Zusicherungen entstehen.
+7. **Das Anfrageformular stellt nur Dacharbeiten zur Auswahl.** Auf `/kontakt`
+   und der branchenoffenen Startseite findet ein Unternehmen aus einer anderen
+   Branche unter „Welche Leistungen möchten Sie stärker verkaufen?" nichts
+   Passendes. Das ist der letzte sichtbare Widerspruch zur neuen Positionierung
+   und wird in Phase 4 aufgelöst — bewusst nicht nebenbei, weil es die
+   Anfragestrecke berührt (`formularWerte.leistungen` in `inhalte.ts`).
+8. **Auf `/` steht an einer Stelle ein Bildfeld statt einer Aufnahme.** Der
+   Abschnitt „Das Problem" trug das Motiv `dacharbeit-flaeche`; es steht seit
+   Phase 3 nur noch auf `/dachdecker`, weil ein erkennbarer Dachdecker neben
+   einem Text über „die meisten Unternehmen" eine Zielgruppe behauptet, die die
+   Marke nicht mehr hat. Bis eine branchenoffene Aufnahme vorliegt, steht dort
+   das gestaltete Bildfeld B-03n (Motiv und Format stehen im README unter
+   „Benötigte Fotografie"). `dacharbeit-detail` im Bildband bleibt vorerst auf
+   `/` — als Nahaufnahme von Händen und Material ohne Textaussage daneben; es
+   ist der erste Kandidat zum Austausch.
 
 ## Nicht ohne ausdrückliche Freigabe verändern
 
@@ -440,17 +490,33 @@ ein Widerspruch in der Datenschutzerklärung.
   „Potenzialanalyse anfragen" (`cta.primaer`).
 - **Stammdaten in `src/config/site.ts`** — Impressum, E-Mail, Domain. Nichts
   erfinden, Fehlendes bleibt `null`.
+- **Die Adresse `/dachdecker`** — keine Umleitung, kein neuer Pfad, keine
+  geänderte kanonische Adresse. Was an Sichtbarkeit auf dieser Seite liegt,
+  bleibt darauf liegen.
+- **Die Anfragestrecke** — `src/pages/api/anfrage.ts`, die Bindung `LEADS` und
+  der Versandweg über Resend. Sie läuft nachgewiesen; sie wird nicht nebenbei
+  angefasst.
 
 # Next Steps
 
 In dieser Reihenfolge sinnvoll — nichts davon ist begonnen:
 
-1. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der
+1. **Phase 4: Formular zweigleisig.** Branchenoffene Leistungsliste auf
+   `/kontakt` und der Hauptseite, gewerkgenaue Liste je Branche aus
+   `branchen.ts` (Feld `leistungen`), dazu das versteckte Feld `herkunft_seite`
+   und der Hinweis auf den `sessionStorage` in der Datenschutzerklärung. Das
+   ist der letzte sichtbare Widerspruch zur neuen Positionierung.
+2. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der
    Kennzeichnungsfrage zu den KI-Bildern. Vor dem Werbestart.
-2. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
+3. **Branchenoffene Aufnahme für B-03n** beschaffen (Motiv im README). Solange
+   sie fehlt, steht auf `/` an dieser Stelle ein Bildfeld.
+4. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
    Konfiguration abgebaut werden — das nimmt eine ganze Fehlerquelle heraus.
-3. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
+5. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
    Datenschutzerklärung vorher ergänzen.
+6. **Phase 5: `src/data/faelle.ts`** als Gefäß für echte Fallstudien, mit
+   Pflichtfeldern Zeitraum, Quelle und Freigabe. Leer bleiben, solange es
+   keinen freigegebenen Fall gibt.
 
 # Diese Datei pflegen
 

@@ -86,11 +86,14 @@ const organisation = {
     {kanonisch && <meta property="og:image" content={new URL('/og.png', siteUrl!).href} />}
     {kanonisch && <meta property="og:image:width" content="1200" />}
     {kanonisch && <meta property="og:image:height" content="630" />}
+    <!-- Der Alternativtext beschreibt die Aufnahme in public/og.png. Wird dort
+         die Aussage geändert, muss sie hier mitgeändert werden — und umgekehrt.
+         Beides entsteht in tools/og-bild.mjs. -->
     {
       kanonisch && (
         <meta
           property="og:image:alt"
-          content="S&S Leadcraft — Der beste Dachdecker der Region ist selten der, den man zuerst findet."
+          content="S&S Leadcraft — Nachfrage entsteht nicht zufällig."
         />
       )
     }

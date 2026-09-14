@@ -10,14 +10,15 @@
 /**
  * Hauptnavigation.
  *
- * „Für Dachdecker" zeigt weiter direkt auf die Branchenseite und wird in
- * Phase 3 zu „Branchen" auf der Übersicht `/branchen`. Der Eintrag wird erst
- * umgehängt, wenn die Seite existiert — ein Menüpunkt, der ins Leere zeigt,
- * wäre schlechter als ein Zwischenstand, der stimmt.
+ * „Branchen" steht dort, wo früher „Für Dachdecker" stand. Der Menüpunkt zeigt
+ * jetzt auf die Übersicht; die Dachdeckerseite bleibt unter derselben Adresse
+ * erreichbar und ist von dort aus verlinkt. Damit hängt nicht mehr eine
+ * einzelne Branche im Hauptmenü der branchenoffenen Marke — und die Adresse
+ * `/dachdecker` behält ihre Verweise und ihre Sichtbarkeit.
  */
 export const navigation = [
   { href: '/leistungen', label: 'Leistungen' },
-  { href: '/dachdecker', label: 'Für Dachdecker' },
+  { href: '/branchen', label: 'Branchen' },
   { href: '/demo', label: 'Beispielprojekt' },
   { href: '/ueber-uns', label: 'Über uns' },
   { href: '/kontakt', label: 'Kontakt' },
@@ -76,7 +77,7 @@ export const stufen = [
     name: 'Auslastung',
     zeit: 'laufend',
     satz: 'Nachfrage erzeugen, messen, nachsteuern.',
-    text: 'Ein Zufluss, der sich hoch- und runterregeln lässt — passend zu dem, was Ihre Kolonnen tatsächlich schaffen.',
+    text: 'Ein Zufluss, der sich hoch- und runterregeln lässt — passend zu dem, was Ihr Betrieb tatsächlich schaffen kann.',
     punkte: [
       'Google Ads für aktive Suchanfragen',
       'Meta Ads regional, später Retargeting',
@@ -118,7 +119,10 @@ export const kette = [
   {
     k: 'Anfrage',
     rolle: 'Übergabe',
-    v: 'Exklusiv bei Ihnen, mit der Herkunft im Gepäck.',
+    // Gemeint ist die einzelne Anfrage, nicht das Gebiet: Sie wird nicht
+    // mehrfach verkauft. Gebietsexklusivität ist etwas anderes und wird
+    // einzeln vereinbart — hier steht sie bewusst nicht.
+    v: 'Sie geht nur bei Ihnen ein, mit der Herkunft im Gepäck.',
   },
   {
     k: 'Optimierung',
@@ -129,17 +133,22 @@ export const kette = [
 
 /**
  * Ein- und Austritt des Systems. Sie stehen bewusst außerhalb der sechs
- * Stationen: Das System beginnt nicht bei uns, sondern bei einem Hausbesitzer,
- * und es endet nicht bei einer Zahl, sondern bei einem Termin.
+ * Stationen: Das System beginnt nicht bei uns, sondern bei jemandem, der etwas
+ * entscheiden muss, und es endet nicht bei einer Zahl, sondern bei einem Termin.
+ *
+ * Beide Sätze standen bis Phase 3 in der Sprache eines einzigen Gewerks („sein
+ * Dach", „Termin auf dem Dach"). Hier stehen sie jetzt branchenoffen; die
+ * gewerkgenaue Fassung liegt je Branche in `branchen.ts` und wird über
+ * `<System branche="…" />` eingesetzt.
  */
 export const systemGrenzen = {
   eingang: {
     marke: 'Eingang',
-    text: 'Ein Hausbesitzer im Umkreis merkt, dass sein Dach eine Entscheidung verlangt.',
+    text: 'Jemand im Umkreis steht vor einer Entscheidung, für die er einen Fachbetrieb braucht.',
   },
   ausgang: {
     marke: 'Ausgang',
-    text: 'Ein Termin auf dem Dach, bei dem beide Seiten wissen, worum es geht.',
+    text: 'Ein Termin vor Ort, bei dem beide Seiten wissen, worum es geht.',
   },
   rueckkopplung:
     'Ihre Einschätzung jeder Anfrage läuft zurück in die Aussteuerung — deshalb ist es ein Kreis und keine Liste.',
@@ -313,6 +322,16 @@ export const anfrageweg = {
     'ausbildung handwerk',
     'selber machen anleitung',
   ],
+  /**
+   * Der Anzeigentext im Schema. Er greift bewusst die zweite Beispielsuche auf
+   * — die Anzeige nennt, wonach gesucht wurde. Bis Phase 2 stand hier
+   * „Flachdach abdichten"; auf der branchenoffenen Hauptseite hätte das die
+   * ganze Zeichnung wieder einem Gewerk zugeschlagen.
+   */
+  anzeige: {
+    titel: 'Gutachter für Immobilien',
+    zusatz: 'im eigenen Umkreis',
+  },
   /** Die vier Stationen der Zeichnung. */
   stationen: [
     {
@@ -343,7 +362,7 @@ export const anfrageweg = {
 /**
  * Regionale Aussteuerung als Schema. Die Radien sind ein Beispiel für die
  * Denkweise, keine Zusage: Was ein Betrieb sinnvoll bedient, ergibt sich aus
- * dem Aufmaß — Anfahrt, Kolonnenstärke und Auftragsart.
+ * dem Aufmaß — Anfahrt, Teamstärke und Auftragsart.
  */
 export const gebiet = {
   ringe: [
@@ -374,7 +393,18 @@ export const abschlussBedingungen = [
   },
 ] as const;
 
-/** Auswahlmöglichkeiten im Qualifizierungsformular. */
+/**
+ * Auswahlmöglichkeiten im Qualifizierungsformular.
+ *
+ * OFFEN (Phase 4): `leistungen` nennt ausschließlich Dacharbeiten. Auf
+ * `/kontakt` und der branchenoffenen Hauptseite ist das der letzte sichtbare
+ * Widerspruch zur neuen Positionierung — ein Unternehmen aus einer anderen
+ * Branche findet dort keine passende Auswahl. Aufgelöst wird er, wenn das
+ * Formular zweigleisig läuft: eine branchenoffene Liste hier, die gewerkgenaue
+ * Liste je Branche in `branchen.ts` (Feld `leistungen`), eingesetzt über die
+ * Branchenseite. Das ist bewusst nicht Teil von Phase 3 — es ändert die
+ * Anfragestrecke, und die wird nicht nebenbei angefasst.
+ */
 export const formularWerte = {
   mitarbeiter: ['1–4', '5–9', '10–19', '20 oder mehr'],
   leistungen: [
@@ -395,7 +425,7 @@ export const formularWerte = {
   herkunft: [
     'Empfehlung',
     'Google-Suche',
-    'Portale wie Aroundhome',
+    'Vermittlungsportale',
     'Social Media',
     'Stammkunden',
     'Gemischt',

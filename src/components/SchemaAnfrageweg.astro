@@ -14,7 +14,7 @@ import { anfrageweg } from '../data/inhalte';
  * Was dort steht, hängt vom Betrieb ab. Erfundener Anzeigentext wäre
  * Ausschmückung, keine Erklärung.
  */
-const { gesucht, ausgeschlossen, stationen, felder } = anfrageweg;
+const { gesucht, ausgeschlossen, stationen, felder, anzeige } = anfrageweg;
 ---
 
 <section class="kapitel schnitt bg-papier" aria-labelledby="anfrageweg-titel">
@@ -23,7 +23,7 @@ const { gesucht, ausgeschlossen, stationen, felder } = anfrageweg;
       <div class="lg:col-span-7">
         <Marke label="Schema · Anfrageweg" />
         <h2 id="anfrageweg-titel" class="mt-8 max-w-[17ch] text-gross lg:mt-10">
-          Wie aus einer Suche ein Termin auf dem Dach wird.
+          Wie aus einer Suche ein Termin vor Ort wird.
         </h2>
       </div>
       <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
@@ -76,9 +76,9 @@ const { gesucht, ausgeschlossen, stationen, felder } = anfrageweg;
                     Anzeige · ihre-domain.de
                   </p>
                   <p class="mt-2.5 text-[1rem] leading-tight font-medium tracking-[-0.02em]">
-                    Flachdach abdichten
+                    {anzeige.titel}
                     <br />
-                    im eigenen Umkreis
+                    {anzeige.zusatz}
                   </p>
                   <span class="mt-4 block h-px w-full bg-linie-stark" />
                   <span class="mt-2 block h-px w-4/5 bg-linie-stark" />

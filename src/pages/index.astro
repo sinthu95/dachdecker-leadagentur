@@ -30,9 +30,19 @@ import AbschlussCTA from '../components/AbschlussCTA.astro';
   <NeueRealitaet />
   <System />
   <SchemaAnfrageweg />
-  <ConceptCase />
-  <LeistungsIndex />
+  {/*
+    Spezialisierung steht seit Phase 3 vor dem Concept Case, nicht mehr
+    dahinter. Grund ist die Zuordnung: Der Concept Case ist ein
+    Dachdeckerprojekt. Als eigenständiger Abschnitt mitten auf der
+    branchenoffenen Startseite las er sich wie der Beweis der Hauptmarke — und
+    zog sie damit in ein Gewerk zurück. Jetzt steht zuerst die Behauptung
+    („ein System, branchentief angewandt") und direkt darunter ihr Beleg: die
+    erste Branche, einmal ganz durchgezogen. Der Abschnitt nennt sie beim
+    Namen und verweist auf ihre Seite.
+  */}
   <Spezialisierung />
+  <ConceptCase branche="dachdecker" />
+  <LeistungsIndex />
   <SchemaGebiet />
   <Bildband />
   <Prozess />
