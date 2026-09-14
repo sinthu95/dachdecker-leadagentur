@@ -1,59 +1,149 @@
 ---
-import Motiv from './Motiv.astro';
-import { motivDaten, motivVorhanden } from '../config/motive';
-
 /**
- * Vollbreite Zäsur: eine einzige große Bildfläche, randlos, mit Bemaßung
- * darunter. Sie unterbricht die Textstrecke, ohne etwas zu behaupten —
- * und ist die Stelle, an der später die stärkste Aufnahme steht.
+ * Vollbreite Zäsur zwischen Textstrecke und Prozess.
  *
- * Die Bemaßungszeile sagt die Wahrheit über den Zustand: Solange die Aufnahme
- * fehlt, steht dort „Aufnahme folgt" — liegt sie vor, steht dort die Quelle.
+ * Hier stand bis zum 14.09.2026 das Motiv `dacharbeit-detail`: ein Dachdecker
+ * in voller Montur auf einer Ziegelfläche, mit Giebel, Schornstein und
+ * Himmel. Als größtes Bild der Startseite hat es die Marke einem einzigen
+ * Gewerk zugeschlagen — genau das, was der branchenoffene Umbau auflösen
+ * sollte. Die Registratur beschrieb es als Nahaufnahme von Händen; die
+ * Einstufung „unkritisch" stammte aus dieser Beschreibung und nicht aus dem
+ * Bild. Beim Ansehen der gebauten Seite war die Sache eindeutig.
  *
- * Zum Motiv (Entscheidung Phase 3)
- * --------------------------------
- * `dacharbeit-detail` bleibt hier stehen, obwohl die Marke nicht mehr
- * ausschließlich für Dachdecker steht. Der Grund ist die Aufnahme selbst: Sie
- * zeigt Hände und Material in extremer Nahaufnahme, keine als Gewerk
- * erkennbare Person und keine Dachfläche im Ganzen; als vollbreite Zäsur ohne
- * Textaussage daneben liest sie sich als Handwerk, nicht als Zielgruppe. Das
- * ist eine Abwägung, kein Freispruch: Der Ziegel ist erkennbar, und dieses
- * Motiv ist der erste Kandidat zum Austausch, sobald eine branchenoffene
- * Aufnahme vorliegt.
+ * Ersatz gab es keinen: Die einzige weitere Aufnahme im Projekt zeigt
+ * ebenfalls Dacharbeit, das registrierte Materialmotiv liegt nicht vor, und
+ * ein zugekauftes Bürobild hätte an dieser Stelle nichts gesagt.
+ *
+ * Deshalb steht hier jetzt keine Fotografie, sondern eine Zeichnung — und
+ * zwar keine, die auf eine Aufnahme wartet. Ein `<Bildfeld>` mit „Aufnahme
+ * folgt" wäre an der stärksten Stelle der Seite ein Eingeständnis gewesen.
+ * Dieses Band ist eine gesetzte Fläche:
+ *
+ *   - eine Schraffur aus Haarlinien im Regelwinkel 38°, parallel und ohne
+ *     First. Parallelen tragen den Winkel als Maß; zwei Schenkel, die sich
+ *     oben treffen, wären wieder ein Dach.
+ *   - darüber eine Bemaßungsfigur, die genau diesen Winkel abträgt — dieselbe
+ *     Sprache wie die Konstruktionslinien der übrigen Seite.
+ *   - Vermessungsmarken in den Ecken, wie an jedem Bildfeld.
+ *
+ * Die Schraffur ist ein CSS-Verlauf und kein SVG: Ein Verlauf hält seinen
+ * Winkel in jeder Fensterbreite exakt. Ein SVG, das die Fläche füllen soll,
+ * müsste beschnitten skalieren — und die Längenberechnung der Linienanimation
+ * rechnet mit dem Breitenverhältnis, das dabei nicht mehr stimmt. Die
+ * Bemaßungsfigur zeichnet sich deshalb als SVG in fester Proportion, die
+ * Fläche selbst wird wie eine Aufnahme freigelegt (`.bildmaske`).
  */
-const vorhanden = motivVorhanden('dacharbeit-detail');
-const quelle = motivDaten('dacharbeit-detail')?.quelle ?? '';
 ---
 
 {/* Kein eigener Hintergrund: Das Band ragt über `.rag-hinein` in das folgende
-    Kapitel hinein — die Kalksteinfläche steigt hinter Bild und Bemaßung auf,
-    die Naht zwischen den Abschnitten wird Teil der Komposition. Das folgende
-    Kapitel trägt `.kapitel-ueberlappt` und macht den Platz frei; verschieben
-    kann sich dabei nichts, der Überhang ist fest bemessen. */}
-<section class="rag-hinein relative" aria-label="Bildstrecke">
+    Kapitel hinein — die dunkle Fläche steigt hinter Zeichnung und Bemaßung
+    auf, die Naht zwischen den Abschnitten wird Teil der Komposition. Das
+    folgende Kapitel trägt `.kapitel-ueberlappt` und macht den Platz frei;
+    verschieben kann sich dabei nichts, der Überhang ist fest bemessen. */}
+<section class="rag-hinein relative" aria-label="Konstruktionsband">
   <div class="bildmaske versatz" data-versatz="10">
-    <Motiv
-      name="dacharbeit-detail"
-      nummer="B-04"
-      motiv="Ziegel wird gesetzt — Hände, Lattung, Materialkante im Gegenlicht."
-      ausschnitt="Panorama, Nahaufnahme quer über die Fläche"
-      class="w-full"
-      nachweis={false}
-    />
+    <figure
+      class="bildfeld relative isolate w-full overflow-hidden bg-tinte"
+      style="--verh:21/9;--verh-mobil:3/2"
+    >
+      {/* Die Schraffur: Haarlinien im Regelwinkel, jede vierte heller — das
+          gibt der Fläche einen Takt, ohne sie zu füllen. Der Winkel des
+          Verlaufs zählt im Uhrzeigersinn von oben: 322° (also −38°) lässt die
+          Linien nach rechts ansteigen, wie jede Konstruktionslinie dieser
+          Seite. Mit +38° fielen sie nach rechts — geprüft, nicht gerechnet. */}
+      <div
+        class="absolute inset-0"
+        aria-hidden="true"
+        style="background-image:
+          repeating-linear-gradient(322deg, transparent 0 75px, var(--color-linie-dunkel) 75px 76px),
+          repeating-linear-gradient(322deg, transparent 0 303px, color-mix(in srgb, var(--color-graphit-hell) 26%, transparent) 303px 304px)"
+      >
+      </div>
+
+      {/* Die Bemaßung des Winkels — das eigentliche Motiv der Fläche. Sie
+          sitzt auf derselben Satzkante wie der Text der Seite, nicht frei im
+          Raum: Die Zeichnung gehört zum Raster und nicht in eine Ecke.
+          Feste Proportion, damit sie sich maßstabsgetreu aufbaut. */}
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="schiene w-full">
+          <div class="w-[clamp(15rem,34vw,30rem)] text-graphit-hell">
+        <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet" class="h-auto w-full">
+          {/* Grundlinie mit Endmarken */}
+          <path
+            class="zeichne"
+            d="M40 160 H300"
+            stroke="currentColor"
+            stroke-width="1"
+            fill="none"
+            opacity="0.55"
+            vector-effect="non-scaling-stroke"></path>
+          {/* Die beiden Endmarken als eigene Pfade: In einem Pfad mit zwei
+              Teilstrecken läuft das Strichmuster nacheinander durch, und die
+              rechte Marke erschiene erst, wenn die linke fertig ist. */}
+          <path
+            class="zeichne"
+            style="--i:1"
+            d="M40 150 V170"
+            stroke="currentColor"
+            stroke-width="1"
+            fill="none"
+            opacity="0.55"
+            vector-effect="non-scaling-stroke"></path>
+          <path
+            class="zeichne"
+            style="--i:1"
+            d="M300 150 V170"
+            stroke="currentColor"
+            stroke-width="1"
+            fill="none"
+            opacity="0.55"
+            vector-effect="non-scaling-stroke"></path>
+          {/* Der abgetragene Winkel: 38°, ansteigend nach rechts */}
+          <path
+            class="zeichne"
+            style="--i:2"
+            d="M40 160 210 27.2"
+            stroke="var(--color-papier-gedimmt)"
+            stroke-width="1"
+            fill="none"
+            vector-effect="non-scaling-stroke"></path>
+          {/* Der Bogen zwischen Grundlinie und Schenkel */}
+          <path
+            class="zeichne"
+            style="--i:3"
+            d="M96 160 A56 56 0 0 0 84.1 125.5"
+            stroke="var(--color-papier-gedimmt)"
+            stroke-width="1"
+            fill="none"
+            opacity="0.8"
+            vector-effect="non-scaling-stroke"></path>
+        </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Vermessungsmarken in den Ecken — dieselben wie an jedem Bildfeld. */}
+      {
+        ['left-4 top-4', 'right-4 top-4', 'left-4 bottom-4', 'right-4 bottom-4'].map((pos) => (
+          <span class:list={['absolute h-3 w-3 text-graphit-hell', pos]} aria-hidden="true">
+            <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-current" />
+            <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-current" />
+          </span>
+        ))
+      }
+    </figure>
   </div>
 
   {/* Die Bemaßung liegt bereits auf der dunklen Fläche des folgenden Kapitels.
       Der eigene anthrazitfarbene Grund ist unsichtbar, weil er dem Untergrund
-      gleicht — aber er macht die Zeile unabhängig davon, wie weit das Bild
+      gleicht — aber er macht die Zeile unabhängig davon, wie weit das Band
       hineinragt, und die Kontrastprüfung kann sie gegen eine echte Fläche
       messen statt gegen einen durchsichtigen Stapel. */}
   <div class="schiene">
     <div
       class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t border-linie-dunkel bg-anthrazit py-3"
     >
-      <span class="marke text-graphit-hell">
-        {vorhanden ? quelle : 'Aufnahme folgt — Motiv steht fest'}
-      </span>
+      <span class="marke text-graphit-hell">Zeichnung · Regelwinkel der Konstruktion</span>
       <span class="marke zahlen text-graphit-hell">38°</span>
     </div>
   </div>

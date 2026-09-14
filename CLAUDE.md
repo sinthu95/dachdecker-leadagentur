@@ -393,7 +393,7 @@ Am 14.09.2026 mit `tools/messen.mjs` am gebauten Worker gemessen — mobil,
 
 | Seite | Summe | LCP | CLS |
 | --- | --- | --- | --- |
-| `/` | 308,5 KB | **1,68 s** | 0,0000 |
+| `/` | 310,1 KB | **1,57 s** | 0,0000 |
 | `/leistungen` | 177,5 KB | 0,79 s | 0,0000 |
 | `/branchen` | 153,4 KB | 0,84 s | 0,0000 |
 | `/dachdecker` | 201,0 KB | 0,85 s | 0,0000 |
@@ -401,8 +401,9 @@ Am 14.09.2026 mit `tools/messen.mjs` am gebauten Worker gemessen — mobil,
 | `/kontakt` | 153,7 KB | 0,79 s | 0,0000 |
 
 JavaScript: 7,8 KB unkomprimiert, 3,0 KB gzip — Budget 20 KB. Alle drei
-Budgets eingehalten; `/` liegt mit 1,68 s am dichtesten an seiner Grenze
-(1,8 s), und zwar wegen der beiden großen Motive.
+Budgets eingehalten; `/` liegt mit 1,57 s am dichtesten an seiner Grenze
+(1,8 s). Nachgemessen am 14.09.2026, nachdem das vollbreite Foto durch das
+Konstruktionsband ersetzt wurde: vorher 1,68 s.
 
 ## Gesamtvorschau
 
@@ -576,13 +577,13 @@ ein Widerspruch in der Datenschutzerklärung.
    | B-01 | `beratung` | Aufnahme steht auf `/` und `/dachdecker` | **B — grenzwertig.** Handwerker mit Tablet und Kundin vor einem Haus mit dunklem Ziegeldach. Trägt „Handwerk und Bau", nicht „Unternehmen allgemein". |
    | B-02 | `material` | **Bildfeld** — Dateien fehlen | offen. Vorgesehen ist eine Schieferdeckung; die wäre ebenfalls Dachmaterial. Bei der Beschaffung besser branchenoffen wählen und `motive.ts` anpassen. |
    | B-03n | — | **Bildfeld**, seit Phase 3 | offen, Motiv steht fest (README). |
-   | B-04 | `dacharbeit-detail` | Aufnahme steht als vollbreites Band auf `/` | **C — vor dem Werbestart ersetzen.** Die Aufnahme zeigt keine Nahaufnahme von Händen, wie die Registratur nahelegt, sondern einen Dachdecker in voller Montur auf einer Ziegelfläche mit Giebel, Schornstein und Himmel. Als größtes Bild der Startseite sagt sie „Dachdeckeragentur". |
+   | B-04 | `dacharbeit-detail` | **ersetzt am 14.09.2026**, auf keiner Seite mehr eingesetzt | war **C**. Die Aufnahme zeigt keine Nahaufnahme von Händen, wie die Registratur nahelegt, sondern einen Dachdecker in voller Montur auf einer Ziegelfläche mit Giebel, Schornstein und Himmel. Als größtes Bild der Startseite sagte sie „Dachdeckeragentur". An ihrer Stelle steht das Konstruktionsband (`Bildband.astro`): Schraffur im Regelwinkel 38° und eine Bemaßungsfigur, die den Winkel abträgt — kein `<Bildfeld>` mit „Aufnahme folgt". |
    | B-05 | Materialprobe | **Bildfeld** | offen, war immer eines. |
    | B-06 | Porträt | eigene Aufnahme | A. |
 
-   Damit stehen auf `/` zwei Aufnahmen und **drei** Bildfelder. Ersetzt wurde
-   nichts: Es liegt keine branchenoffene Aufnahme vor, und ein viertes Bildfeld
-   wäre ein größerer Rückschritt als der Befund, den es behebt.
+   Damit stehen auf `/` eine Aufnahme (B-01), drei Bildfelder, das Porträt und
+   das Konstruktionsband. Offen bleiben B-01 (grenzwertig, bleibt vorerst) und
+   die drei fehlenden Aufnahmen.
 
 ## Nicht ohne ausdrückliche Freigabe verändern
 

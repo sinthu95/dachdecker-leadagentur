@@ -179,7 +179,7 @@ und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins 
 | B-01 | `beratung` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — Einstufung **B (grenzwertig)**, siehe unten |
 | B-02 | `material` | registriert als Unsplash-Aufnahme, Dateien fehlen → Bildfeld |
 | B-03 | `dacharbeit-flaeche` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — **nur noch auf `/dachdecker`** |
-| B-04 | `dacharbeit-detail` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — Einstufung **C (vor dem Werbestart ersetzen)**, siehe unten |
+| B-04 | `dacharbeit-detail` | **ersetzt am 14.09.2026** — die Fläche trägt jetzt eine Zeichnung (`Bildband.astro`). Eintrag und Dateien bleiben; die Aufnahme ist nicht falsch, nur am falschen Ort |
 | B-05 | Materialprobe | Bildfeld |
 | B-06 | Gründerporträt | eigene Aufnahme, ausgeliefert |
 
@@ -199,12 +199,36 @@ ausstehenden rechtlichen Prüfung (siehe `CLAUDE.md`, offene Punkte).
 | Nr. | Einstufung | Warum |
 | --- | --- | --- |
 | B-01 `beratung` | **B — grenzwertig** | Handwerker mit Tablet und Kundin vor einem Haus mit dunklem Ziegeldach. Trägt „Handwerk und Bau", nicht „Unternehmen allgemein". Bleibt, weil die Beratungsszene die Kernaussage trägt und der Nachweis darunter steht. |
-| B-04 `dacharbeit-detail` | **C — vor dem Werbestart ersetzen** | Die Registratur beschreibt eine Nahaufnahme von Händen. Die Aufnahme zeigt einen Dachdecker in voller Montur auf einer Ziegelfläche, mit Giebel, Schornstein und Himmel. Als vollbreites Band ist sie das größte Bild der Startseite und sagt „Dachdeckeragentur". |
+| B-04 `dacharbeit-detail` | **war C — erledigt, siehe „Das Konstruktionsband"** | Die Registratur beschreibt eine Nahaufnahme von Händen. Die Aufnahme zeigt einen Dachdecker in voller Montur auf einer Ziegelfläche, mit Giebel, Schornstein und Himmel. Als vollbreites Band ist sie das größte Bild der Startseite und sagt „Dachdeckeragentur". |
 | B-06 Porträt | **A** | eigene Aufnahme, freigegeben. |
 
-Auf `/` stehen damit zwei Aufnahmen und **drei** Bildfelder (B-02, B-03n,
-B-05). Ersetzt wurde nichts: Es liegt keine branchenoffene Aufnahme vor, und
-ein viertes Bildfeld wäre ein größerer Rückschritt als der Befund.
+Auf `/` stehen damit **eine** Aufnahme (B-01), **drei** Bildfelder (B-02,
+B-03n, B-05), das Gründerporträt und **ein Konstruktionsband** an der Stelle
+von B-04.
+
+### Das Konstruktionsband
+
+`Bildband.astro` trägt seit dem 14.09.2026 keine Fotografie mehr, sondern eine
+Zeichnung — und ausdrücklich **kein** `<Bildfeld>` mit „Aufnahme folgt". An der
+stärksten Stelle der Seite wäre das ein Eingeständnis gewesen; dies hier ist
+eine gesetzte Fläche:
+
+- eine Schraffur aus Haarlinien im Regelwinkel **38°**, parallel und ohne
+  First. Parallelen tragen den Winkel als Maß — zwei Schenkel, die sich oben
+  treffen, wären wieder ein Dach.
+- eine Bemaßungsfigur, die genau diesen Winkel abträgt, gesetzt auf dieselbe
+  Satzkante wie der Text der Seite.
+- Vermessungsmarken in den Ecken, wie an jedem Bildfeld.
+
+Die Schraffur ist ein CSS-Verlauf und kein SVG: Ein Verlauf hält seinen Winkel
+in jeder Fensterbreite exakt. Ein SVG, das die Fläche füllen soll, müsste
+beschnitten skalieren — und die Längenberechnung der Linienanimation rechnet
+mit dem Breitenverhältnis, das dabei nicht mehr stimmt. Die Bemaßungsfigur
+zeichnet sich deshalb in fester Proportion; die Fläche selbst wird wie eine
+Aufnahme freigelegt (`.bildmaske`), weil sie an der Stelle einer Aufnahme steht.
+
+Der Verlaufswinkel ist **322°**, nicht 38°: Er zählt im Uhrzeigersinn von oben,
+und mit +38° fielen die Linien nach rechts statt anzusteigen.
 
 So kommt eine weitere Aufnahme auf die Seite:
 
@@ -225,7 +249,7 @@ So kommt eine weitere Aufnahme auf die Seite:
 | B-02 | Startseite und `/dachdecker`, Hero (rechte Spalte, ab 1024 px) | Materialstudie: Oberfläche im Wiederholungsmuster, Kante und Schattenkante im streifenden Licht. Die vorgesehene Aufnahme zeigt Schiefer — die frühere Beschreibung nannte Titanzink und passte nicht zur Vorlage | 3:4 |
 | B-03 | `/dachdecker`, „Das Problem" | Dachdecker bei der präzisen Arbeit am Falz: Hände, Werkzeug, Materialkante — Konzentration statt Pose | 3:2 / 4:5 |
 | B-03n | Startseite, „Das Problem" | **Offen.** Präzise Handarbeit ohne erkennbares Gewerk: Hände, Werkzeug, Werkstück, halbnah, natürliches Licht. Ersetzt B-03 an dieser Stelle, seit die Hauptseite branchenoffen ist | 3:2 / 4:5 |
-| B-04 | Startseite, Bildband vor „Prozess" (randlos) | Modernes Wohnhaus in der Totalen: klar geschnittenes Steildach, saubere Traufe, Ortgang und Kehle sichtbar, kein Weitwinkelverzug | 21:9 / 4:5 |
+| B-04 | Startseite, Bildband vor „Prozess" (randlos) | **Keine Aufnahme mehr vorgesehen.** Die Fläche trägt seit dem 14.09.2026 das Konstruktionsband — eine Zeichnung, kein wartender Bildplatz. Wer hier wieder eine Fotografie setzen will, entscheidet das bewusst | 21:9 / 3:2 |
 | B-05 | Startseite und `/ueber-uns`, „Spezialisierung" | Schiefer, Zink und Ziegel nebeneinander als Materialprobe im Streiflicht, Oberflächen und Kanten deutlich | 4:5 |
 | B-06 | Startseite und `/ueber-uns`, „Der Kopf dahinter“ | Porträt Sinthusan Sinnathurai. **Aufnahme liegt vor** — siehe „Das Gründerporträt“ unten | 4:5 / 6:7 |
 

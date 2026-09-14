@@ -89,11 +89,24 @@ export const motive: readonly Motiv[] = [
     sizes: '(min-width: 1680px) 33rem, 33vw',
   },
   {
-    // B-04 — Startseite, vollbreites Band vor „Ehrlichkeit"
-    // Auch hier endet die Leiter beim Original: 1672 px über die volle
+    // B-04 — seit dem 14.09.2026 auf KEINER Seite eingesetzt.
+    //
+    // Die Aufnahme stand als vollbreites Band auf der Startseite. Sie zeigt
+    // nicht, was die Beschreibung unten nahelegt — nicht Hände und Material in
+    // Nahaufnahme, sondern einen Dachdecker in voller Montur auf einer
+    // Ziegelfläche mit Giebel, Schornstein und Himmel. Als größtes Bild der
+    // Seite hat sie die branchenoffene Marke einem Gewerk zugeschlagen. An
+    // ihrer Stelle steht jetzt eine Zeichnung (`Bildband.astro`).
+    //
+    // Eintrag und Dateien bleiben: Die Aufnahme ist nicht falsch, nur am
+    // falschen Ort. Auf `/dachdecker` wäre sie richtig, sobald diese Seite
+    // eine Stelle dafür hat. Wer sie dort einsetzt, prüft vorher den
+    // Alternativtext — er beschreibt die Aufnahme zutreffender als das
+    // Motivfeld, mit dem sie eingebaut war.
+    //
+    // Die Breitenleiter endet beim Original: 1672 px über die volle
     // Fensterbreite ist auf großen Schirmen sichtbar weniger scharf als die
-    // übrigen Flächen. Das ist eine Grenze der Vorlage, kein Einbaufehler —
-    // eine höher aufgelöste Fassung würde sie sofort beheben.
+    // übrigen Flächen. Das ist eine Grenze der Vorlage, kein Einbaufehler.
     name: 'dacharbeit-detail',
     alt: 'Nahaufnahme: behandschuhte Hände legen einen dunklen Dachziegel in die Lattung, tiefstehendes Abendlicht',
     quelle: 'Symbolbild · KI-generiert',
