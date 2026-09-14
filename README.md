@@ -121,6 +121,25 @@ tools/                  Aufnahme- und Prüfskripte (nicht Teil des Auslieferungs
 Werbe-Landingpage, ohne Menü) · `/demo` · `/ueber-uns` · `/kontakt` ·
 `/danke` (noindex) · `/impressum` · `/datenschutz` · 404
 
+### Fallstudien
+
+`src/data/faelle.ts` ist das Gefäß für echte Kundenprojekte. Es ist **leer**,
+und das ist der richtige Zustand: Es gibt noch kein abgeschlossenes, zur
+Veröffentlichung freigegebenes Projekt.
+
+Ein Fall wird erst sichtbar, wenn alles vorliegt — schriftliche Kundenfreigabe,
+Freigabedatum, Projektzeitraum, ein Ergebnis in Worten und, bei jeder Kennzahl,
+ihr Messzeitraum und ihre Quelle. Fehlt etwas und steht trotzdem
+`veroeffentlichen: true`, **bricht der Bau ab** und nennt, was fehlt. Bewusst
+ein Abbruch und keine stille Filterung: Wer den Schalter umlegt, hat eine
+Absicht; den Fall wortlos wegzulassen hieße, ihn verschwinden zu lassen, ohne
+dass jemand merkt, warum.
+
+Das Beispielprojekt („Musterdach GmbH", `/demo`) gehört **nicht** dorthin. Es
+ist eine in Eigenregie gebaute Concept Study mit einem frei erfundenen Betrieb;
+es als Fall zu führen hieße, ein Demonstrationsprojekt als Kundenprojekt
+auszugeben.
+
 ### Marke und Branchenseiten
 
 `S&S Leadcraft` ist die branchenoffene Hauptmarke: Websites, Werbung und
@@ -157,10 +176,10 @@ und Seitenverhältnis. Sobald eine Aufnahme vorliegt, ersetzt sie das Feld eins 
 
 | Nr. | Motiv | Stand |
 | --- | --- | --- |
-| B-01 | `beratung` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-01 | `beratung` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — Einstufung **B (grenzwertig)**, siehe unten |
 | B-02 | `material` | registriert als Unsplash-Aufnahme, Dateien fehlen → Bildfeld |
 | B-03 | `dacharbeit-flaeche` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — **nur noch auf `/dachdecker`** |
-| B-04 | `dacharbeit-detail` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis |
+| B-04 | `dacharbeit-detail` | KI-generiert, ausgeliefert, mit sichtbarem Nachweis — Einstufung **C (vor dem Werbestart ersetzen)**, siehe unten |
 | B-05 | Materialprobe | Bildfeld |
 | B-06 | Gründerporträt | eigene Aufnahme, ausgeliefert |
 
@@ -174,6 +193,18 @@ sichtbar, nicht im Alternativtext versteckt (`Motiv.astro`, Eigenschaft `nachwei
 Wird der Nachweis entfernt, behauptet die Seite etwas, das nicht stimmt. Ob darüber
 hinaus eine Kennzeichnung nach Art. 50 KI-VO bzw. § 5 UWG nötig ist, gehört zur
 ausstehenden rechtlichen Prüfung (siehe `CLAUDE.md`, offene Punkte).
+
+**Sichtprüfung vom 14.09.2026** (an der gebauten Seite, nicht an den Einträgen):
+
+| Nr. | Einstufung | Warum |
+| --- | --- | --- |
+| B-01 `beratung` | **B — grenzwertig** | Handwerker mit Tablet und Kundin vor einem Haus mit dunklem Ziegeldach. Trägt „Handwerk und Bau", nicht „Unternehmen allgemein". Bleibt, weil die Beratungsszene die Kernaussage trägt und der Nachweis darunter steht. |
+| B-04 `dacharbeit-detail` | **C — vor dem Werbestart ersetzen** | Die Registratur beschreibt eine Nahaufnahme von Händen. Die Aufnahme zeigt einen Dachdecker in voller Montur auf einer Ziegelfläche, mit Giebel, Schornstein und Himmel. Als vollbreites Band ist sie das größte Bild der Startseite und sagt „Dachdeckeragentur". |
+| B-06 Porträt | **A** | eigene Aufnahme, freigegeben. |
+
+Auf `/` stehen damit zwei Aufnahmen und **drei** Bildfelder (B-02, B-03n,
+B-05). Ersetzt wurde nichts: Es liegt keine branchenoffene Aufnahme vor, und
+ein viertes Bildfeld wäre ein größerer Rückschritt als der Befund.
 
 So kommt eine weitere Aufnahme auf die Seite:
 
@@ -360,6 +391,25 @@ Browser". Ob die Speicherungen als „unbedingt erforderlich" nach § 25 TDDG
 gelten, ist eine **rechtliche** Frage und Teil der ausstehenden Prüfung.
 
 ---
+
+## Gesamtvorschau ohne Server
+
+```bash
+npm run build && node tools/vorschau.mjs
+```
+
+Erzeugt `vorschau.html`: alle elf Seiten, Stile, Schriften, Bilder und das
+Skript in einer einzigen Datei, im Browser durchklickbar, ohne Server. Interne
+Verweise und das Absenden des Formulars werden abgefangen — es wird nichts
+verschickt. Die Datei steht in `.gitignore`.
+
+Zwei Fehler steckten seit der Pages-Umstellung darin und fielen erst in Phase 5
+auf: Die Seitenliste suchte `seite/index.html`, obwohl `build.format: 'file'`
+flache Dateien erzeugt — das Werkzeug brach beim ersten Einlesen ab. Und die
+Bildersetzung griff nur bei Pfaden in Anführungszeichen; in einem `srcset`
+stehen sie unquotiert nebeneinander, also blieben alle Bildflächen leer. Beides
+behoben. Das Werkzeug bricht jetzt ab, wenn eine gebaute Seite in seiner Liste
+fehlt oder eine Listenseite im Build.
 
 ## Auslieferung: Worker und Pages
 

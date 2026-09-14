@@ -19,19 +19,48 @@ if (!existsSync(dist)) {
   process.exit(1);
 }
 
+/**
+ * Die Seiten und ihre Dateien im Build.
+ *
+ * Flach, nicht `seite/index.html`: Seit `build.format: 'file'` (Umstellung auf
+ * Cloudflare Pages) legt Astro `kontakt.html` statt `kontakt/index.html` ab.
+ * Die alten Pfade zeigten ins Leere, und das Werkzeug brach beim ersten
+ * Einlesen ab — aufgefallen ist es erst, als die Vorschau wieder gebraucht
+ * wurde. Die Liste wird deshalb jetzt gegen den Build geprüft (siehe unten).
+ */
 const SEITEN = [
   ['/', 'index.html'],
-  ['/leistungen', 'leistungen/index.html'],
-  ['/branchen', 'branchen/index.html'],
-  ['/dachdecker', 'dachdecker/index.html'],
-  ['/demo', 'demo/index.html'],
-  ['/ueber-uns', 'ueber-uns/index.html'],
-  ['/kontakt', 'kontakt/index.html'],
-  ['/danke', 'danke/index.html'],
-  ['/impressum', 'impressum/index.html'],
-  ['/datenschutz', 'datenschutz/index.html'],
+  ['/leistungen', 'leistungen.html'],
+  ['/branchen', 'branchen.html'],
+  ['/dachdecker', 'dachdecker.html'],
+  ['/demo', 'demo.html'],
+  ['/ueber-uns', 'ueber-uns.html'],
+  ['/kontakt', 'kontakt.html'],
+  ['/danke', 'danke.html'],
+  ['/impressum', 'impressum.html'],
+  ['/datenschutz', 'datenschutz.html'],
   ['/404', '404.html'],
 ];
+
+/* Keine Seite darf stillschweigend fehlen: Eine Vorschau, die eine Seite
+   auslässt, ist genau an der Stelle wertlos, an der man sie braucht. */
+const vorhanden = readdirSync(dist).filter((d) => d.endsWith('.html'));
+const fehlende = SEITEN.filter(([, datei]) => !existsSync(join(dist, datei)));
+if (fehlende.length > 0) {
+  console.error(
+    'Diese Seiten fehlen im Build: ' + fehlende.map(([p]) => p).join(', ') +
+      '\nGefunden wurde: ' + vorhanden.join(', '),
+  );
+  process.exit(1);
+}
+const unbekannt = vorhanden.filter((d) => !SEITEN.some(([, datei]) => datei === d));
+if (unbekannt.length > 0) {
+  console.error(
+    'Der Build enthält Seiten, die in dieser Liste fehlen: ' + unbekannt.join(', ') +
+      '\nBitte in SEITEN eintragen, sonst fehlen sie in der Vorschau.',
+  );
+  process.exit(1);
+}
 
 /* ------------------------------------------------ Stile, Schriften, Skript */
 const astro = join(dist, '_astro');
@@ -57,7 +86,12 @@ function sammle(ordner, praefix) {
     bilder[`${praefix}/${name}`] = `data:${mime[endung]};base64,${daten}`;
   }
 }
-sammle('images/demo', '/images/demo');
+/* Alle Bildordner, nicht nur die Demo: Seit die Übergangsmotive und das
+   Porträt ausgeliefert werden, zeigte die Vorschau sonst leere Flächen genau
+   dort, wo die Gestaltung beurteilt werden soll. */
+for (const ordner of readdirSync(join(dist, 'images'))) {
+  sammle(join('images', ordner), `/images/${ordner}`);
+}
 bilder['/favicon.svg'] =
   'data:image/svg+xml;base64,' + readFileSync(join(dist, 'favicon.svg')).toString('base64');
 
@@ -76,9 +110,15 @@ for (const [pfad, datei] of SEITEN) {
     /<script type="module" src="[^"]*\.js"><\/script>/g,
     '<script type="module">__JS__<\/script>',
   );
-  // Bildverweise durch eingebettete Daten ersetzen
-  for (const schluessel of Object.keys(bilder)) {
-    html = html.replaceAll(`"${schluessel}"`, `"__BILD:${schluessel}__"`);
+  /* Bildverweise durch Platzhalter ersetzen — bewusst ohne umschließende
+     Anführungszeichen: In `srcset` stehen die Pfade als Liste („datei.webp
+     960w, datei2.webp 1440w") und sind einzeln nicht in Anführungszeichen
+     eingefasst. Mit der alten, quotierten Ersetzung blieb genau dort der
+     Originalpfad stehen; ein `<picture>` wählt seine Quelle aus dem `srcset`,
+     und die Vorschau zeigte an allen Bildstellen leere Flächen. Längste
+     Schlüssel zuerst, damit kein Name den Anfang eines längeren trifft. */
+  for (const schluessel of Object.keys(bilder).sort((a, b) => b.length - a.length)) {
+    html = html.replaceAll(schluessel, `__BILD:${schluessel}__`);
   }
   // Vorladen von Schriften entfernen — sie stecken jetzt im Stil.
   html = html.replace(/<link rel="preload"[^>]*>/g, '');
@@ -169,7 +209,16 @@ const rahmen = `<title>S&S Leadcraft — Vorschau</title>
     var html = d.seiten[pfad] || d.seiten['/404'];
     html = html.replace('__CSS__', function () { return css; });
     html = html.replace('__JS__', function () { return js; });
-    html = html.replace(/__BILD:([^"]+)__/g, function (_, k) { return d.bilder[k] || ''; });
+    /* Nicht gierig und ohne Leerzeichen: In einem srcset stehen mehrere
+       Platzhalter in derselben Zeichenkette. Ein gieriges [^"]+ verschluckte
+       alles vom ersten __BILD: bis zum letzten __ vor dem naechsten
+       Anfuehrungszeichen — und lieferte einen Schluessel, den es nicht gibt.
+
+       Das Leerzeichen steht ausgeschrieben in der Klasse und nicht als \s:
+       Dieser Block liegt in einem Template-Literal, dort verschluckt JavaScript
+       den Backslash, und aus [^\s"] wuerde [^s"] — eine Klasse, die an jedem
+       Pfad mit einem s scheitert, also an /images/. */
+    html = html.replace(/__BILD:([^ "]+?)__/g, function (_, k) { return d.bilder[k] || ''; });
     html = html.replace('</body>', bruecke + '</body>');
     rahmen.srcdoc = html;
     pfadAnzeige.textContent = pfad;

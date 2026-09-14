@@ -27,6 +27,12 @@ Marke zu zerstören:
 - **Keine Branche ohne Seite.** `src/data/branchen.ts` führt nur Branchen, für
   die eine Seite gebaut ist. Keine geplanten, angekündigten oder „in
   Vorbereitung" stehenden Gewerke.
+- **Keine Fallstudie ohne Freigabe.** Echte Kundenprojekte stehen ausschließlich
+  in `src/data/faelle.ts` und werden nur sichtbar, wenn schriftliche
+  Kundenfreigabe, Freigabedatum, Zeitraum und — bei jeder Kennzahl — Messzeitraum
+  und Quelle vorliegen. `pruefeFall` bricht den Bau ab, wenn etwas davon fehlt.
+  Das Beispielprojekt („Musterdach GmbH") ist **keine** Fallstudie und wird nie
+  dorthin überführt.
 - **Keine erfundenen Stammdaten.** Domain, E-Mail und Impressumsangaben stehen
   ausschließlich in `src/config/site.ts`. Fehlende Werte bleiben `null` und erscheinen
   über `<Luecke>` sichtbar — niemals als echt aussehender Platzhalter.
@@ -206,6 +212,9 @@ src/config/motive.ts      Registratur der Übergangsmotive samt sichtbarem Nachw
 src/data/inhalte.ts       Textbausteine der Seiten, branchenoffen.
 src/data/branchen.ts      Die Branchen mit eigener Seite. Nur das, was je
                           Branche wirklich anders ist. Keine geplanten Gewerke.
+src/data/faelle.ts        Gefäß für echte Fallstudien. Derzeit leer — es gibt
+                          kein freigegebenes Kundenprojekt. `pruefeFall`
+                          erzwingt Freigabe, Zeitraum und Quelle je Kennzahl.
 src/pages/api/anfrage.ts  Einzige serverseitig gerenderte Route (`prerender = false`).
 src/pages/*.astro         Zehn Seiten plus 404 und robots.txt.
                           `/branchen` ist die Übersicht, `/dachdecker` die
@@ -377,6 +386,42 @@ Weiteres:
   KV-Datensatz und ist dort auswertbar. Vom Verweis steht nur der Host.
   Geprüft wird der Wortlaut in `tools/pruefen-lead.mjs`.
 
+## Gemessener Leistungsstand
+
+Am 14.09.2026 mit `tools/messen.mjs` am gebauten Worker gemessen — mobil,
+390 px, vierfache CPU-Drosselung, rund 1,6 Mbit/s:
+
+| Seite | Summe | LCP | CLS |
+| --- | --- | --- | --- |
+| `/` | 308,5 KB | **1,68 s** | 0,0000 |
+| `/leistungen` | 177,5 KB | 0,79 s | 0,0000 |
+| `/branchen` | 153,4 KB | 0,84 s | 0,0000 |
+| `/dachdecker` | 201,0 KB | 0,85 s | 0,0000 |
+| `/demo` | 272,1 KB | 0,83 s | 0,0000 |
+| `/kontakt` | 153,7 KB | 0,79 s | 0,0000 |
+
+JavaScript: 7,8 KB unkomprimiert, 3,0 KB gzip — Budget 20 KB. Alle drei
+Budgets eingehalten; `/` liegt mit 1,68 s am dichtesten an seiner Grenze
+(1,8 s), und zwar wegen der beiden großen Motive.
+
+## Gesamtvorschau
+
+```bash
+npm run build && node tools/vorschau.mjs
+```
+
+Erzeugt `vorschau.html` — alle elf Seiten, Stile, Schriften, Bilder und das
+Skript in einer einzigen Datei, ohne Server durchklickbar. Die Datei steht in
+`.gitignore` und wird nicht versioniert.
+
+Zwei Fehler steckten darin, seit auf Pages umgestellt wurde, und fielen erst
+in Phase 5 auf, weil die Vorschau dazwischen nicht gebraucht wurde: Die
+Seitenliste suchte noch `seite/index.html` statt der flachen Dateien aus
+`build.format: 'file'`, und die Bildersetzung griff nur in Anführungszeichen —
+in einem `srcset` stehen die Pfade unquotiert nebeneinander, also blieben alle
+Bildflächen leer. Beides behoben; das Werkzeug bricht jetzt ab, wenn eine
+gebaute Seite in der Liste fehlt oder umgekehrt.
+
 ## Speicherung im Browser
 
 Zwei Schlüssel im `sessionStorage`, sonst nichts. Keine Cookies, kein
@@ -498,9 +543,9 @@ ein Widerspruch in der Datenschutzerklärung.
    Phase 4 (14.09.2026) — Formular zweigleisig, Freitextfeld `branche`,
    geprüftes `herkunft_seite` samt Rückkehr auf die Ausgangsseite, lesbare
    Herkunft in der Benachrichtigung, Datenschutzerklärung auf den technischen
-   Stand gebracht. **Offen: Phase 5** —
-   `src/data/faelle.ts` als Gefäß für echte Fallstudien mit Pflichtfeldern
-   Zeitraum, Quelle und Freigabe.
+   Stand gebracht. Phase 5 (14.09.2026) — `src/data/faelle.ts` angelegt (leer),
+   Bild- und Textabnahme, Gesamtvorschau, SEO- und Leistungsmessung, Bericht.
+   **Der Umbau ist damit abgeschlossen und wartet auf die Freigabe zum Merge.**
 6. **Gebietsexklusivität wird nicht mehr pauschal zugesichert.** Auf der
    Hauptseite stand „Ein Betrieb je Einzugsgebiet" an vier Stellen —
    Orientierung, Gebietsschema, Passung, Fragen. In Phase 3 kamen vier weitere
@@ -521,15 +566,23 @@ ein Widerspruch in der Datenschutzerklärung.
    das eigene Handeln, nicht eine über die Technik. Wer sie technisch
    absichern will: `expirationTtl` beim Ablegen setzen — das wäre allerdings
    eine Änderung an der Anfragestrecke und gehört vorher entschieden.
-9. **Auf `/` steht an einer Stelle ein Bildfeld statt einer Aufnahme.** Der
-   Abschnitt „Das Problem" trug das Motiv `dacharbeit-flaeche`; es steht seit
-   Phase 3 nur noch auf `/dachdecker`, weil ein erkennbarer Dachdecker neben
-   einem Text über „die meisten Unternehmen" eine Zielgruppe behauptet, die die
-   Marke nicht mehr hat. Bis eine branchenoffene Aufnahme vorliegt, steht dort
-   das gestaltete Bildfeld B-03n (Motiv und Format stehen im README unter
-   „Benötigte Fotografie"). `dacharbeit-detail` im Bildband bleibt vorerst auf
-   `/` — als Nahaufnahme von Händen und Material ohne Textaussage daneben; es
-   ist der erste Kandidat zum Austausch.
+9. **Die Bildstrecke der Startseite ist noch nicht branchenoffen.**
+   Sichtprüfung am 14.09.2026 an der gebauten Seite, nicht an den
+   Registratureinträgen — die letzte Einstufung in Phase 3 war aus den
+   Beschreibungen gemacht und dabei zu milde ausgefallen.
+
+   | Nr. | Motiv | Stand | Einstufung |
+   | --- | --- | --- | --- |
+   | B-01 | `beratung` | Aufnahme steht auf `/` und `/dachdecker` | **B — grenzwertig.** Handwerker mit Tablet und Kundin vor einem Haus mit dunklem Ziegeldach. Trägt „Handwerk und Bau", nicht „Unternehmen allgemein". |
+   | B-02 | `material` | **Bildfeld** — Dateien fehlen | offen. Vorgesehen ist eine Schieferdeckung; die wäre ebenfalls Dachmaterial. Bei der Beschaffung besser branchenoffen wählen und `motive.ts` anpassen. |
+   | B-03n | — | **Bildfeld**, seit Phase 3 | offen, Motiv steht fest (README). |
+   | B-04 | `dacharbeit-detail` | Aufnahme steht als vollbreites Band auf `/` | **C — vor dem Werbestart ersetzen.** Die Aufnahme zeigt keine Nahaufnahme von Händen, wie die Registratur nahelegt, sondern einen Dachdecker in voller Montur auf einer Ziegelfläche mit Giebel, Schornstein und Himmel. Als größtes Bild der Startseite sagt sie „Dachdeckeragentur". |
+   | B-05 | Materialprobe | **Bildfeld** | offen, war immer eines. |
+   | B-06 | Porträt | eigene Aufnahme | A. |
+
+   Damit stehen auf `/` zwei Aufnahmen und **drei** Bildfelder. Ersetzt wurde
+   nichts: Es liegt keine branchenoffene Aufnahme vor, und ein viertes Bildfeld
+   wäre ein größerer Rückschritt als der Befund, den es behebt.
 
 ## Nicht ohne ausdrückliche Freigabe verändern
 

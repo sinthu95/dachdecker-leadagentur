@@ -45,7 +45,23 @@ export const site = {
    */
   angebot: 'Anfragesystem',
   angebotEnglisch: 'Lead Generation System',
+  /**
+   * Die Wortmarken-Zeile: die Kurzform, die neben dem Namen steht.
+   * Der eigentliche Hauptclaim ist die Titelzeile des Heros — „Nachfrage
+   * entsteht nicht zufällig." Sie steht dort und nur dort, weil sie eine
+   * Setzung ist und kein Textbaustein.
+   */
   claim: 'Websites, Werbung und Automatisierung als ein System',
+  /**
+   * Der Satz unter dem Claim. Er stand wortgleich an drei Stellen — im Hero,
+   * in der Fußzeile und in der Beschreibung der Startseite. Drei Kopien eines
+   * Satzes gehen auseinander, sobald einer davon angefasst wird; jetzt steht
+   * er hier. Die Beschreibung der Startseite bleibt bewusst eine eigene
+   * Fassung: Sie muss unter 160 Zeichen passen und nennt die Kanäle beim
+   * Namen, weil sie in einem Suchergebnis steht und nicht auf der Seite.
+   */
+  erklaerung:
+    'Websites, Werbung und Automatisierung als ein System — für Unternehmen, die planbar qualifizierte Anfragen gewinnen wollen.',
   gruender: 'Sinthusan Sinnathurai',
   ort: 'Sprockhövel',
   land: 'Deutschland',
