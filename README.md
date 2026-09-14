@@ -242,6 +242,44 @@ absendbar; mit JavaScript wird daraus eine dreistufige Strecke. Spamschutz über
 Honigtopf und Zeitprüfung — **kein Captcha**, weil das Besucherdaten an Dritte
 überträgt.
 
+### Zwei Gleise, eine Komponente
+
+`Anfrage.astro` steht auf drei Seiten und stellt dabei **nicht dieselbe Frage**:
+
+| | `/` und `/kontakt` | `/dachdecker` |
+| --- | --- | --- |
+| Frage | „Woran sollen wir zuerst arbeiten?" | „Welche Leistungen möchten Sie stärker verkaufen?" |
+| Auswahl | unsere acht Positionen plus „Noch nicht sicher" — `formularWerte.leistungenAllgemein`, abgeleitet aus `leistungen`, damit Formular und `/leistungen` nicht auseinanderlaufen | die Leistungen des Gewerks, `branchen.ts` Feld `leistungen` |
+| Branche | Freitextfeld `branche` | entfällt — steht fest, wird serverseitig ergänzt |
+
+Eine branchenoffene Seite weiß nicht, was ein Betrieb verkauft; deshalb kann sie
+die Verkaufsfrage nicht stellen und fragt stattdessen, woran gearbeitet werden
+soll. Was der Betrieb verkauft, kommt als Freitext.
+
+Es gibt bewusst nur **eine** Komponente. Zwei Kopien wären zwei Spamschutzstellen,
+zwei Pflichtfeldsätze und zwei Stellen, an denen ein Fehler nur zur Hälfte behoben
+wird. Beide Gleise senden dasselbe Feld `leistungen`; welche Frage beantwortet
+wurde, steht im Datensatz unter `herkunft.seite` und beschriftet die Zeile in der
+Benachrichtigung.
+
+### Die Herkunftsseite
+
+`herkunft_seite` trägt die Adresse, auf der das Formular stand. Sie wird **beim
+Bauen** ins Markup geschrieben — nicht per JavaScript, damit sie auch ohne Skript
+mitgeht und nicht vergessen wird, wenn eine weitere Seite ein Formular bekommt.
+
+Der Server glaubt ihr nicht: Er prüft sie gegen `FORMULARSEITEN`
+(`/`, `/kontakt`, `/dachdecker`) und ersetzt alles andere durch `/kontakt`. Das
+ist keine Förmlichkeit — aus dem Wert entsteht das Ziel der Fehlerumleitung, ein
+durchgereichter Wert wäre eine offene Weiterleitung. Mehr hängt nicht daran:
+keine Prüfung, keine Berechtigung, keine Zustellentscheidung.
+
+Eine abgelehnte Anfrage führt damit **auf die Seite zurück, von der sie kam**.
+Vorher ging jede Ablehnung nach `/kontakt`; seit die Seiten verschiedene Listen
+zeigen, wären die wiederhergestellten Haken dort ins Leere gelaufen. Der
+Fehlerhinweis sitzt deshalb seit Phase 4 im Formular und nicht mehr auf
+`/kontakt`.
+
 `POST /api/anfrage` verarbeitet in dieser Reihenfolge:
 
 1. **Ablage in Cloudflare KV** (Bindung `LEADS`) — zuerst und immer, unabhängig
@@ -285,7 +323,41 @@ Einwilligung muss aktiv gesetzt werden.
 
 Beim ersten Seitenaufruf werden `utm_*`, `gclid`, `fbclid`, `msclkid`, Referrer und
 Landingpage im `sessionStorage` gesichert und beim Absenden als versteckte Felder
-mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite.
+mitgeschickt. Sie überleben damit jede Navigation innerhalb der Seite. Die
+Herkunftsseite kommt nicht von dort, sondern steht beim Bauen im Formular.
+
+In der Benachrichtigung steht das in Worten, nicht als JSON-Zeile:
+
+```
+Herkunftsseite: /dachdecker
+Kampagne:       google / cpc / dach_sanierung
+Bezahlt über:   Google Ads
+Verweis von:    www.google.com
+Einstiegsseite: /leistungen        ← nur, wenn sie abweicht
+```
+
+Klickkennungen werden **nicht ausgeschrieben**: Es sind lange, undurchsichtige
+Zeichenketten, die in einer Mail niemand liest. Dass es sie gibt, ist die
+Auskunft; der vollständige Wert liegt im KV-Datensatz und ist dort auswertbar.
+Vom Verweis steht nur der Host.
+
+### Was im Browser gespeichert wird
+
+Zwei Schlüssel im `sessionStorage`, sonst nichts — keine Cookies, kein
+`localStorage`, keine IndexedDB.
+
+| Schlüssel | Inhalt | Gelöscht |
+| --- | --- | --- |
+| `ssl_herkunft` | die Herkunft vom ersten Aufruf | beim Schließen des Tabs |
+| `ssl:anfrage-entwurf` | die Formulareingaben ohne Honigtopf, Zeitmarke und Einwilligung | beim Wiederherstellen nach einer Ablehnung, sonst auf `/danke` |
+
+Der Entwurf blieb bis Phase 4 nach einer **erfolgreichen** Anfrage liegen — mit
+Name, Telefonnummer und E-Mail-Adresse, bis der Tab geschlossen wurde.
+`entwurfAufraeumen()` räumt ihn jetzt auf `/danke` weg.
+
+Beschrieben ist beides in der Datenschutzerklärung unter „Speicherung in Ihrem
+Browser". Ob die Speicherungen als „unbedingt erforderlich" nach § 25 TDDG
+gelten, ist eine **rechtliche** Frage und Teil der ausstehenden Prüfung.
 
 ---
 

@@ -315,10 +315,37 @@ gerenderte Route. Reihenfolge, und sie ist der Kern:
 3. Schlägt beides fehl, bleibt das Worker-Protokoll — die einzige Stelle, an der
    eine Anfrage im Klartext protokolliert wird, und nur dann.
 
+**Das Formular läuft zweigleisig** (seit 14.09.2026). Eine Komponente,
+`Anfrage.astro`, zwei Konfigurationen — und sie stellen nicht dieselbe Frage:
+
+| | `/` und `/kontakt` | `/dachdecker` |
+| --- | --- | --- |
+| Frage | „Woran sollen wir zuerst arbeiten?" | „Welche Leistungen möchten Sie stärker verkaufen?" |
+| Auswahl | unsere acht Positionen plus „Noch nicht sicher" (`formularWerte.leistungenAllgemein`, abgeleitet aus `leistungen`) | die Leistungen des Gewerks (`branchen.ts`, Feld `leistungen`) |
+| Branche | Freitextfeld `branche` | entfällt — sie steht fest und wird serverseitig ergänzt |
+
+Beide Gleise senden dasselbe Feld `leistungen`; welche Frage beantwortet wurde,
+steht im Datensatz unter `herkunft.seite`. Ein zweiter Feldname hätte eine
+zweite Pflichtprüfung im Endpunkt bedeutet — für dieselbe Sache.
+
+**`herkunft_seite`** trägt die Seite, auf der das Formular stand. Sie wird
+**beim Bauen** ins Markup geschrieben, nicht per JavaScript: So geht sie auch
+ohne Skript mit. Der Server glaubt ihr nicht, sondern prüft sie gegen
+`FORMULARSEITEN` (`/`, `/kontakt`, `/dachdecker`) und ersetzt alles andere
+durch `/kontakt`. Das ist keine Förmlichkeit: Aus dem Wert entsteht das Ziel
+der Fehlerumleitung, ein durchgereichter Wert wäre eine offene Weiterleitung.
+Mehr hängt nicht daran — keine Prüfung, keine Berechtigung, keine
+Zustellentscheidung.
+
 Weiteres:
 
 - Pflichtfelder werden **serverseitig** geprüft; bei Ablehnung geht es mit
-  wiederhergestellten Eingaben und Fehlermeldung zurück zum Formular (303).
+  wiederhergestellten Eingaben und Fehlermeldung **auf die Seite zurück, von
+  der die Anfrage kam** (303). Vorher ging jede Ablehnung nach `/kontakt` —
+  seit die Seiten verschiedene Leistungslisten zeigen, wären die
+  wiederhergestellten Haken dort ins Leere gelaufen.
+- Der Fehlerhinweis gehört seit Phase 4 zum Formular (`Anfrage.astro`), nicht
+  zu `/kontakt`: Jede Seite mit Formular braucht ihn.
 - Spamschutz ohne Drittanbieter: unsichtbares Zusatzfeld plus Mindestdauer von
   1500 ms. Ein Verdachtsfall wird **nicht verworfen**, sondern unter dem
   Schlüsselpräfix `verdacht:` abgelegt und nicht versendet; der Regelfall liegt
@@ -343,6 +370,33 @@ Weiteres:
   `secret_text` ohne Inhalt zurück; die Werkzeuge melden nur „verschlüsselt
   hinterlegt".
 - Versand nachgewiesen am 17.08.2026: Resend meldete „Delivered".
+- Der **Wortlaut der Benachrichtigung** nennt Herkunftsseite, Branche, die
+  Auswahl (beschriftet nach Gleis), Kontaktdaten und die Herkunft in Worten.
+  Klickkennungen (gclid, fbclid, msclkid) stehen dort **nicht im Wortlaut**,
+  sondern als „Bezahlt über: Google Ads" — der vollständige Wert liegt im
+  KV-Datensatz und ist dort auswertbar. Vom Verweis steht nur der Host.
+  Geprüft wird der Wortlaut in `tools/pruefen-lead.mjs`.
+
+## Speicherung im Browser
+
+Zwei Schlüssel im `sessionStorage`, sonst nichts. Keine Cookies, kein
+`localStorage`, keine IndexedDB.
+
+| Schlüssel | Inhalt | Geschrieben | Gelöscht |
+| --- | --- | --- | --- |
+| `ssl_herkunft` | Kampagnenparameter, Klickkennungen, Verweis, Einstiegsseite — beim **ersten** Aufruf erhoben | jeder erste Seitenaufruf einer Sitzung | beim Schließen des Tabs |
+| `ssl:anfrage-entwurf` | die Formulareingaben ohne Honigtopf, Zeitmarke und Einwilligung | unmittelbar vor jedem Absenden | beim Wiederherstellen nach einer Ablehnung, sonst auf `/danke` |
+
+Beide verlassen den Browser nur, wenn das Formular abgeschickt wird. Der
+Entwurf wurde bis Phase 4 nach einer **erfolgreichen** Anfrage nicht
+aufgeräumt und blieb mit Name, Telefonnummer und E-Mail-Adresse bis zum
+Schließen des Tabs liegen; `entwurfAufraeumen()` in `main.ts` räumt ihn jetzt
+auf `/danke` weg.
+
+Beschrieben ist das in der Datenschutzerklärung unter „Speicherung in Ihrem
+Browser". Ob beide Speicherungen als „unbedingt erforderlich" nach § 25 TDDG
+gelten, ist eine **rechtliche** Frage und gehört in die ausstehende Prüfung —
+im Text steht deshalb der technische Sachverhalt und keine Rechtsgrundlage.
 
 ## Bekannte DNS- und Domain-Konfiguration
 
@@ -441,10 +495,10 @@ ein Widerspruch in der Datenschutzerklärung.
    Übersicht `/branchen`, Menüpunkt „Branchen", `/dachdecker` an die Struktur
    angeschlossen, Beispielprojekt der Branche zugeordnet, Bildmotive
    entschieden, `/demo` und `/ueber-uns` nachgezogen, Vorschaubild neu erzeugt.
-   **Offen: Phase 4** — Formular zweigleisig (branchenoffene Liste auf
-   `/kontakt` und der Hauptseite, gewerkgenaue Liste je Branche aus
-   `branchen.ts`), verstecktes Feld `herkunft_seite`, Hinweis auf den
-   `sessionStorage` in der Datenschutzerklärung. **Offen: Phase 5** —
+   Phase 4 (14.09.2026) — Formular zweigleisig, Freitextfeld `branche`,
+   geprüftes `herkunft_seite` samt Rückkehr auf die Ausgangsseite, lesbare
+   Herkunft in der Benachrichtigung, Datenschutzerklärung auf den technischen
+   Stand gebracht. **Offen: Phase 5** —
    `src/data/faelle.ts` als Gefäß für echte Fallstudien mit Pflichtfeldern
    Zeitraum, Quelle und Freigabe.
 6. **Gebietsexklusivität wird nicht mehr pauschal zugesichert.** Auf der
@@ -457,13 +511,17 @@ ein Widerspruch in der Datenschutzerklärung.
    einzeln vereinbart. Was vereinbart ist, gilt; was nicht vereinbart ist, wird
    nicht behauptet. Auch auf Branchenseiten dürfen keine weitergehenden
    Zusicherungen entstehen.
-7. **Das Anfrageformular stellt nur Dacharbeiten zur Auswahl.** Auf `/kontakt`
-   und der branchenoffenen Startseite findet ein Unternehmen aus einer anderen
-   Branche unter „Welche Leistungen möchten Sie stärker verkaufen?" nichts
-   Passendes. Das ist der letzte sichtbare Widerspruch zur neuen Positionierung
-   und wird in Phase 4 aufgelöst — bewusst nicht nebenbei, weil es die
-   Anfragestrecke berührt (`formularWerte.leistungen` in `inhalte.ts`).
-8. **Auf `/` steht an einer Stelle ein Bildfeld statt einer Aufnahme.** Der
+7. **Erledigt am 14.09.2026 (Phase 4).** Das Anfrageformular stellte auf
+   `/kontakt` und der Startseite nur Dacharbeiten zur Auswahl. Es läuft jetzt
+   zweigleisig — siehe „Formular- und Leadstrecke".
+8. **Die Löschfrist aus der Datenschutzerklärung wird von Hand eingehalten.**
+   § 07 sagt zu, Anfragedaten spätestens sechs Monate nach dem letzten Kontakt
+   zu löschen. Der KV-Namensraum `LEADS` hat **keine** Ablaufzeit, und es gibt
+   keinen Ablauf, der alte Schlüssel entfernt. Die Zusage ist damit eine über
+   das eigene Handeln, nicht eine über die Technik. Wer sie technisch
+   absichern will: `expirationTtl` beim Ablegen setzen — das wäre allerdings
+   eine Änderung an der Anfragestrecke und gehört vorher entschieden.
+9. **Auf `/` steht an einer Stelle ein Bildfeld statt einer Aufnahme.** Der
    Abschnitt „Das Problem" trug das Motiv `dacharbeit-flaeche`; es steht seit
    Phase 3 nur noch auf `/dachdecker`, weil ein erkennbarer Dachdecker neben
    einem Text über „die meisten Unternehmen" eine Zielgruppe behauptet, die die
@@ -501,20 +559,16 @@ ein Widerspruch in der Datenschutzerklärung.
 
 In dieser Reihenfolge sinnvoll — nichts davon ist begonnen:
 
-1. **Phase 4: Formular zweigleisig.** Branchenoffene Leistungsliste auf
-   `/kontakt` und der Hauptseite, gewerkgenaue Liste je Branche aus
-   `branchen.ts` (Feld `leistungen`), dazu das versteckte Feld `herkunft_seite`
-   und der Hinweis auf den `sessionStorage` in der Datenschutzerklärung. Das
-   ist der letzte sichtbare Widerspruch zur neuen Positionierung.
-2. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der
-   Kennzeichnungsfrage zu den KI-Bildern. Vor dem Werbestart.
-3. **Branchenoffene Aufnahme für B-03n** beschaffen (Motiv im README). Solange
+1. **Datenschutzerklärung rechtlich prüfen lassen**, einschließlich der
+   Kennzeichnungsfrage zu den KI-Bildern und der Einordnung der beiden
+   `sessionStorage`-Schlüssel nach § 25 TDDG. Vor dem Werbestart.
+2. **Branchenoffene Aufnahme für B-03n** beschaffen (Motiv im README). Solange
    sie fehlt, steht auf `/` an dieser Stelle ein Bildfeld.
-4. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
+3. **Über den Worker-Weg entscheiden.** Bleibt Pages, kann der Worker samt
    Konfiguration abgebaut werden — das nimmt eine ganze Fehlerquelle heraus.
-5. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
+4. **Vor Kampagnen mit Conversion-Messung**: Einwilligungsdialog bauen und die
    Datenschutzerklärung vorher ergänzen.
-6. **Phase 5: `src/data/faelle.ts`** als Gefäß für echte Fallstudien, mit
+5. **Phase 5: `src/data/faelle.ts`** als Gefäß für echte Fallstudien, mit
    Pflichtfeldern Zeitraum, Quelle und Freigabe. Leer bleiben, solange es
    keinen freigegebenen Fall gibt.
 

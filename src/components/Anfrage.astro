@@ -1,17 +1,68 @@
 ---
 import Marke from './Marke.astro';
 import { formularWerte } from '../data/inhalte';
+import { brancheHolen } from '../data/branchen';
 import { site, cta } from '../config/site';
 
 interface Props {
   /** Auf /kontakt ohne wiederholte Argumentation. */
   knapp?: boolean;
+  /**
+   * Schlüssel aus `src/data/branchen.ts`.
+   *
+   * Gesetzt: Die Leistungsauswahl nennt die Leistungen dieses Gewerks, und die
+   * Frage lautet, was der Betrieb stärker verkaufen will. Nicht gesetzt: die
+   * branchenoffene Fassung — dort kann die Seite nicht wissen, was der Betrieb
+   * verkauft, also fragt sie es als Freitext und lässt stattdessen wählen,
+   * woran wir zuerst arbeiten sollen.
+   *
+   * Es gibt bewusst nur diese eine Komponente. Zwei Formularkopien wären zwei
+   * Spamschutzstellen, zwei Pflichtfeldsätze und zwei Stellen, an denen ein
+   * Fehler nur zur Hälfte behoben wird.
+   */
+  branche?: string;
 }
-const { knapp = false } = Astro.props;
+const { knapp = false, branche: brancheSchluessel } = Astro.props;
+const branche = brancheHolen(brancheSchluessel);
+
+const leistungsAuswahl = branche ? branche.leistungen : formularWerte.leistungenAllgemein;
+const leistungsFrage = branche
+  ? 'Welche Leistungen möchten Sie stärker verkaufen?'
+  : 'Woran sollen wir zuerst arbeiten?';
+
+/**
+ * Die Seite, auf der dieses Formular steht — geht als `herkunft_seite` mit.
+ *
+ * Bewusst beim Bauen gesetzt und nicht per JavaScript: So steht der Wert auch
+ * dann im abgeschickten Formular, wenn kein JavaScript läuft, und er kann nicht
+ * vergessen werden, wenn eine weitere Seite ein Formular bekommt.
+ *
+ * Der Server glaubt dem Wert trotzdem nicht: Er prüft ihn gegen die Liste der
+ * Seiten, auf denen tatsächlich ein Formular steht, und ersetzt alles andere
+ * durch `/kontakt` (siehe `src/pages/api/anfrage.ts`).
+ */
+const seite = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <section id="potenzialanalyse" class="kapitel schnitt bg-papier" aria-labelledby="anfrage-titel">
   <div class="schiene">
+    {/* Fehlerhinweis nach serverseitiger Ablehnung.
+
+        Er stand bis Phase 4 nur auf `/kontakt` — solange auch jede Ablehnung
+        dorthin umleitete, reichte das. Seit die Ablehnung zu der Seite
+        zurückführt, von der die Anfrage kam, gehört der Hinweis zum Formular
+        und nicht zu einer bestimmten Seite. Die Seite ist statisch, deshalb
+        blendet ihn ein kleines Skript anhand der Adresse ein. */}
+    <div
+      id="formularfehler"
+      hidden
+      role="alert"
+      class="mb-12 border-l border-zinnober bg-zinnober/8 px-6 py-5"
+    >
+      <p class="marke text-zinnober">Anfrage nicht abgeschickt</p>
+      <p class="fliess mt-2 max-w-[60ch] text-klein" id="formularfehler-text"></p>
+    </div>
+
     <div class="grid gap-x-8 gap-y-10 lg:grid-cols-12">
       <div class="lg:col-span-5">
         <Marke label="Potenzialanalyse" />
@@ -110,6 +161,32 @@ const { knapp = false } = Astro.props;
                   {formularWerte.mitarbeiter.map((m) => <option value={m}>{m}</option>)}
                 </select>
               </div>
+
+              {/* Nur auf der branchenoffenen Fassung. Auf einer Branchenseite
+                  ist die Antwort bekannt — dort wäre die Frage eine, die man
+                  schon beantwortet hat, und das Formular eine Zeile länger.
+
+                  Freitext statt Auswahlliste: Eine feste Liste müsste alle
+                  Branchen enthalten, für die wir arbeiten können. Die gibt es
+                  nicht, und eine unvollständige Liste würde Betriebe abweisen,
+                  die dazugehören. */}
+              {
+                !branche && (
+                  <div>
+                    <label class="feld-label" for="branche">
+                      In welcher Branche sind Sie tätig?
+                    </label>
+                    <input
+                      class="feld"
+                      id="branche"
+                      name="branche"
+                      type="text"
+                      placeholder="z. B. Sanitär, Gutachten, Handel"
+                      maxlength="80"
+                    />
+                  </div>
+                )
+              }
             </div>
           </fieldset>
 
@@ -119,12 +196,10 @@ const { knapp = false } = Astro.props;
 
             <div class="space-y-10">
               <div data-pflichtgruppe>
-                <p class="feld-label" id="leistungen-label">
-                  Welche Leistungen möchten Sie stärker verkaufen? *
-                </p>
+                <p class="feld-label" id="leistungen-label">{leistungsFrage} *</p>
                 <div class="mt-2 grid sm:grid-cols-2 sm:gap-x-8" role="group" aria-labelledby="leistungen-label">
                   {
-                    formularWerte.leistungen.map((l) => (
+                    leistungsAuswahl.map((l) => (
                       <label class="wahl">
                         <input type="checkbox" name="leistungen" value={l} />
                         <span class="wahl-marke" aria-hidden="true" />
@@ -292,6 +367,9 @@ const { knapp = false } = Astro.props;
               />
             </div>
             <input type="hidden" name="geladen" data-geladen value="" />
+            <!-- Beim Bauen gesetzt, damit die Angabe auch ohne JavaScript
+                 mitgeht. Der Server prüft sie gegen eine feste Liste. -->
+            <input type="hidden" name="herkunft_seite" data-seite value={seite} />
             <div data-herkunft-felder hidden></div>
           </fieldset>
 
@@ -332,4 +410,23 @@ const { knapp = false } = Astro.props;
   document.querySelectorAll('[data-geladen]').forEach(function (el) {
     el.value = String(Date.now());
   });
+
+  // Fehlerhinweis nach serverseitiger Ablehnung. Steht bewusst hier und nicht
+  // im Hauptskript: Wer nach einer Ablehnung zurückkommt, soll den Grund auch
+  // dann sehen, wenn das Modul noch lädt oder gar nicht lädt.
+  (function () {
+    var meldungen = {
+      pflichtfelder:
+        'Es fehlt noch eine Pflichtangabe: Betrieb, Standort, Ihre Auswahl im Abschnitt „Ihr Ziel", Kapazität, Ansprechpartner, Telefon, E-Mail oder die Einwilligung zum Datenschutz. Ihre Eingaben stehen weiter im Formular.',
+      format: 'Die Anfrage konnte technisch nicht gelesen werden. Bitte versuchen Sie es erneut.',
+    };
+    var art = new URLSearchParams(window.location.search).get('fehler');
+    if (!art) return;
+    var kasten = document.getElementById('formularfehler');
+    var text = document.getElementById('formularfehler-text');
+    if (!kasten || !text) return;
+    text.textContent = meldungen[art] || meldungen.format;
+    kasten.hidden = false;
+    kasten.scrollIntoView({ block: 'center' });
+  })();
 </script>

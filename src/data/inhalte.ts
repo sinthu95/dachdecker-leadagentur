@@ -396,26 +396,36 @@ export const abschlussBedingungen = [
 /**
  * Auswahlmöglichkeiten im Qualifizierungsformular.
  *
- * OFFEN (Phase 4): `leistungen` nennt ausschließlich Dacharbeiten. Auf
- * `/kontakt` und der branchenoffenen Hauptseite ist das der letzte sichtbare
- * Widerspruch zur neuen Positionierung — ein Unternehmen aus einer anderen
- * Branche findet dort keine passende Auswahl. Aufgelöst wird er, wenn das
- * Formular zweigleisig läuft: eine branchenoffene Liste hier, die gewerkgenaue
- * Liste je Branche in `branchen.ts` (Feld `leistungen`), eingesetzt über die
- * Branchenseite. Das ist bewusst nicht Teil von Phase 3 — es ändert die
- * Anfragestrecke, und die wird nicht nebenbei angefasst.
+ * Das Formular läuft seit Phase 4 zweigleisig, und die beiden Gleise stellen
+ * **nicht dieselbe Frage**:
+ *
+ *   - Auf einer Branchenseite steht „Welche Leistungen möchten Sie stärker
+ *     verkaufen?" Zur Auswahl stehen die Leistungen des Betriebs — sie kommen
+ *     aus `branchen.ts` (Feld `leistungen`), weil sie je Gewerk andere sind.
+ *   - Auf `/` und `/kontakt` gibt es diese Liste nicht: Welche Leistungen ein
+ *     Unternehmen verkauft, weiß eine branchenoffene Seite nicht. Dort steht
+ *     deshalb die andere Frage — „Woran sollen wir zuerst arbeiten?" — und zur
+ *     Auswahl stehen unsere eigenen Positionen (`leistungenAllgemein`). Was der
+ *     Betrieb verkauft, kommt stattdessen als Freitext über das Feld `branche`.
+ *
+ * Beide Gleise senden dasselbe Feld `leistungen`; welche Frage beantwortet
+ * wurde, steht im Datensatz unter `herkunft.seite`. Ein zweiter Feldname hätte
+ * eine zweite Pflichtprüfung im Endpunkt bedeutet — für dieselbe Sache.
  */
 export const formularWerte = {
   mitarbeiter: ['1–4', '5–9', '10–19', '20 oder mehr'],
-  leistungen: [
-    'Dachsanierung',
-    'Neueindeckung',
-    'Flachdach',
-    'Energetische Sanierung und Dämmung',
-    'Gauben und Dachfenster',
-    'PV-Montage oder Vorbereitung',
-    'Sonstiges',
-  ],
+  /**
+   * Die branchenoffene Auswahl. Bewusst aus `leistungen` abgeleitet statt
+   * danebengeschrieben: Eine zweite Liste derselben Positionen läuft
+   * auseinander, sobald eine davon umbenannt wird — und dann steht im Formular
+   * etwas anderes als auf `/leistungen`.
+   *
+   * „Noch nicht sicher" steht am Ende, weil die Pflichtprüfung mindestens einen
+   * Haken verlangt. Ohne diesen Ausweg müsste jemand, der noch nicht weiß, was
+   * er braucht, etwas ankreuzen, das er nicht meint — und die Angabe wäre
+   * wertlos statt ehrlich.
+   */
+  leistungenAllgemein: [...leistungen.map((l) => l.name), 'Noch nicht sicher'],
   kapazitaet: [
     'Derzeit keine',
     '1 bis 3 zusätzliche Aufträge',

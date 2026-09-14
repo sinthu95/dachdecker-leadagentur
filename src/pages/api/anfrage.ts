@@ -49,6 +49,26 @@ const PFLICHT = ['betrieb', 'ort', 'kapazitaet', 'name', 'telefon', 'email'] as 
 /** Mehrfachauswahl: mindestens ein Haken. */
 const PFLICHT_MEHRFACH = ['leistungen'] as const;
 
+/**
+ * Seiten, auf denen ein Formular steht.
+ *
+ * Das Formular sendet die eigene Adresse als `herkunft_seite` mit. Der Wert ist
+ * für den Absender änderbar, deshalb wird ihm nichts geglaubt: Er wird gegen
+ * diese Liste geprüft, und alles, was nicht darin steht, wird durch
+ * `STANDARDSEITE` ersetzt. Weil daraus auch das Ziel der Fehlerumleitung
+ * entsteht, ist die Prüfung nicht nur Sorgfalt — ein durchgereichter Wert wäre
+ * eine offene Weiterleitung.
+ *
+ * Mehr hängt an der Angabe nicht: Sie steht im Datensatz, beschriftet eine
+ * Zeile der Benachrichtigung und wählt die Seite für die Rückkehr. Keine
+ * Prüfung, keine Berechtigung und keine Zustellentscheidung hängen daran.
+ */
+const FORMULARSEITEN = ['/', '/kontakt', '/dachdecker'] as const;
+const STANDARDSEITE = '/kontakt';
+
+/** Die einzige Branchenseite mit eigener Leistungsliste (siehe branchen.ts). */
+const BRANCHENSEITEN: Record<string, string> = { '/dachdecker': 'Dachdecker' };
+
 const istEmail = (wert: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(wert);
 
 function saeubern(wert: FormDataEntryValue | null, maxLaenge = 300): string {
@@ -91,8 +111,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     daten = await request.formData();
   } catch {
-    return umleiten('/kontakt?fehler=format#potenzialanalyse');
+    // Ohne lesbares Formular ist auch die Herkunftsseite nicht bekannt.
+    return umleiten(`${STANDARDSEITE}?fehler=format#potenzialanalyse`);
   }
+
+  /* Von welcher Seite kam die Anfrage? Geprüft, nicht geglaubt. Wird gebraucht,
+     bevor irgendetwas anderes passiert: Eine Ablehnung muss zu der Seite
+     zurückführen, auf der das Formular stand. Früher ging jede Ablehnung nach
+     `/kontakt` — seit die Seiten verschiedene Leistungslisten zeigen, wären
+     die wiederhergestellten Haken dort ins Leere gelaufen. */
+  const seiteRoh = saeubern(daten.get('herkunft_seite'), 60);
+  const seite: string = (FORMULARSEITEN as readonly string[]).includes(seiteRoh)
+    ? seiteRoh
+    : STANDARDSEITE;
+  const zurueck = (art: string) => umleiten(`${seite}?fehler=${art}#potenzialanalyse`);
 
   // --- Spamverdacht: erheben, aber noch nicht entscheiden -----------------
   // Beide Prüfungen liefen früher vor der Validierung und beendeten die
@@ -115,6 +147,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     website: saeubern(daten.get('website'), 200),
     ort: saeubern(daten.get('ort'), 120),
     mitarbeiter: saeubern(daten.get('mitarbeiter'), 40),
+    /* Freitext, freiwillig, nur auf der branchenoffenen Fassung im Formular.
+       Auf einer Branchenseite steht die Branche fest und wird unten aus der
+       Herkunftsseite ergänzt — der Absender muss sie nicht abtippen. */
+    branche: saeubern(daten.get('branche'), 80),
     leistungen: alleWerte(daten, 'leistungen'),
     kapazitaet: saeubern(daten.get('kapazitaet'), 60),
     kundenherkunft: saeubern(daten.get('kundenherkunft'), 60),
@@ -141,7 +177,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // vergessen hat, soll sie nachtragen können, statt auf einer Dankeseite zu
     // landen, hinter der nichts passiert. Ein Bot lernt daraus nichts, was er
     // nicht ohnehin durch Ausprobieren erführe.
-    return umleiten('/kontakt?fehler=pflichtfelder#potenzialanalyse');
+    return zurueck('pflichtfelder');
   }
 
   // --- Herkunft: aus den mitgesendeten versteckten Feldern -----------------
@@ -152,6 +188,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
       if (w) herkunft[schluessel.replace('herkunft_', '')] = w;
     }
   }
+  // Der geprüfte Wert ersetzt den mitgesendeten — im Datensatz steht danach
+  // keine Zeichenkette mehr, die jemand frei gewählt hat.
+  herkunft.seite = seite;
+
+  /* Auf einer Branchenseite ist die Branche bekannt und wird ergänzt; im
+     Freitextfeld steht dort nichts, weil es dort kein Freitextfeld gibt. Auf
+     der branchenoffenen Fassung bleibt stehen, was der Absender geschrieben
+     hat — auch wenn es leer ist. Nichts wird überschrieben, nichts geraten. */
+  const branche = feld.branche || BRANCHENSEITEN[seite] || '';
 
   const eingegangen = new Date().toISOString();
   /* Kurzkennung für das Protokoll. Sie steht auch im KV-Schlüssel, damit sich
@@ -165,18 +210,64 @@ export const POST: APIRoute = async ({ request, locals }) => {
     kennung,
     ...(verdacht ? { verdacht: { honigtopf, zuSchnell } } : {}),
     ...feld,
+    branche,
     herkunft,
   };
+
+  /**
+   * Die Herkunft lesbar statt als JSON-Zeile.
+   *
+   * Hier stand `JSON.stringify(herkunft)` — im Postfach eine Zeile
+   * geschweifter Klammern, die man beim Lesen überspringt. Jetzt stehen nur
+   * die Angaben da, die tatsächlich vorliegen, und in Worten.
+   *
+   * Klick-Kennungen (gclid, fbclid, msclkid) werden ausdrücklich **nicht**
+   * ausgeschrieben: Es sind lange, undurchsichtige Zeichenketten, die in einer
+   * Mail niemand liest. Dass es sie gibt, ist die eigentliche Auskunft — der
+   * Wert selbst steht vollständig im Datensatz und ist dort auswertbar.
+   */
+  const h = herkunft;
+  const klickQuellen = [
+    h.gclid && 'Google Ads',
+    h.fbclid && 'Meta',
+    h.msclkid && 'Microsoft Ads',
+  ].filter(Boolean);
+  const kampagne = [h.utm_source, h.utm_medium, h.utm_campaign].filter(Boolean).join(' / ');
+  const anzeige = [h.utm_content, h.utm_term].filter(Boolean).join(' / ');
+  let verweis = '';
+  if (h.referrer) {
+    // Nur der Host: Die vollständige Adresse einer fremden Seite ist in der
+    // Benachrichtigung selten hilfreich und oft sehr lang.
+    try {
+      verweis = new URL(h.referrer).host;
+    } catch {
+      verweis = h.referrer;
+    }
+  }
+
+  const herkunftZeilen = [
+    `Herkunftsseite: ${seite}`,
+    kampagne && `Kampagne:       ${kampagne}`,
+    anzeige && `Anzeige:        ${anzeige}`,
+    klickQuellen.length > 0 && `Bezahlt über:   ${klickQuellen.join(', ')}`,
+    verweis && `Verweis von:    ${verweis}`,
+    h.landingpage && h.landingpage !== seite && `Einstiegsseite: ${h.landingpage}`,
+  ].filter(Boolean) as string[];
 
   const text = [
     `Neue Potenzialanalyse-Anfrage`,
     ``,
     `Betrieb:        ${feld.betrieb}`,
+    `Branche:        ${branche || '—'}`,
     `Website:        ${feld.website || '—'}`,
     `Standort:       ${feld.ort}`,
     `Mitarbeiter:    ${feld.mitarbeiter || '—'}`,
     ``,
-    `Leistungen:     ${feld.leistungen.join(', ') || '—'}`,
+    // Die beiden Gleise stellen verschiedene Fragen; die Beschriftung sagt,
+    // welche beantwortet wurde. Siehe Kopf von formularWerte in inhalte.ts.
+    `${BRANCHENSEITEN[seite] ? 'Leistungen:    ' : 'Schwerpunkte:  '} ${
+      feld.leistungen.join(', ') || '—'
+    }`,
     `Kapazität:      ${feld.kapazitaet}`,
     `Kunden heute:   ${feld.kundenherkunft || '—'}`,
     `Werbung:        ${feld.werbung.join(', ') || '—'}`,
@@ -188,7 +279,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     ``,
     `Anmerkung:      ${feld.nachricht || '—'}`,
     ``,
-    `Herkunft:       ${Object.keys(herkunft).length ? JSON.stringify(herkunft) : 'direkt'}`,
+    ...herkunftZeilen,
     `Eingegangen:    ${eingegangen}`,
   ].join('\n');
 

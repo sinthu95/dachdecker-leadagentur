@@ -233,6 +233,68 @@ try {
     'unbrauchbare E-Mail-Adresse → Fehlermeldung',
   );
 
+  /* --- Herkunftsseite: zweigleisiges Formular (ab Phase 4) -----------------
+     Die Seiten zeigen verschiedene Leistungslisten. Führte eine Ablehnung
+     weiter pauschal nach `/kontakt`, liefen die wiederhergestellten Haken
+     einer Branchenanfrage dort ins Leere. Deshalb muss die Ablehnung zu der
+     Seite zurückführen, von der die Anfrage kam — und der mitgesendete Wert
+     muss geprüft werden, sonst wäre das eine offene Weiterleitung. */
+  console.log('\nHerkunftsseite');
+
+  const a9 = await senden(b, {
+    ...vollstaendig({ betrieb: 'Dachdecker Herkunft', leistungen: 'Flachdach' }),
+    herkunft_seite: '/dachdecker',
+    herkunft_gclid: 'EAIaIQobCh_ERFUNDENE_KLICKKENNUNG_0815',
+    herkunft_utm_source: 'google',
+    herkunft_utm_medium: 'cpc',
+    herkunft_utm_campaign: 'dach_sanierung',
+  });
+  pruefe(a9.status === 303 && /\/danke$/.test(a9.ziel ?? ''), 'Anfrage von /dachdecker → 303 /danke');
+
+  const a10 = await senden(b, {
+    ...vollstaendig({ betrieb: 'Zurueck zur Branche' }),
+    einwilligung: '',
+    herkunft_seite: '/dachdecker',
+  });
+  pruefe(
+    a10.status === 303 && (a10.ziel ?? '').startsWith('/dachdecker?fehler='),
+    `Ablehnung führt auf die Seite zurück, von der sie kam (${a10.ziel})`,
+  );
+
+  const a11 = await senden(b, {
+    ...vollstaendig({ betrieb: 'Fremdes Ziel' }),
+    einwilligung: '',
+    herkunft_seite: 'https://boese.example/weiterleitung',
+  });
+  pruefe(
+    a11.status === 303 && (a11.ziel ?? '').startsWith('/kontakt?fehler='),
+    `fremde Herkunftsseite wird verworfen, nicht weitergeleitet (${a11.ziel})`,
+  );
+
+  const a12 = await senden(b, {
+    ...vollstaendig({ betrieb: 'Neutral Herkunft', leistungen: 'Google Ads' }),
+    branche: 'Sanitär und Heizung',
+    herkunft_seite: '/',
+  });
+  pruefe(a12.status === 303 && /\/danke$/.test(a12.ziel ?? ''), 'Anfrage von / → 303 /danke');
+
+  /* Herkunftsschutz gegen fremde Seiten. Er kommt von Astro (`checkOrigin`,
+     für serverseitig gerenderte Routen standardmäßig an) und steht deshalb an
+     keiner Stelle im eigenen Code — genau darum wird er hier nachgewiesen:
+     Eine Einstellung, die niemand prüft, fällt irgendwann still weg. */
+  console.log('\nHerkunftsschutz');
+  const fremd = async (kopfzeilen) =>
+    (
+      await fetch(`${b}/api/anfrage`, {
+        method: 'POST',
+        headers: { ...kopfzeilen, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(vollstaendig({ betrieb: 'Fremdaufruf' })),
+        redirect: 'manual',
+      })
+    ).status;
+  pruefe((await fremd({ Origin: 'https://boese.example' })) === 403, 'fremder Origin → 403');
+  pruefe((await fremd({})) === 403, 'Anfrage ohne Origin → 403');
+
   await warten(1200);
   gesamtProtokoll += worker.protokoll();
   await worker.beenden();
@@ -242,7 +304,7 @@ try {
   const verdaechtige = schluessel.filter((s) => s.startsWith('verdacht:'));
 
   console.log('\nAblage');
-  pruefe(echte.length === 3, `drei gültige Anfragen abgelegt (gefunden: ${echte.length})`);
+  pruefe(echte.length === 5, `fünf gültige Anfragen abgelegt (gefunden: ${echte.length})`);
   pruefe(
     verdaechtige.length === 2,
     `zwei Verdachtsfälle abgelegt statt verworfen (gefunden: ${verdaechtige.length})`,
@@ -269,6 +331,25 @@ try {
     'Verdachtsfälle werden nicht versendet',
   );
 
+  /* Was von der Herkunft tatsächlich im Datensatz landet. Die Suche läuft über
+     den Betriebsnamen, weil die Schlüssel Zeitstempel und UUID tragen. */
+  const saetze = echte.map((s) => kvDatensatz(s)).filter(Boolean);
+  const dachSatz = saetze.find((s) => s.betrieb === 'Dachdecker Herkunft');
+  const neutralSatz = saetze.find((s) => s.betrieb === 'Neutral Herkunft');
+
+  console.log('\nHerkunft im Datensatz');
+  pruefe(dachSatz?.herkunft?.seite === '/dachdecker', 'Branchenanfrage trägt herkunft.seite = /dachdecker');
+  pruefe(dachSatz?.branche === 'Dachdecker', 'Branchenanfrage bekommt die Branche aus der Seite ergänzt');
+  pruefe(neutralSatz?.herkunft?.seite === '/', 'allgemeine Anfrage trägt herkunft.seite = /');
+  pruefe(
+    neutralSatz?.branche === 'Sanitär und Heizung',
+    'allgemeine Anfrage übernimmt die Branche aus dem Freitextfeld',
+  );
+  pruefe(
+    typeof dachSatz?.herkunft?.gclid === 'string' && dachSatz.herkunft.gclid.length > 10,
+    'die Klickkennung steht vollständig im Datensatz',
+  );
+
   console.log('\nProtokoll ohne Klardaten');
   for (const [feld, wert] of Object.entries(KLARDATEN)) {
     pruefe(!gesamtProtokoll.includes(wert), `kein „${feld}" im Protokoll`);
@@ -286,6 +367,28 @@ try {
   worker = await workerStarten(HAFEN + 2);
   const b1 = await senden(worker.basis, vollstaendig({ betrieb: 'Notfall GmbH' }));
   pruefe(b1.status === 303 && /\/danke$/.test(b1.ziel ?? ''), 'Anfrage wird angenommen');
+
+  /* Derselbe Zweig gibt die Benachrichtigung im Wortlaut aus. Das ist die
+     einzige Stelle, an der sich der Text prüfen lässt, ohne eine Mail zu
+     versenden — deshalb laufen hier beide Gleise durch. */
+  const GCLID = 'EAIaIQobCh_ERFUNDENE_KLICKKENNUNG_NOTFALL';
+  await senden(worker.basis, {
+    ...vollstaendig({ betrieb: 'Mailbild Branche', leistungen: 'Flachdach' }),
+    herkunft_seite: '/dachdecker',
+    herkunft_utm_source: 'google',
+    herkunft_utm_medium: 'cpc',
+    herkunft_utm_campaign: 'dach_sanierung',
+    herkunft_gclid: GCLID,
+    herkunft_referrer: 'https://www.google.com/search?q=dachsanierung+kosten&sehr=lang',
+    herkunft_landingpage: '/dachdecker',
+  });
+  await senden(worker.basis, {
+    ...vollstaendig({ betrieb: 'Mailbild Allgemein', leistungen: 'Google Ads' }),
+    branche: 'Sanitär und Heizung',
+    herkunft_seite: '/kontakt',
+    herkunft_landingpage: '/leistungen',
+  });
+
   await warten(1200);
   const notfall = worker.protokoll();
   await worker.beenden();
@@ -293,6 +396,47 @@ try {
     /weder abgelegt noch versendet/.test(notfall) && notfall.includes(KLARDATEN.telefon),
     'Notfallausgabe enthält die vollständige Anfrage — sonst wäre sie verloren',
   );
+
+  console.log('\nWortlaut der Benachrichtigung');
+  /* Der Worker rückt jede Protokollzeile ein. Die Blöcke werden deshalb
+     einzeln herausgeschnitten und wieder linksbündig gestellt — sonst prüfte
+     man die Einrückung von workerd statt den eigenen Text. */
+  const bloecke = [...notfall.matchAll(/Neue Potenzialanalyse-Anfrage[\s\S]*?Eingegangen: *\S+/g)].map(
+    (m) => m[0].replace(/^[ \t]+/gm, ''),
+  );
+  const teil = (marke) => bloecke.find((b) => b.includes(`Betrieb:        ${marke}`)) ?? '';
+  const mailBranche = teil('Mailbild Branche');
+  const mailAllgemein = teil('Mailbild Allgemein');
+
+  pruefe(/Herkunftsseite: \/dachdecker/.test(mailBranche), 'Branchenmail nennt die Herkunftsseite');
+  pruefe(/Branche:        Dachdecker/.test(mailBranche), 'Branchenmail nennt die Branche');
+  pruefe(/\nLeistungen:     Flachdach/.test(mailBranche), 'Branchenmail beschriftet die Auswahl als Leistungen');
+  pruefe(
+    /Kampagne:       google \/ cpc \/ dach_sanierung/.test(mailBranche),
+    'Kampagne steht lesbar statt als JSON',
+  );
+  pruefe(/Bezahlt über:   Google Ads/.test(mailBranche), 'bezahlter Klick wird benannt');
+  pruefe(!mailBranche.includes(GCLID), 'die rohe Klickkennung steht nicht in der Mail');
+  pruefe(
+    /Verweis von:    www\.google\.com\n/.test(mailBranche),
+    'Verweis nennt nur den Host, nicht die ganze Adresse',
+  );
+  pruefe(
+    !/Einstiegsseite/.test(mailBranche),
+    'Einstiegsseite entfällt, wenn sie der Herkunftsseite entspricht',
+  );
+
+  pruefe(/Herkunftsseite: \/kontakt/.test(mailAllgemein), 'allgemeine Mail nennt die Herkunftsseite');
+  pruefe(/Branche:        Sanitär und Heizung/.test(mailAllgemein), 'allgemeine Mail nennt den Branchenfreitext');
+  pruefe(
+    /\nSchwerpunkte:   Google Ads/.test(mailAllgemein),
+    'allgemeine Mail beschriftet die Auswahl als Schwerpunkte',
+  );
+  pruefe(
+    /Einstiegsseite: \/leistungen/.test(mailAllgemein),
+    'abweichende Einstiegsseite wird genannt',
+  );
+  pruefe(!/\{|\}/.test(mailAllgemein.split('Eingegangen')[0]), 'kein JSON-Rohwert in der Mail');
 } finally {
   rmSync(KONFIG, { force: true });
   rmSync(ZUSTAND, { recursive: true, force: true });

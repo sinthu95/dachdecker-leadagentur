@@ -7,6 +7,20 @@ await p.setViewport({width:1440,height:900});
 const befunde=[];
 const ok=t=>console.log('  ok    '+t); const bad=t=>{befunde.push(t);console.log('  FEHLT '+t);};
 
+/* Die Herkunftsseite steht im ausgelieferten HTML, nicht erst nach dem Laden
+   eines Skripts. Ohne diese Zusicherung wäre sie ohne JavaScript nicht dabei —
+   und eine Ablehnung führte den Besucher auf eine fremde Seite zurück. Geprüft
+   wird deshalb die rohe Antwort, ohne Browser. */
+console.log('Herkunftsseite im ausgelieferten HTML');
+for (const [pfad,soll] of [['/','/'],['/kontakt','/kontakt'],['/dachdecker','/dachdecker']]) {
+  const roh = await (await fetch(basis+pfad)).text();
+  const treffer = roh.match(/name="herkunft_seite"[^>]*value="([^"]*)"/);
+  treffer && treffer[1]===soll
+    ? ok(`${pfad} liefert herkunft_seite="${soll}" ohne JavaScript mit`)
+    : bad(`${pfad}: herkunft_seite ist „${treffer?.[1] ?? 'nicht vorhanden'}" statt „${soll}"`);
+}
+console.log('');
+
 await p.goto(basis+'/kontakt',{waitUntil:'networkidle0'});
 // Vollständig ausfüllen, aber die Einwilligung bewusst weglassen ⇒ Server lehnt ab.
 await p.evaluate(()=>{
@@ -63,6 +77,73 @@ wieder.honigtopf==='' ? ok('Honigtopf bleibt leer') : bad('Honigtopf gefüllt');
 await p.goto(basis+'/kontakt',{waitUntil:'networkidle0'});
 const leer = await p.evaluate(()=>document.querySelector('[data-anfrage]').betrieb.value);
 leer==='' ? ok('ohne Fehlerparameter bleibt das Formular leer') : bad('Entwurf wird ungefragt eingesetzt: '+leer);
+
+/* ---------------------------------------------------------------------------
+   Zweigleisiges Formular (ab Phase 4)
+
+   Die Seiten zeigen verschiedene Leistungslisten. Führte eine Ablehnung wie
+   früher pauschal nach /kontakt, käme ein Dachdecker dort mit Haken an, die es
+   auf dieser Seite nicht gibt — die Auswahl wäre stillschweigend weg. Deshalb
+   wird hier die ganze Runde gefahren: ablehnen, zurückkommen, nachsehen.
+   --------------------------------------------------------------------------- */
+console.log('\nZweigleisiges Formular');
+
+const auswahl = async (pfad) => {
+  await p.goto(basis+pfad,{waitUntil:'networkidle0'});
+  return p.evaluate(()=>({
+    werte:[...document.querySelectorAll('input[name="leistungen"]')].map(i=>i.value),
+    frage:document.getElementById('leistungen-label').textContent.trim(),
+    seite:document.querySelector('[data-seite]')?.value ?? null,
+    branchenfeld:Boolean(document.getElementById('branche')),
+  }));
+};
+
+const dach = await auswahl('/dachdecker');
+const neutral = await auswahl('/kontakt');
+const start = await auswahl('/');
+
+dach.werte.includes('Dachsanierung') ? ok('/dachdecker zeigt die Dachleistungen') : bad('/dachdecker ohne Dachleistungen: '+dach.werte);
+!dach.branchenfeld ? ok('/dachdecker fragt die Branche nicht ab — sie steht fest') : bad('/dachdecker zeigt das Branchenfeld');
+dach.seite==='/dachdecker' ? ok('/dachdecker sendet herkunft_seite=/dachdecker') : bad('herkunft_seite auf /dachdecker: '+dach.seite);
+
+for (const [pfad,d] of [['/kontakt',neutral],['/',start]]) {
+  d.werte.some(w=>/Dachsanierung|Flachdach|Neueindeckung|Gauben/.test(w))
+    ? bad(pfad+' zeigt weiterhin Dachleistungen: '+d.werte)
+    : ok(pfad+' zeigt keine Dachleistungen mehr');
+  d.werte.includes('Google Ads') && d.werte.includes('Noch nicht sicher')
+    ? ok(pfad+' zeigt die branchenoffene Auswahl')
+    : bad(pfad+' ohne branchenoffene Auswahl: '+d.werte);
+  d.branchenfeld ? ok(pfad+' fragt die Branche als Freitext') : bad(pfad+' ohne Branchenfeld');
+}
+start.seite==='/' ? ok('/ sendet herkunft_seite=/') : bad('herkunft_seite auf /: '+start.seite);
+neutral.frage!==dach.frage ? ok('die Frage lautet je Gleis anders') : bad('beide Gleise stellen dieselbe Frage');
+
+// Ablehnung auf /dachdecker: zurück auf dieselbe Seite, Auswahl steht wieder da.
+await p.goto(basis+'/dachdecker',{waitUntil:'networkidle0'});
+await p.evaluate(()=>{
+  const f=document.querySelector('[data-anfrage]');
+  f.betrieb.value='Dachdeckerei Zweigleisig'; f.ort.value='45549';
+  f.querySelector('input[name="leistungen"][value="Flachdach"]').checked=true;
+  f.querySelectorAll('input[name="kapazitaet"]')[1].checked=true;
+  f.name.value='Erik Beispiel'; f.telefon.value='0201 7654321'; f.email.value='erik@beispiel.de';
+  f.querySelector('[data-geladen]').value=String(Date.now()-9000);
+  const e=f.querySelector('input[name="einwilligung"]'); e.checked=false; e.required=false;
+  f.querySelectorAll('[data-schritt]').forEach(s=>s.hidden=false);
+});
+await Promise.all([p.waitForNavigation({waitUntil:'networkidle0'}), p.evaluate(()=>document.querySelector('[data-senden]').click())]);
+const zielDach = p.url().replace(basis,'');
+zielDach.startsWith('/dachdecker?fehler=') ? ok('Ablehnung führt zurück nach /dachdecker: '+zielDach) : bad('unerwartetes Ziel: '+zielDach);
+
+await new Promise(r=>setTimeout(r,500));
+const zurueck = await p.evaluate(()=>{
+  const f=document.querySelector('[data-anfrage]');
+  return {betrieb:f.betrieb.value,
+    leistungen:[...f.querySelectorAll('input[name="leistungen"]:checked')].map(i=>i.value),
+    banner:!document.getElementById('formularfehler').hidden};
+});
+zurueck.betrieb==='Dachdeckerei Zweigleisig' ? ok('Eingaben stehen auf /dachdecker wieder da') : bad('Eingaben verloren: '+zurueck.betrieb);
+zurueck.leistungen.join()==='Flachdach' ? ok('die Dachleistung ist wiederhergestellt') : bad('Leistungsauswahl verloren: '+zurueck.leistungen);
+zurueck.banner ? ok('Fehlerhinweis steht auch auf /dachdecker') : bad('Fehlerhinweis fehlt auf /dachdecker');
 
 await b.close();
 console.log(`\n${befunde.length} Befunde`);

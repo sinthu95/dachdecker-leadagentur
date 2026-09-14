@@ -266,6 +266,21 @@ function eingabenSichern(form: HTMLFormElement) {
   }
 }
 
+/**
+ * Der Entwurf wird vor jedem Absenden geschrieben und nur beim Wiederherstellen
+ * gelöscht. Ging die Anfrage durch, blieb er bis zum Schließen des Tabs liegen
+ * — mit Name, Telefonnummer und E-Mail-Adresse darin. Die Dankeseite ist der
+ * Punkt, an dem feststeht, dass er nicht mehr gebraucht wird.
+ */
+function entwurfAufraeumen() {
+  if (window.location.pathname.replace(/\/$/, '') !== '/danke') return;
+  try {
+    sessionStorage.removeItem(ENTWURF);
+  } catch {
+    /* kein Speicher, nichts aufzuräumen */
+  }
+}
+
 function eingabenHerstellen(form: HTMLFormElement) {
   if (!new URLSearchParams(window.location.search).has('fehler')) return;
   let werte: Record<string, string[]> | null = null;
@@ -411,7 +426,13 @@ function formular() {
       }
     }
     eingabenSichern(form);
-    ereignis('lead_submit');
+    /* Kein neues Ereignis, nur eine Angabe mehr am bestehenden: Ohne sie
+       ließen sich später Anfragen von der Startseite, von `/kontakt` und von
+       einer Branchenseite nicht auseinanderhalten. Der Wert steht ohnehin
+       schon im Formular. */
+    ereignis('lead_submit', {
+      seite: form.querySelector<HTMLInputElement>('[data-seite]')?.value ?? '',
+    });
     senden.disabled = true;
     senden.textContent = 'Wird gesendet …';
   });
@@ -519,6 +540,7 @@ function start() {
   conceptCase();
   mobilLeiste();
   herkunftInFormular(herkunftSichern());
+  entwurfAufraeumen();
 }
 
 if (document.readyState === 'loading') {

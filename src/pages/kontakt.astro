@@ -17,20 +17,10 @@ import { site } from '../config/site';
     text="Kostenfrei, rund 40 Minuten, kein Verkaufsgespräch. Am Ende wissen Sie, ob in Ihrem Einzugsgebiet digital etwas zu holen ist — und wir sagen Ihnen auch, wenn wir nicht die Richtigen sind."
   />
 
-  <!-- Fehlerhinweis nach serverseitiger Ablehnung. Die Seite ist statisch,
-       deshalb wird der Hinweis clientseitig anhand der Adresse eingeblendet. -->
-  <div class="schiene">
-    <div
-      id="formularfehler"
-      hidden
-      role="alert"
-      class="mt-10 border-l border-zinnober bg-zinnober/8 px-6 py-5"
-    >
-      <p class="marke text-zinnober">Anfrage nicht abgeschickt</p>
-      <p class="fliess mt-2 max-w-[60ch] text-klein" id="formularfehler-text"></p>
-    </div>
-  </div>
-
+  {/* Der Fehlerhinweis stand hier. Er gehört seit Phase 4 zum Formular selbst
+      (`Anfrage.astro`): Eine abgelehnte Anfrage führt jetzt auf die Seite
+      zurück, von der sie kam — also braucht jede Seite mit Formular den
+      Hinweis, nicht nur diese. */}
   <Anfrage knapp={true} />
 
   <!-- Direkter Weg -->
@@ -81,21 +71,3 @@ import { site } from '../config/site';
     </div>
   </section>
 </BaseLayout>
-
-<script is:inline>
-  (function () {
-    var meldungen = {
-      pflichtfelder:
-        'Es fehlt noch eine Pflichtangabe: Betrieb, Standort, gewünschte Leistungen, Kapazität, Ansprechpartner, Telefon, E-Mail oder die Einwilligung zum Datenschutz. Ihre Eingaben stehen weiter im Formular.',
-      format: 'Die Anfrage konnte technisch nicht gelesen werden. Bitte versuchen Sie es erneut.',
-    };
-    var art = new URLSearchParams(window.location.search).get('fehler');
-    if (!art) return;
-    var kasten = document.getElementById('formularfehler');
-    var text = document.getElementById('formularfehler-text');
-    if (!kasten || !text) return;
-    text.textContent = meldungen[art] || meldungen.format;
-    kasten.hidden = false;
-    kasten.scrollIntoView({ block: 'center' });
-  })();
-</script>
