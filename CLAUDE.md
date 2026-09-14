@@ -394,6 +394,25 @@ ein Widerspruch in der Datenschutzerklärung.
 3. **Keine Conversion-Messung.** Vor Kampagnen mit Messung braucht es einen
    Einwilligungsdialog und eine Ergänzung der Datenschutzerklärung — beides ist
    dort bereits angekündigt.
+4. **Die Angabe „Kleinunternehmer nach § 19 UStG" ist NICHT bestätigt.**
+   Stand 14.09.2026: Die steuerliche Erfassung läuft noch, die Angabe steht
+   sichtbar im Impressum und ist in `src/config/site.ts` als zu bestätigen
+   markiert. Technischer Zusammenhang, der die Sache festhält:
+   `impressumVollstaendig` verlangt zwingend eine Aussage zur Umsatzsteuer —
+   USt-IdNr. **oder** Kleinunternehmerhinweis. Das Feld auf `null` zu setzen
+   macht das Impressum unvollständig; Impressum und Datenschutz fallen dann
+   auf `noindex` und der Unvollständigkeitshinweis erscheint. Ein Impressum
+   ganz ohne Umsatzsteuerangabe ist also nicht der vorsichtigere Zustand.
+   Sobald der Bescheid vorliegt: Wert bestätigen oder durch die USt-IdNr.
+   ersetzen. Die Entscheidung trifft der Inhaber mit seiner steuerlichen
+   Beratung.
+5. **Die Positionierung wird branchenoffen umgebaut** (Entscheidung vom
+   14.09.2026). Phase 1 — Stammdaten, Claim, Hero, Orientierung, Navigation,
+   Fußzeile — ist umgesetzt. Offen: Leistungen auf acht erweitern, Inhalte
+   der Startseite branchenoffen fassen, Übersicht `/branchen` bauen,
+   Formular zweigleisig, Gefäß für echte Fallstudien. `/dachdecker` bleibt
+   als erste Branchenseite unverändert bestehen; der Menüpunkt zeigt bis zum
+   Bau von `/branchen` weiter direkt dorthin.
 
 ## Nicht ohne ausdrückliche Freigabe verändern
 

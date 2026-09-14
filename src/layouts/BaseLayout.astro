@@ -37,16 +37,18 @@ const organisation = {
   '@type': 'ProfessionalService',
   name: site.name,
   description:
-    'Digitale Kundengewinnung ausschließlich für Dachdeckerbetriebe in Deutschland.',
+    'Websites, Werbung und Automatisierung als ein System — digitale Kundengewinnung für Unternehmen in Deutschland.',
   founder: { '@type': 'Person', name: site.gruender },
   telephone: site.telefon,
   areaServed: { '@type': 'Country', name: 'Deutschland' },
   address: { '@type': 'PostalAddress', addressLocality: site.ort, addressCountry: 'DE' },
   knowsAbout: [
-    'Kundengewinnung für Dachdeckerbetriebe',
-    'Google Ads für Handwerksbetriebe',
+    'Digitale Kundengewinnung',
+    'Google Ads',
+    'Meta Ads',
     'Conversion-Landingpages',
-    'Lokale Suchmaschinenoptimierung',
+    'Messung und Auswertung von Werbekampagnen',
+    'Kundengewinnung für Dachdeckerbetriebe',
   ],
   ...(kanonisch ? { url: new URL('/', siteUrl!).href } : {}),
   // Bewusst kein aggregateRating und keine review: Ohne echte Bewertungen wäre

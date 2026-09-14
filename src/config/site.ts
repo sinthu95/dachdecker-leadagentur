@@ -37,9 +37,15 @@ const email: string | null = 'kontakt@ssleadcraft.de';
 
 export const site = {
   name: 'S&S Leadcraft',
-  angebot: 'Dachdecker-Auftragssystem',
-  angebotEnglisch: 'Dachdecker Growth System',
-  claim: 'Digitale Kundengewinnung für Dachdeckerbetriebe',
+  /**
+   * Der interne Name des Systems. Er wird im Fließtext als Name verwendet
+   * („Intern heißt er …", „… im Detail") und muss deshalb ein Name bleiben,
+   * keine Kategorie. Bewusst „Anfrage", nicht „Auftrag": Gewonnen werden
+   * qualifizierte Anfragen — den Auftrag schließt der Betrieb selbst ab.
+   */
+  angebot: 'Anfragesystem',
+  angebotEnglisch: 'Lead Generation System',
+  claim: 'Websites, Werbung und Automatisierung als ein System',
   gruender: 'Sinthusan Sinnathurai',
   ort: 'Sprockhövel',
   land: 'Deutschland',
@@ -81,7 +87,26 @@ export const impressum = {
   rechtsform: 'Einzelunternehmen' as string | null,
   strasse: 'Heidestraße 36' as string | null,
   plzOrt: '45549 Sprockhövel' as string | null,
-  /** Kleinunternehmer nach § 19 UStG — deshalb keine USt-IdNr. */
+  /**
+   * ZU BESTÄTIGEN — Stand 14.09.2026.
+   *
+   * Die steuerliche Erfassung des Unternehmens ist noch nicht abgeschlossen.
+   * Ob die Kleinunternehmerregelung nach § 19 UStG gilt, ist damit nicht
+   * endgültig entschieden. Der Wert steht hier unverändert weiter, und zwar
+   * bewusst:
+   *
+   * `impressumVollstaendig` verlangt eine Aussage zur Umsatzsteuer — entweder
+   * eine USt-IdNr. oder diesen Hinweis. Wird das Feld auf `null` gesetzt, gilt
+   * das Impressum als unvollständig, und Impressum wie Datenschutz fallen auf
+   * der laufenden Seite automatisch auf `noindex`, zusätzlich erscheint der
+   * Unvollständigkeitshinweis. Ein Impressum ohne jede Umsatzsteuerangabe wäre
+   * also nicht der vorsichtigere, sondern der schlechtere Zustand.
+   *
+   * Sobald der Bescheid vorliegt: Wert hier bestätigen oder durch die
+   * USt-IdNr. ersetzen und diesen Kommentar entfernen. Die Entscheidung
+   * trifft der Inhaber mit seiner steuerlichen Beratung, nicht dieses
+   * Repository.
+   */
   umsatzsteuerId: null as string | null,
   kleinunternehmer: true as boolean | null,
   /** Nur bei Eintragung. Sonst als kurze Feststellung eintragen. */

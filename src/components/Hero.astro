@@ -10,8 +10,15 @@ interface Props {
 const { variante = 'a' } = Astro.props;
 
 /* Zeilenumbrüche sind gesetzt, nicht dem Zufall überlassen — sie tragen den
-   Rhythmus der Titelseite. */
-const zeilenA = ['Wir machen aus', 'guten Dachdeckern', 'die erste Wahl', 'ihrer Region.'];
+   Rhythmus der Titelseite.
+
+   Variante 'a' ist der Claim der Hauptmarke: branchenoffen und bewusst ohne
+   Erfolgsversprechen. „Nachfrage entsteht nicht zufällig" sagt, dass Nachfrage
+   gebaut wird — nicht, dass sie garantiert entsteht.
+
+   Variante 'c' trägt die Werbe-Landingpages und bleibt branchenspezifisch;
+   sie wird von der jeweiligen Seite gesetzt. */
+const zeilenA = ['Nachfrage entsteht', 'nicht zufällig.'];
 const zeilenC = ['Digitale', 'Kundengewinnung', 'für Dachdecker-', 'betriebe.'];
 const zeilen = variante === 'a' ? zeilenA : zeilenC;
 ---
@@ -51,8 +58,19 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
         {/* Die Staffel setzt hinter den vier Titelzeilen an (--i:0–3), damit
             die Ladefolge eine Richtung hat: Zeilen, Vorspann, Handlung. */}
         <p class="steig vorspann max-w-[38ch]" style="--i:3">
-          {site.name} entwickelt Websites, Kampagnen und digitale Kundengewinnung
-          speziell für Dachdeckerbetriebe.
+          {
+            variante === 'a' ? (
+              <>
+                Websites, Werbung und Automatisierung als ein System — für Unternehmen,
+                die planbar qualifizierte Anfragen gewinnen wollen.
+              </>
+            ) : (
+              <>
+                {site.name} entwickelt Websites, Kampagnen und digitale Kundengewinnung
+                speziell für Dachdeckerbetriebe.
+              </>
+            )
+          }
         </p>
 
         <div class="steig mt-9 flex flex-col gap-3 sm:flex-row sm:items-center" style="--i:4">
@@ -85,7 +103,17 @@ const zeilen = variante === 'a' ? zeilenA : zeilenC;
             >
           </div>
           <p class="mt-3 text-[0.78rem] leading-relaxed text-graphit">
-            Regeldachneigung eines Ziegeldachs. Jeder Winkel dieser Seite folgt ihr.
+            {
+              /* Die Geometrie bleibt auf jeder Seite dieselbe — ihre Begründung
+                 nicht. Auf der Branchenseite stammt der Winkel erkennbar vom
+                 Dach; auf der branchenoffenen Hauptseite wäre diese Herleitung
+                 eine Behauptung über ein Gewerk, für das die Marke nicht mehr
+                 ausschließlich steht. Der Winkel trägt dort als Maß, nicht als
+                 Erzählung. */
+              variante === 'a'
+                ? 'Ein Winkel, ein Raster, eine Kurve. Jede Linie dieser Seite folgt ihnen.'
+                : 'Regeldachneigung eines Ziegeldachs. Jeder Winkel dieser Seite folgt ihr.'
+            }
           </p>
         </div>
       </div>

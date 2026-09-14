@@ -7,19 +7,35 @@
  * Kunden, keine Zeitdruckmechanik.
  */
 
+/**
+ * Hauptnavigation.
+ *
+ * „Für Dachdecker" zeigt weiter direkt auf die Branchenseite und wird in
+ * Phase 3 zu „Branchen" auf der Übersicht `/branchen`. Der Eintrag wird erst
+ * umgehängt, wenn die Seite existiert — ein Menüpunkt, der ins Leere zeigt,
+ * wäre schlechter als ein Zwischenstand, der stimmt.
+ */
 export const navigation = [
-  { href: '/leistungen', label: 'Das System' },
-  { href: '/demo', label: 'Concept Case' },
+  { href: '/leistungen', label: 'Leistungen' },
   { href: '/dachdecker', label: 'Für Dachdecker' },
+  { href: '/demo', label: 'Beispielprojekt' },
   { href: '/ueber-uns', label: 'Über uns' },
   { href: '/kontakt', label: 'Kontakt' },
 ] as const;
 
-/** Drei Fakten direkt unter dem Hero — Bestätigung „ich bin hier richtig". */
+/**
+ * Drei Fakten direkt unter dem Hero — Bestätigung „ich bin hier richtig".
+ *
+ * Der frühere Grundsatz „Ein Betrieb je Einzugsgebiet" steht hier bewusst
+ * nicht mehr: Als Aussage auf der Hauptseite wäre er ein pauschales
+ * Versprechen auf Gebietsexklusivität, das so nicht gilt. Exklusivität wird
+ * einzeln vereinbart — was vereinbart ist, gilt; was nicht vereinbart ist,
+ * wird nicht behauptet.
+ */
 export const orientierung = [
-  { k: 'Fokus', v: 'Ausschließlich Dachdeckerbetriebe' },
+  { k: 'Leistung', v: 'Websites, Werbung und Automatisierung' },
   { k: 'Gebiet', v: 'Deutschlandweit' },
-  { k: 'Grundsatz', v: 'Ein Betrieb je Einzugsgebiet' },
+  { k: 'Arbeitsweise', v: 'Ein System statt Einzelposten' },
 ] as const;
 
 /** Die drei Stufen des Angebots. Nach außen ein System, kein Katalog. */
