@@ -152,44 +152,64 @@ export const systemGrenzen = {
 export const leistungen = [
   {
     nr: '01',
-    name: 'Websites',
-    text: 'Individuelle Auftritte und Conversion-Landingpages für Dachdeckerbetriebe. Gebaut auf eine Anfrage hin, nicht auf einen Katalog.',
+    name: 'Websites und Landingpages',
+    text: 'Individuelle Auftritte und Landingpages, gebaut auf eine Anfrage hin — nicht auf einen Katalog. Schnell, auf dem Telefon zuerst, mit einem klaren Weg zum Kontakt.',
   },
   {
     nr: '02',
     name: 'Google Ads',
-    text: 'Suchkampagnen für Menschen, die gerade jetzt einen Dachdecker in Ihrer Region suchen. Mit ausgeschlossenen Begriffen, die nur Geld kosten.',
+    text: 'Suchkampagnen für Menschen, die gerade jetzt nach Ihrer Leistung suchen. Mit ausgeschlossenen Begriffen, die sonst nur Geld kosten.',
   },
   {
     nr: '03',
     name: 'Meta Ads',
-    text: 'Regionale Nachfrage auf Facebook und Instagram, später Retargeting. Für Arbeiten, nach denen noch niemand sucht.',
+    text: 'Regionale Nachfrage auf Facebook und Instagram, später Retargeting. Für Leistungen, nach denen noch niemand aktiv sucht.',
   },
   {
     nr: '04',
-    name: 'Content',
-    text: 'Anzeigenmotive, Hooks, Kurzvideos und Beiträge — aus Ihren eigenen Baustellen, nicht aus einer Bilddatenbank.',
+    name: 'Anfragegewinnung',
+    text: 'Die Strecke von der Anzeige bis zur Anfrage: Formular, Qualifizierungsfragen, Bestätigung. Damit das ankommt, was Sie bearbeiten wollen — und nicht alles.',
   },
   {
     nr: '05',
-    name: 'Tracking',
-    text: 'Conversion-Messung und Herkunft jeder Anfrage. Die Grundlage dafür, dass Optimierung mehr ist als eine Vermutung.',
+    name: 'Conversion-Arbeit',
+    text: 'Aus Besuchern Anfragen machen: Aufbau, Reihenfolge, Formulierung, Formularlänge. Geändert wird, was sich messbar auswirkt.',
   },
   {
     nr: '06',
-    name: 'Optimierung',
-    text: 'Monatliche Auswertung, Budgetverschiebung und die Rückkopplung aus Ihrer Einschätzung der Anfragequalität.',
+    name: 'Messung und Auswertung',
+    text: 'Herkunft jeder Anfrage, nachvollziehbar bis zur Anzeige. Die Grundlage dafür, dass Optimierung mehr ist als eine Vermutung.',
+  },
+  {
+    nr: '07',
+    name: 'Automatisierung',
+    text: 'Wiederkehrende Schritte laufen ohne Handarbeit: Benachrichtigung, Weitergabe an Ihr System, Erinnerung ans Nachfassen. Was automatisiert wird, entscheidet der Ablauf — nicht die Technik.',
+  },
+  {
+    nr: '08',
+    name: 'KI-gestützte Systeme',
+    text: 'Vorqualifizierung von Anfragen, Antwortentwürfe, Auswertung wiederkehrender Muster. Ein Angebot, kein Selbstzweck: eingesetzt wird es dort, wo es nachweislich Arbeit abnimmt.',
   },
 ] as const;
+
+/**
+ * Die Startseite zeigt sechs Kernbereiche, `/leistungen` alle acht.
+ *
+ * Grund ist die Setzung: Der Index setzt jede Position sehr groß. Acht
+ * Positionen verlängern die Startseite um rund vierzig Prozent, ohne dass
+ * die beiden zusätzlichen dort etwas entscheiden — wer sie sucht, ist längst
+ * auf der Leistungsseite.
+ */
+export const leistungenStartseite = leistungen.slice(0, 6);
 
 /** Was der Betrieb kennt — und was wir dagegensetzen. */
 export const wettbewerb = [
   {
-    was: 'Portale',
-    zusatz: 'Aroundhome und ähnliche',
-    denkt: 'Der Lead wird an vier Betriebe verkauft. Ich bin nur noch der Billigste im Vergleich.',
+    was: 'Vermittlungsportale',
+    zusatz: 'Anfragen werden mehrfach verkauft',
+    denkt: 'Dieselbe Anfrage bekommen vier Anbieter. Ich bin nur noch der Billigste im Vergleich.',
     antwort:
-      'Eigene Anfragen statt geteilter Leads. Die Anfrage kommt über Ihre Seite, zu Ihnen, exklusiv.',
+      'Eigene Anfragen statt gekaufter. Die Anfrage kommt über Ihre Seite und liegt nur bei Ihnen.',
   },
   {
     was: 'Der lokale Webdesigner',
@@ -202,7 +222,7 @@ export const wettbewerb = [
     was: 'Die Full-Service-Agentur',
     zusatz: null,
     denkt: 'Die reden über Reichweite und schicken mir Diagramme, die ich nicht brauche.',
-    antwort: 'Wir berichten in Anfragen und Auftragsarten, nicht in Impressionen.',
+    antwort: 'Wir berichten in Anfragen und ihrer Herkunft, nicht in Impressionen.',
   },
   {
     was: 'Nichts tun',
@@ -254,18 +274,18 @@ export const prozess = [
 
 export const passung = {
   ja: [
-    'Freie Kapazität in den nächsten drei Monaten',
-    'Schwerpunkt auf größeren privaten Aufträgen',
-    'Inhaber entscheidet selbst und will wachsen',
-    'Bereit, Fotos vom eigenen Betrieb beizusteuern',
+    'Kapazität, neue Anfragen auch tatsächlich zu bearbeiten',
+    'Bereit, Website, Werbung und Messung als ein System zu betrachten',
+    'Entscheidet selbst und will die Auslastung planbar machen',
     'Versteht Werbebudget als Investition, nicht als Kostenposten',
+    'Erwartet eine belastbare Einschätzung statt eines Versprechens',
   ],
   nein: [
-    'Zwölf Monate ausgebucht, keine Kapazität',
-    'Fast ausschließlich öffentliche Ausschreibungen und Generalunternehmer',
+    'Erwartet garantierte Umsätze oder eine feste Zahl an Aufträgen',
+    'Rechnet mit Ergebnissen in den ersten Tagen',
+    'Möchte Werbung schalten, ohne die Wirkung zu messen',
+    'Hat derzeit keine Kapazität für zusätzliche Anfragen',
     'Sucht den günstigsten Anbieter',
-    'Möchte „nur ein paar Posts"',
-    'Ein-Personen-Betrieb ohne Wachstumsabsicht',
   ],
 } as const;
 
@@ -277,42 +297,47 @@ export const passung = {
  * Begriffe stehen dort, weil das Aussortieren die eigentliche Arbeit ist.
  */
 export const anfrageweg = {
+  /* Beispiele, keine Empfehlung: Sie zeigen die Art der Suche, um die es geht.
+     Bewusst aus verschiedenen Branchen — die Hauptseite steht nicht mehr für
+     ein Gewerk, und ein Satz aus einer einzigen Branche würde sie wieder
+     dorthin ziehen. Die branchenspezifischen Sätze stehen auf den
+     Branchenseiten. */
   gesucht: [
     'dachsanierung kosten',
-    'flachdach abdichten firma',
-    'dachdecker notdienst sturm',
+    'gutachter immobilie beauftragen',
+    'sanitär notdienst wochenende',
   ],
   ausgeschlossen: [
     'dachrinne reinigen',
-    'dachpappe baumarkt',
-    'dachdecker ausbildung',
-    'dach selber decken',
+    'gutachter gehalt',
+    'ausbildung handwerk',
+    'selber machen anleitung',
   ],
   /** Die vier Stationen der Zeichnung. */
   stationen: [
     {
       marke: 'Suche',
       titel: 'Jemand sucht — mit Absicht',
-      text: 'Nicht jede Suche nach „Dach" ist ein Auftrag. Wir kaufen nur die Suchen, hinter denen eine Entscheidung steht.',
+      text: 'Nicht jede Suche nach einem Thema ist ein Auftrag. Wir kaufen nur die Suchen, hinter denen eine Entscheidung steht.',
     },
     {
       marke: 'Anzeige',
       titel: 'Leistung und Ort stehen drin',
-      text: 'Wer nach einer Flachdachabdichtung sucht, bekommt eine Anzeige über Flachdachabdichtung — nicht über „Ihr Dachdecker aus Leidenschaft".',
+      text: 'Wer nach einer bestimmten Leistung sucht, bekommt eine Anzeige über genau diese Leistung — nicht über „Ihr Partner aus Leidenschaft".',
     },
     {
       marke: 'Seite',
       titel: 'Eine Seite je Leistung',
-      text: 'Die Anzeige führt nicht auf die Startseite, sondern auf die Seite, die genau diese Arbeit zeigt. Die Anfrage steht darauf im ersten Bildschirm.',
+      text: 'Die Anzeige führt nicht auf die Startseite, sondern auf die Seite, die genau diese Leistung zeigt. Die Anfrage steht darauf im ersten Bildschirm.',
     },
     {
       marke: 'Anfrage',
       titel: 'Vorab geklärt statt Rückruf-Roulette',
-      text: 'Leistung, Objekt, Umkreis und Zeitrahmen kommen mit. Sie entscheiden am Schreibtisch, ob Sie rausfahren.',
+      text: 'Leistung, Umfang, Umkreis und Zeitrahmen kommen mit. Sie entscheiden am Schreibtisch, ob es sich lohnt.',
     },
   ],
   /** Felder, die die Anfrage mitbringt — dieselben wie im echten Formular. */
-  felder: ['Leistung', 'Standort und Umkreis', 'Objektgröße', 'Zeitrahmen', 'Erreichbarkeit'],
+  felder: ['Leistung', 'Standort und Umkreis', 'Umfang', 'Zeitrahmen', 'Erreichbarkeit'],
 } as const;
 
 /**
@@ -449,7 +474,7 @@ export const fragen = [
   {
     frage: 'Arbeiten Sie auch mit meinem Wettbewerber im Ort?',
     antwort:
-      'Nein. Wir arbeiten mit einem Dachdeckerbetrieb je Einzugsgebiet. Sonst würden wir Sie gegen einen anderen Kunden antreten lassen und beide Budgets gegeneinander verheizen.',
+      'Das klären wir vorher und halten es fest. Zwei Anbieter derselben Leistung im selben Gebiet würden in denselben Auktionen gegeneinander bieten — das verteuert beide Seiten. Wo Exklusivität sinnvoll ist, vereinbaren wir sie ausdrücklich; pauschal zusichern lässt sie sich nicht.',
   },
   {
     frage: 'Wie viel Zeit kostet mich das?',
@@ -457,8 +482,8 @@ export const fragen = [
       'In der Aufbauphase ein Termin, Zugänge und eine Freigaberunde. Danach die kurze Rückmeldung, ob die Anfragen passten — das ist keine Höflichkeit, sondern die wichtigste Steuerungsgröße im laufenden Betrieb.',
   },
   {
-    frage: 'Warum nur Dachdecker?',
+    frage: 'Arbeiten Sie für jede Branche?',
     antwort:
-      'Weil wir eine Branche sehr genau verstehen wollen statt viele oberflächlich. Wer die Unterschiede zwischen einer Flachdachabdichtung und einer energetischen Sanierung kennt, schreibt bessere Anzeigen, wählt bessere Suchbegriffe und erkennt eine schlechte Anfrage, bevor Sie Zeit damit verlieren.',
+      'Der Ablauf ist überall derselbe: Auftritt, Sichtbarkeit, Anfragestrecke, Messung. Die Ausgestaltung nicht — Suchverhalten, Leistungen und die Frage, was eine Anfrage brauchbar macht, unterscheiden sich erheblich. Deshalb entstehen zu einzelnen Branchen eigene Seiten, statt eine Seite für alle gleichzeitig sprechen zu lassen. Ob wir zu Ihrer Branche passen, sagen wir im Erstgespräch.',
   },
 ] as const;

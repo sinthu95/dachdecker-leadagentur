@@ -1,7 +1,8 @@
 # Arbeitsregeln für dieses Repository
 
-S&S Leadcraft — Agenturwebsite für digitale Kundengewinnung, ausschließlich für
-Dachdeckerbetriebe. Astro 5 statisch, Tailwind 4, Cloudflare Pages.
+S&S Leadcraft — Agenturwebsite für digitale Kundengewinnung. Branchenoffene
+Hauptmarke mit spezialisierten Branchenseiten darunter, deren erste
+`/dachdecker` ist. Astro 5 statisch, Tailwind 4, Cloudflare Pages.
 
 Der erste Teil dieser Datei sind die Regeln, nach denen gearbeitet wird. Ab
 **„Current Production Status"** steht, was tatsächlich im Netz läuft — Domain,
@@ -407,12 +408,20 @@ ein Widerspruch in der Datenschutzerklärung.
    ersetzen. Die Entscheidung trifft der Inhaber mit seiner steuerlichen
    Beratung.
 5. **Die Positionierung wird branchenoffen umgebaut** (Entscheidung vom
-   14.09.2026). Phase 1 — Stammdaten, Claim, Hero, Orientierung, Navigation,
-   Fußzeile — ist umgesetzt. Offen: Leistungen auf acht erweitern, Inhalte
-   der Startseite branchenoffen fassen, Übersicht `/branchen` bauen,
-   Formular zweigleisig, Gefäß für echte Fallstudien. `/dachdecker` bleibt
-   als erste Branchenseite unverändert bestehen; der Menüpunkt zeigt bis zum
-   Bau von `/branchen` weiter direkt dorthin.
+   14.09.2026). Umgesetzt: Phase 1 — Stammdaten, Claim, Hero, Orientierung,
+   Navigation, Fußzeile. Phase 2 — Problem, Neue Realität, Leistungen (acht,
+   davon sechs auf der Startseite), Spezialisierung, Gründerbereich, Passung,
+   Anfrageweg-Beispiele, minimale Einordnung des Concept Case. Offen:
+   Übersicht `/branchen` mit zentraler Datenstruktur, Concept Case und
+   Bildmotive einordnen, `/ueber-uns` und `/demo`, Formular zweigleisig,
+   Gefäß für echte Fallstudien. `/dachdecker` bleibt als erste Branchenseite
+   unverändert; der Menüpunkt zeigt bis zum Bau von `/branchen` direkt dorthin.
+6. **Gebietsexklusivität wird nicht mehr pauschal zugesichert.** Auf der
+   Hauptseite stand „Ein Betrieb je Einzugsgebiet" an vier Stellen —
+   Orientierung, Gebietsschema, Passung, Fragen. Das ist entfernt: Exklusivität
+   wird einzeln vereinbart. Was vereinbart ist, gilt; was nicht vereinbart ist,
+   wird nicht behauptet. Auch auf Branchenseiten dürfen keine weitergehenden
+   Zusicherungen entstehen.
 
 ## Nicht ohne ausdrückliche Freigabe verändern
 

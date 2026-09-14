@@ -1,12 +1,24 @@
 ---
 import Marke from './Marke.astro';
 import Linie from './Linie.astro';
-import { leistungen } from '../data/inhalte';
+import { leistungen, leistungenStartseite } from '../data/inhalte';
 
 /**
  * Redaktioneller Index statt Kachelraster: große Nummer, großer Name, eine
  * Erläuterung. Getrennt wird durch harte Linien, nicht durch Behälter.
+ *
+ * Auf der Startseite stehen sechs Kernbereiche, auf `/leistungen` alle acht.
+ * Der Index setzt jede Position sehr groß; acht davon verlängern die
+ * Startseite erheblich, ohne dass die beiden zusätzlichen dort etwas
+ * entscheiden. Überschrift und Verweis richten sich nach der Auswahl, damit
+ * nicht acht angekündigt und sechs gezeigt werden.
  */
+interface Props {
+  /** true auf `/leistungen`: zeigt alle acht Positionen. */
+  vollstaendig?: boolean;
+}
+const { vollstaendig = false } = Astro.props;
+const positionen = vollstaendig ? leistungen : leistungenStartseite;
 ---
 
 <section class="kapitel schnitt bg-papier" aria-labelledby="leistungen-titel">
@@ -15,7 +27,7 @@ import { leistungen } from '../data/inhalte';
       <div class="lg:col-span-7">
         <Marke label="Leistungen" />
         <h2 id="leistungen-titel" class="mt-8 max-w-[16ch] text-gross lg:mt-10">
-          Sechs Positionen. Ein System.
+          {vollstaendig ? 'Acht Positionen. Ein System.' : 'Sechs Kernbereiche. Ein System.'}
         </h2>
       </div>
       <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
@@ -33,7 +45,7 @@ import { leistungen } from '../data/inhalte';
 
     <ol class="mt-12 border-t border-schiefer lg:mt-4">
       {
-        leistungen.map((l, i) => (
+        positionen.map((l, i) => (
           <li class="steig group border-b border-linie-stark" style={`--i:${Math.min(i, 4)}`}>
             <div class="grid items-baseline gap-x-8 gap-y-2 py-7 lg:grid-cols-12 lg:py-9">
               <span
@@ -51,12 +63,16 @@ import { leistungen } from '../data/inhalte';
     </ol>
 
     <div class="steig mt-10 flex flex-wrap items-baseline gap-x-10 gap-y-3">
-      <a href="/leistungen" class="verweis text-schiefer">
-        Was in welcher Stufe steckt
-        <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
-          <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6"></path>
-        </svg>
-      </a>
+      {
+        !vollstaendig && (
+          <a href="/leistungen" class="verweis text-schiefer">
+            Alle acht Positionen im Detail
+            <svg viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5" aria-hidden="true">
+              <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" />
+            </svg>
+          </a>
+        )
+      }
       <p class="fliess text-klein">
         Einzeln buchbar ist davon nichts — die Positionen tragen sich gegenseitig.
       </p>
